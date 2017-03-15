@@ -21,6 +21,14 @@ var AppStore = ObjectAssign({}, EventEmitter.prototype, {
 
     getStore: function () {
         return store;
+    },
+
+    setUser: function (user) {
+        store.currentUser = user;
+    },
+
+    getUser: function () {
+        return store.currentUser;
     }
 
 });

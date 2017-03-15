@@ -5,28 +5,13 @@ var EventEmitter = require('events').EventEmitter;
 
 var CHANGE_EVENT = 'change';
 
-var groupsMock = [
-    {
-        "id": 1,
-        "label": "Trestiana",
-        "desc": "Sector 4, Bucharest, Street no. 9",
-        "services": []
-    },
-    {
-        "id": 2,
-        "label": "Suceava",
-        "desc": "Marasti 8, Suceava, Street no. 8",
-        "services": []
-    }
-]
-
 var store = {
     "show": {
         "showGroupList": true,
-        "showGroup": false,
+        "showGroupContent": false,
         "showGroupEdit": false
     },
-    "groups": []
+    "group": null
 };
 
 var GroupStore = ObjectAssign({}, EventEmitter.prototype, {
@@ -56,7 +41,12 @@ AppDispatcher.register(function (payload) {
             GroupStore.emit(CHANGE_EVENT);
             break;
         case Constants.SHOW_GROUP_EDIT:
-            showGroupEdit(action.data);
+            showGroupEdit();
+            GroupStore.emit(CHANGE_EVENT);
+            break;
+        case Constants.SHOW_GROUP_CONTENT:
+            showGroupContent();
+            store.group = action.data;
             GroupStore.emit(CHANGE_EVENT);
             break;
         default:
@@ -66,14 +56,21 @@ AppDispatcher.register(function (payload) {
     function showGroupList() {
         store.show.showGroupList = true;
         store.show.showGroupEdit = false;
-        store.show.showGroupServices = false;
+        store.show.showGroupContent = false;
     }
 
-    function showGroupEdit(data) {
+    function showGroupEdit() {
         store.show.showGroupList = false;
         store.show.showGroupEdit = true;
-        store.show.showGroupServices = false;
+        store.show.showGroupContent = false;
     }
+
+    function showGroupContent() {
+        store.show.showGroupList = false;
+        store.show.showGroupEdit = false;
+        store.show.showGroupContent = true;
+    }
+
 });
 
 module.exports = GroupStore;

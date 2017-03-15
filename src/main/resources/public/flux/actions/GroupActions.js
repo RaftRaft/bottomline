@@ -10,10 +10,11 @@ module.exports = {
         });
     },
 
-    showGroupServices: function () {
-        console.debug("Invoke action to show group services");
+    showGroupContent: function (group) {
+        console.debug("Invoke action to show group content");
         AppDispatcher.setGenericAction({
-            actionType: Constants.SHOW_GROUP_SERVICES
+            actionType: Constants.SHOW_GROUP_CONTENT,
+            data: group
         });
     },
 
