@@ -1,6 +1,7 @@
 import React from "react";
 import GroupStore from "../flux/stores/GroupStore";
 import GroupListStore from "../flux/stores/GroupListStore";
+
 import GroupActions from "../flux/actions/GroupActions";
 
 class Group extends React.Component {
@@ -110,7 +111,7 @@ class GroupDisplay extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = GroupDisplayStore.getStore();
+        this.state = GroupListStore.getStore();
         this.onChange = this.onChange.bind(this);
     }
 

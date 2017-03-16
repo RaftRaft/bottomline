@@ -1,5 +1,6 @@
 import React from "react";
 import GroupContentStore from "../flux/stores/GroupContentStore";
+import GroupActions from "../flux/actions/GroupActions";
 
 class GroupContent extends React.Component {
 
