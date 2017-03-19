@@ -75,14 +75,47 @@ class GroupContent extends React.Component {
                     </div>
                     <div className="panel-body">
                         <div>
-                            <h4><i className="fa fa-user-circle" aria-hidden="true"></i> Members</h4>
                             <div className="row">
+                                <div className="col-xs-6">
+                                    <h4 className="pull-left"><i className="fa fa-user-circle" aria-hidden="true"></i>
+                                        <span> Members</span></h4>
+                                </div>
+                                <div className="col-xs-6">
+                                    <div className="btn-group pull-right">
+                                        <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                              className="btn btn-default" aria-expanded="false">
+                                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-lg-4 col-xs-6 margin-top-05 pull-left">
+                                    <img className="img-circle" width="18px" height="18px"
+                                         src={this.props.group.owner.profileImageUrl}/>
+                                    <span> {this.props.group.owner.name} <sup
+                                        className="cyan"><strong>owner</strong></sup></span>
+                                </div>
                                 {this.memberElements()}
                             </div>
                         </div>
                         <hr/>
                         <div>
-                            <h4><i className=" fa fa-cogs" aria-hidden=" true"></i> Services</h4>
+                            <div className="row">
+                                <div className="col-xs-6">
+                                    <h4 className="pull-left"><i className="fa fa-cogs" aria-hidden=" true"></i>
+                                        <span> Services</span>
+                                    </h4>
+                                </div>
+                                <div className="col-xs-6">
+                                    <div className="btn-group pull-right">
+                                        <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                              className="btn btn-default" aria-expanded="false">
+                                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div id="serviceListPanelBodyId" className="panel-body">
                             <div id="groupListId" className="list-group">
