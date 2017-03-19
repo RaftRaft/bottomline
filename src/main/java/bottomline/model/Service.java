@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Created by raft on 09.03.2017.
  */
 @Entity
-@Table(name = "services", uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "label"}))
+@Table(name = "services", uniqueConstraints = @UniqueConstraint(columnNames = {"owner_id", "label"}))
 @XmlRootElement
 public class Service {
 
@@ -26,8 +26,9 @@ public class Service {
     @Length(max = 512)
     private String desc;
 
-    @Column(name = "owner", nullable = false)
-    private String owner;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    private User owner;
 
     public int getId() {
         return id;
@@ -53,11 +54,11 @@ public class Service {
         this.desc = desc;
     }
 
-    public String getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 

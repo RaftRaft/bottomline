@@ -1,30 +1,31 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import {updateGroup} from "../api.js";
-import {selectGroup} from "../common/Helper";
+import {addGroup} from "../api.js";
 
-function mapStateToProps(state, ownProps) {
-    return {
-        group: selectGroup(state.main.group.list, ownProps.params.index)
-    }
+function mapStateToProps(state) {
+    return {login: state.login};
 }
 
-class GroupEdit extends React.Component {
+class GroupAdd extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            msg: "Edit group message"
+            msg: "A group can be a house",
+            groupId: null
         }
         this.data = {
-            group: Object.assign({}, this.props.group)
+            group: {
+                label: null,
+                desc: null
+            }
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
         this.submit = this.submit.bind(this);
-        console.debug("Group edit construct");
+        console.debug("Group add construct");
     }
 
     handleLabelChange(event) {
@@ -40,12 +41,14 @@ class GroupEdit extends React.Component {
     }
 
     submit() {
+        console.debug("Form: " + JSON.stringify(this.data.group));
         this.setState({loading: true});
-        updateGroup(JSON.stringify(this.data.group)).then((resolve) => {
+        addGroup(JSON.stringify(this.data.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Group updated"
+                msg: "Group added. Go to Group Settings in order to assign services and members",
+                groupId: resolve.responseText
             });
         }).catch((err) => {
             console.error(err.statusText);
@@ -54,15 +57,15 @@ class GroupEdit extends React.Component {
     }
 
     render() {
-        console.debug("Group edit render");
+        console.debug("Group add render");
         return (
             <div className="container">
                 <div className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-pencil-square cyan"
+                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle cyan"
                                                               aria-hidden="true"></i>
-                                <span> Edit group <strong>{this.props.group.label}</strong></span>
+                                <span> <strong>Add new group</strong></span>
                             </h5>
                             </div>
                         </div>
@@ -88,13 +91,12 @@ class GroupEdit extends React.Component {
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
                                        placeholder="Happy tree friends" onChange={this.handleLabelChange}
-                                       aria-describedby="basic-addon1" defaultValue={this.props.group.label}/>
+                                       aria-describedby="basic-addon1"/>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
                                 <textarea className="form-control" maxLength="256" rows="4" placeholder="Some desc"
-                                          onChange={this.handleDescChange}
-                                          defaultValue={this.props.group.desc}></textarea>
+                                          onChange={this.handleDescChange}></textarea>
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
@@ -110,6 +112,7 @@ class GroupEdit extends React.Component {
                                     </button>
                                 </div>
                             </div>
+
                         </form>
                     </div>
                 </div>
@@ -118,4 +121,4 @@ class GroupEdit extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(GroupEdit);
+export default connect(mapStateToProps)(GroupAdd);

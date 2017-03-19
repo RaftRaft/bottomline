@@ -1,33 +1,29 @@
 import React from "react";
-import GroupContentStore from "../flux/stores/GroupContentStore";
-import GroupActions from "../flux/actions/GroupActions";
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
+import {Link} from "react-router";
+import {selectGroup} from "../common/Helper";
+
+function mapStateToProps(state, ownProps) {
+    return {
+        group: selectGroup(state.main.group.list, ownProps.params.index)
+    }
+}
 
 class GroupContent extends React.Component {
 
     constructor(props) {
         super(props);
-        GroupContentStore.getStore().group = this.props.group;
-        this.state = GroupContentStore.getStore();
-        this.onChange = this.onChange.bind(this);
         this.memberElements = this.memberElements.bind(this);
         this.serviceElements = this.serviceElements.bind(this);
+        console.debug("Group content construct");
     }
 
-    componentDidMount() {
-        GroupContentStore.addChangeListener(this.onChange);
-    }
-
-    componentWillUnmount() {
-        GroupContentStore.removeChangeListener(this.onChange);
-    }
-
-    onChange() {
-        console.debug("Update GroupContent state");
-        this.setState(GroupContentStore.getStore());
+    componentWillMount() {
     }
 
     memberElements() {
-        return GroupContentStore.getStore().group.memberList.map((member) =>
+        return this.props.group.memberList.map((member) =>
             <div key={member.id} className="col-lg-4 col-xs-6 margin-top-05">
                 <div>
                     <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/> {member.name}
@@ -37,8 +33,7 @@ class GroupContent extends React.Component {
     }
 
     serviceElements() {
-        return GroupContentStore.getStore().group.serviceList.map((service) =>
-
+        return this.props.group.serviceList.map((service) =>
             <button key={service.id} type="button" className="list-group-item">
                 <div><b>{service.label}</b></div>
                 <div>{service.desc}</div>
@@ -47,22 +42,33 @@ class GroupContent extends React.Component {
     }
 
     render() {
-        console.debug("Render Group Content component");
+        console.debug("Group Content render");
+        if (!this.props.group) {
+            return (
+                <div className="container">
+                    <div id="mobilePanelId" className="panel panel-default">
+                        <div className="panel-body">
+                            <div className="alert alert-warning" role="alert">Group does not exist</div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
         return (
             <div className="container">
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
                             <div className="col-xs-6"><h5><i className="fa fa-th-large cyan" aria-hidden="true"></i>
-                                <span> <b>{GroupContentStore.getStore().group.label}</b></span>
+                                <span> <b>{this.props.group.label}</b></span>
                             </h5>
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <button type="button" className="btn btn-success" aria-expanded="false"
-                                            onClick={() => GroupActions.showGroupEdit()}>
-                                        <i className="fa fa-pencil-square" aria-hidden="true"></i> Settings
-                                    </button>
+                                    <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                          className="btn btn-default" aria-expanded="false">
+                                        <i className="fa fa-pencil-square" aria-hidden="true"></i> Group Edit
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -90,4 +96,4 @@ class GroupContent extends React.Component {
     }
 }
 
-export default GroupContent;
+export default connect(mapStateToProps)(GroupContent);

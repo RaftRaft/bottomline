@@ -7,10 +7,7 @@ var defaultState = {
     },
     main: {
         group: {
-            show: true,
-            showGroupList: true,
-            showGroupContent: false,
-            showGroupEdit: false
+            list: []
         },
         service: {
             show: false
@@ -19,3 +16,7 @@ var defaultState = {
 };
 
 export const store = createStore(all, defaultState)
+
+store.subscribe(() =>
+    console.debug("Store state: " + JSON.stringify(store.getState().main))
+)

@@ -1,4 +1,4 @@
-import Constants from "../constants/Constants";
+import Constants from "../../common/Constants";
 
 export const VisibilityFilters = {
     SHOW_ALL: 'SHOW_ALL',
@@ -7,5 +7,11 @@ export const VisibilityFilters = {
 }
 
 export function setCurrentUser(user) {
-    return {type: 'SET_CURRENT_USER', user}
+    console.debug("Invoke set user action");
+    return {type: Constants.SET_CURRENT_USER, user};
+}
+
+export function setGroupList(list) {
+    console.debug("Invoke set list of groups action");
+    return {type: Constants.SET_GROUP_LIST, list};
 }

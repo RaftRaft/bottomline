@@ -1,7 +1,43 @@
-var ObjectAssign = require('object-assign');
-var EventEmitter = require('events').EventEmitter;
+import Constants from "./common/Constants";
 
-var CHANGE_EVENT = 'change';
+export function addUser(user) {
+    console.debug("API: add user");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/user", user);
+}
+
+export function addGroup(group, userId) {
+    console.debug("API: add group for user");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group/" + userId, group);
+}
+
+export function updateGroup(group) {
+    console.debug("API: update group for user");
+    return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/group", group);
+}
+
+export function getGroups(userId) {
+    console.debug("API: get groups for user");
+    return genericAPICall("GET", Constants.SERVER_ADDRESS + "/group/" + userId);
+}
+
+function genericAPICall(method, url, data) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (this.status == 200) {
+                resolve(xhr);
+            } else {
+                reject(xhr);
+            }
+        };
+        xhr.onerror = function () {
+            reject(xhr);
+        };
+        xhr.send(data);
+    });
+}
 
 var mockGroupList = [
     {
@@ -52,53 +88,15 @@ var mockGroupList = [
         "label": "Suceava",
         "desc": "Marasti 8, Suceava, Street no. 8",
         "owner": 1,
-        "services": []
+        "memberList": [],
+        "serviceList": []
     }
 ]
 
-function getGroupListFromServer() {
+export function getGroupListFromServer() {
     return new Promise(function (resolve, reject) {
         setTimeout(function () {
-            resolve('a value')
+            resolve(mockGroupList);
         }, 1000)
     })
 }
-
-var store = {
-    "show": {
-        "loading": false
-    },
-    "groupList": []
-};
-
-var GroupListStore = ObjectAssign({}, EventEmitter.prototype, {
-
-    addChangeListener: function (callback) {
-        this.on(CHANGE_EVENT, callback);
-    },
-
-    removeChangeListener: function (callback) {
-        this.removeListener(CHANGE_EVENT, callback);
-    },
-
-    getStore: function () {
-        return store;
-    },
-
-    loadGroupList: function () {
-        store.show.loading = true;
-        getGroupListFromServer().then(
-            function () {
-                store.groupList = mockGroupList;
-                store.show.loading = false;
-                GroupListStore.emit(CHANGE_EVENT);
-            },
-            function (reason) {
-                console.error('Something went wrong', reason);
-            });
-        GroupListStore.emit(CHANGE_EVENT);
-    }
-
-});
-
-module.exports = GroupListStore;

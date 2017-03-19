@@ -12,7 +12,7 @@ import java.util.Set;
  * Created by raft on 09.03.2017.
  */
 @Entity
-@Table(name = "groups", uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "label"}))
+@Table(name = "groups", uniqueConstraints = @UniqueConstraint(columnNames = {"owner_id", "label"}))
 @XmlRootElement
 public class Group implements Serializable {
 
@@ -31,9 +31,9 @@ public class Group implements Serializable {
     @Length(max = 512)
     private String desc;
 
-    @Column(name = "owner", nullable = false)
-    private String owner;
-
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    private User owner;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "groups_services", joinColumns = {
@@ -41,6 +41,13 @@ public class Group implements Serializable {
             inverseJoinColumns = {@JoinColumn(name = "serviceId",
                     nullable = false, updatable = false)})
     public Set<Service> serviceList = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "groups_users", joinColumns = {
+            @JoinColumn(name = "groupId", nullable = false, updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "userId",
+                    nullable = false, updatable = false)})
+    public Set<User> memberList = new HashSet<>();
 
     public int getId() {
         return id;
@@ -66,11 +73,11 @@ public class Group implements Serializable {
         this.desc = desc;
     }
 
-    public String getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
@@ -80,6 +87,14 @@ public class Group implements Serializable {
 
     public void setServiceList(Set<Service> serviceList) {
         this.serviceList = serviceList;
+    }
+
+    public Set<User> getMemberList() {
+        return memberList;
+    }
+
+    public void setMemberList(Set<User> memberList) {
+        this.memberList = memberList;
     }
 
     @Override
@@ -103,7 +118,8 @@ public class Group implements Serializable {
     @Override
     public String toString() {
         return "Group{" +
-                "label='" + label + '\'' +
+                "id=" + id +
+                ", label='" + label + '\'' +
                 ", desc='" + desc + '\'' +
                 ", owner=" + owner +
                 '}';

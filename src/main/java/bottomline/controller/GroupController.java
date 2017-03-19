@@ -2,6 +2,7 @@ package bottomline.controller;
 
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
+import bottomline.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,17 +28,25 @@ public class GroupController {
     @PersistenceContext
     private EntityManager em;
 
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addGroup(@RequestBody Group group) {
-        LOG.info("Received request to add group  {}", group);
-        if (doesGroupExist(group)) {
+    @RequestMapping(method = RequestMethod.POST, path = "{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Integer> addGroup(@RequestBody Group group, @PathVariable("userId") String userId) {
+        LOG.info("Received request to add group {} for owner with id {}", group, userId);
+
+        User user = em.find(User.class, userId);
+        if (user == null) {
+            throw new WebApplicationException("User does not exist", HttpStatus.BAD_REQUEST);
+        }
+        if (doesGroupExist(group, userId)) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
+
+        group.setOwner(user);
         em.persist(group);
-        return new ResponseEntity<String>("Group added", HttpStatus.OK);
+        em.flush();
+        return new ResponseEntity<>(group.getId(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -57,26 +66,26 @@ public class GroupController {
         groupOld.setDesc(group.getDesc());
 
         em.merge(groupOld);
-        return new ResponseEntity<String>("Group updated", HttpStatus.OK);
+        return new ResponseEntity<>("Group updated", HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "{owner}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Group>> getGroups(@PathVariable("owner") final String owner) {
-        LOG.info("Received request to get groups for owner {}", owner);
-        List<Group> groupList = em.createQuery("from Group g where g.owner=:owner")
-                .setParameter("owner", owner).getResultList();
-        return new ResponseEntity<List<Group>>(groupList, HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.GET, path = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Group>> getGroups(@PathVariable("userId") String userId) {
+        LOG.info("Received request to get groups for user {}", userId);
+        List<Group> groupList = em.createQuery("from Group g where g.owner.id=:userId")
+                .setParameter("userId", userId).getResultList();
+        return new ResponseEntity<>(groupList, HttpStatus.OK);
     }
 
-    private boolean doesGroupExist(Group group) {
-        List<Group> groupList = em.createQuery("from Group g where g.label=:label and g.owner=:owner")
+    private boolean doesGroupExist(Group group, String userId) {
+        List<Group> groupList = em.createQuery("from Group g where g.label=:label and g.owner.id=:userId")
                 .setParameter("label", group.getLabel())
-                .setParameter("owner", group.getOwner()).getResultList();
+                .setParameter("userId", userId).getResultList();
         return !groupList.isEmpty();
     }
 
     private static boolean isGroupValid(Group group) {
-        if (group.getLabel() == null || group.getOwner() == null) {
+        if (group.getLabel() == null) {
             return false;
         }
         return true;

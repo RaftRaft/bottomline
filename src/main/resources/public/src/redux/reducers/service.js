@@ -1,4 +1,4 @@
-import Constants from "../constants/Constants";
+import Constants from "../../common/Constants";
 
 const service = (state = {}, action) => {
     switch (action.type) {

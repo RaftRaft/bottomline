@@ -4,13 +4,19 @@ var config = {
     entry: './src/index.js',
 
     output: {
-        path: './src',
+        path: './',
         filename: 'index.js',
     },
 
     devServer: {
         inline: true,
-        port: 8080
+        port: 8083,
+        proxy: {
+            '/': {
+                target: 'http://localhost:8082',
+                secure: false
+            }
+        }
     },
 
     module: {

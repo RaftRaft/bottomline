@@ -1,11 +1,10 @@
 import React from "react";
 import {connect} from "react-redux";
+import {hashHistory} from "react-router";
 import Header from "./Header.jsx";
-import Group from "./Group.jsx";
 
 function mapStateToProps(state) {
     return {
-        main: state.main,
         login: state.login
     };
 }
@@ -14,20 +13,27 @@ class Main extends React.Component {
 
     constructor(props) {
         super(props);
+        console.debug("Main construct");
+    }
+
+    componentDidMount() {
+        if (this.props.login.currentUser == null) {
+            hashHistory.push("/");
+        }
     }
 
     render() {
-        return (
-            <div>
-                <Header currentUser={this.props.login.currentUser}/>
-                {(this.props.main.group.show) ?
-                    <Group/>
-                    :
-                    <div>Services</div>
-                }
-            </div>
-        );
+        console.debug("Main render");
+        if (this.props.login.currentUser != null) {
+            return (
+                <div>
+                    <Header/>
+                    {this.props.children}
+                </div>
+            )
+        }
+        return (<div></div>)
     }
 }
 
-export default connect(mapStateToProps)(Main);
+export default connect(mapStateToProps, null)(Main);

@@ -1,11 +1,10 @@
 import React from "react";
 import {connect} from "react-redux";
-import {createStore, bindActionCreators} from "redux";
+import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
+import {hashHistory} from "react-router";
+import {addUser} from "../api";
 
-function mapStateToProps(state) {
-    return {login: state.login};
-}
 
 function mapDispatchToProps(dispatch) {
     return {actions: bindActionCreators(actionCreators, dispatch)};
@@ -19,13 +18,24 @@ class GoogleLogin extends React.Component {
             'loading': true,
             'error': false
         }
-        ;
+        this.buildUser = this.buildUser.bind(this);
         this.renderButton = this.renderButton.bind(this);
         this.onSuccess = this.onSuccess.bind(this);
         this.onFailure = this.onFailure.bind(this);
         this.updateState = this.updateState.bind(this);
         this.initGoogleAuth = this.initGoogleAuth.bind(this);
         console.debug("GoogleLogin construct");
+    }
+
+    buildUser(user) {
+        let build = {
+            id: user.getId(),
+            name: user.getBasicProfile().getName(),
+            profileImageUrl: user.getBasicProfile().getImageUrl(),
+            email: user.getBasicProfile().getEmail()
+        }
+        console.debug("Got user " + JSON.stringify(build));
+        return build;
     }
 
     render() {
@@ -80,7 +90,7 @@ class GoogleLogin extends React.Component {
     }
 
     componentDidMount() {
-        this.initGoogleAuth(this.updateState, this.props);
+        this.initGoogleAuth(this.updateState, this.props, this.buildUser);
     }
 
     componentDidUpdate() {
@@ -102,16 +112,21 @@ class GoogleLogin extends React.Component {
     }
 
     onSuccess(googleUser) {
-        console.debug('Logged in as: ' + googleUser.getBasicProfile().getName());
-        console.debug('Token: ' + googleUser.getBasicProfile().getImageUrl());
-        this.props.actions.setCurrentUser(googleUser);
+        this.props.actions.setCurrentUser(this.buildUser(googleUser));
+        // Persist user inside database
+        addUser(JSON.stringify(this.buildUser(googleUser))).then((resolve) => {
+            console.debug(resolve.responseText);
+            hashHistory.push("main/group");
+        }).catch((err) => {
+            console.error('Something bad happened', err.statusText);
+        });
     }
 
     onFailure(error) {
         console.log(error);
     }
 
-    initGoogleAuth(updateState, props) {
+    initGoogleAuth(updateState, props, buildUser) {
         gapi.load('auth2', function () {
                 var auth2 = gapi.auth2.init({
                     client_id: '426148587752-j5f2svrk2cff31rjclv8pjg33uisnvu5.apps.googleusercontent.com',
@@ -119,15 +134,22 @@ class GoogleLogin extends React.Component {
                 auth2.then(function () {
                         var isSignedIn = auth2.isSignedIn.get();
                         if (isSignedIn) {
-                            console.log("User is already signed in");
-                            props.actions.setCurrentUser(auth2.currentUser.get());
+                            console.debug("User is already signed in");
+                            props.actions.setCurrentUser(buildUser(auth2.currentUser.get()));
+                            // Persist user inside database
+                            addUser(JSON.stringify(buildUser(auth2.currentUser.get()))).then((resolve) => {
+                                console.debug(resolve.responseText);
+                                hashHistory.push("main/group");
+                            }).catch((err) => {
+                                console.error('Something bad happened', err.statusText);
+                            });
                         } else {
-                            console.log("User NOT signed in");
+                            console.debug("User NOT signed in");
                             updateState({loading: false});
                         }
                     },
                     function () {
-                        console.log("Cannot initialise google authentication");
+                        console.debug("Cannot initialise google authentication");
                         updateState({loading: false, error: true});
                     }
                 );
@@ -136,4 +158,4 @@ class GoogleLogin extends React.Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GoogleLogin);
+export default connect(null, mapDispatchToProps)(GoogleLogin);
