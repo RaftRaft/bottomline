@@ -109,9 +109,9 @@ class GroupContent extends React.Component {
                                 </div>
                                 <div className="col-xs-6">
                                     <div className="btn-group pull-right">
-                                        <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                        <Link to={"main/group/" + this.props.group.id + "/service/add"} type="button"
                                               className="btn btn-default" aria-expanded="false">
-                                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
+                                            <i className="fa fa-plus-circle" aria-hidden="true"></i> Add service
                                         </Link>
                                     </div>
                                 </div>
@@ -121,6 +121,14 @@ class GroupContent extends React.Component {
                             <div id="groupListId" className="list-group">
                                 {this.serviceElements()}
                             </div>
+                            {this.props.group.serviceList.length == 0 ?
+                                <div className="alert alert-info" role="alert">
+                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
+                                    <span> You have no services. Please, add a new one</span>
+                                </div>
+                                :
+                                <div></div>
+                            }
                         </div>
                     </div>
                 </div>

@@ -1,51 +1,58 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import {updateGroup} from "../api.js";
+import {addGroup} from "../api.js";
 import {selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {
     return {
+        login: state.login,
         group: selectGroup(state.main.group.list, ownProps.params.index)
-    }
+    };
 }
 
-class GroupEdit extends React.Component {
+class ServiceAdd extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            msg: "Edit group message"
+            msg: "A service can be a house water consumption",
+            serviceId: null
         }
         this.data = {
-            group: Object.assign({}, this.props.group)
+            service: {
+                label: null,
+                desc: null
+            }
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
         this.submit = this.submit.bind(this);
-        console.debug("Group edit construct");
+        console.debug("Service add construct");
     }
 
     handleLabelChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.data.service = Object.assign({}, this.data.service, {
             label: event.target.value
         })
     }
 
     handleDescChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.data.service = Object.assign({}, this.data.service, {
             desc: event.target.value
         })
     }
 
     submit() {
+        console.debug("Form: " + JSON.stringify(this.data.service));
         this.setState({loading: true});
-        updateGroup(JSON.stringify(this.data.group)).then((resolve) => {
+        addGroup(JSON.stringify(this.data.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Group updated"
+                msg: "Group added. Go to Group Settings in order to assign services and members",
+                groupId: resolve.responseText
             });
         }).catch((err) => {
             console.error(err.statusText);
@@ -54,24 +61,16 @@ class GroupEdit extends React.Component {
     }
 
     render() {
-        console.debug("Group edit render");
+        console.debug("Service add render");
         return (
             <div className="container">
                 <div className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-7"><h5><i className="fa fa-pencil-square cyan"
-                                                             aria-hidden="true"></i>
-                                <span> Edit group <strong>{this.props.group.label}</strong></span>
+                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle"
+                                                              aria-hidden="true"></i>
+                                <span> Add service for group <strong>{this.props.group.label}</strong></span>
                             </h5>
-                            </div>
-                            <div className="col-xs-5">
-                                <div className="btn-group pull-right">
-                                    <Link to="" type="button"
-                                          className="btn btn-danger" aria-expanded="false">
-                                        <i className="fa fa-trash" aria-hidden="true"></i> Delete group
-                                    </Link>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -91,34 +90,33 @@ class GroupEdit extends React.Component {
                         }
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
-                                <label>Label
+                                <label>Service name
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
                                        placeholder="Happy tree friends" onChange={this.handleLabelChange}
-                                       aria-describedby="basic-addon1" defaultValue={this.props.group.label}/>
+                                       aria-describedby="basic-addon1"/>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
                                 <textarea className="form-control" maxLength="256" rows="3" placeholder="Some desc"
-                                          onChange={this.handleDescChange}
-                                          defaultValue={this.props.group.desc}></textarea>
+                                          onChange={this.handleDescChange}></textarea>
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
-                                    <Link to={"main/group/content/" + this.props.group.id} type="button"
-                                          className="btn btn-default pull-left"
+                                    <Link to="main/group" type="button" className="btn btn-default pull-left"
                                           aria-expanded="false">
-                                        <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
+                                        <i className="fa fa-chevron-left" aria-hidden="true"></i> Groups
                                     </Link>
                                 </div>
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-check" aria-hidden="true"></i> Done
+                                        <span>Next </span><i className="fa fa-chevron-right" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </div>
+
                         </form>
                     </div>
                 </div>
@@ -127,4 +125,4 @@ class GroupEdit extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(GroupEdit);
+export default connect(mapStateToProps)(ServiceAdd);

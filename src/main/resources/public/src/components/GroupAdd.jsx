@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Link} from "react-router";
+import {Link, hashHistory} from "react-router";
 import {addGroup} from "../api.js";
 
 function mapStateToProps(state) {
@@ -47,9 +47,9 @@ class GroupAdd extends React.Component {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Group added. Go to Group Settings in order to assign services and members",
                 groupId: resolve.responseText
             });
+            hashHistory.push("main/group/content/" + this.state.groupId);
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -95,7 +95,7 @@ class GroupAdd extends React.Component {
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
-                                <textarea className="form-control" maxLength="256" rows="4" placeholder="Some desc"
+                                <textarea className="form-control" maxLength="256" rows="3" placeholder="Some desc"
                                           onChange={this.handleDescChange}></textarea>
                             </div>
                             <div className="row margin-top-2vh">

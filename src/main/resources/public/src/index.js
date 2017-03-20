@@ -11,6 +11,7 @@ import GroupList from "./components/GroupList.jsx";
 import GroupEdit from "./components/GroupEdit.jsx";
 import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
+import ServiceAdd from "./components/ServiceAdd.jsx";
 import {store} from "./redux/store/store";
 
 ReactDOM.render((
@@ -24,6 +25,7 @@ ReactDOM.render((
                         <Route path="content/:index" component={GroupContent}/>
                         <Route path="edit/:index" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
+                        <Route path=":index/service/add" component={ServiceAdd}/>
                     </Route>
                 </Route>
             </Route>

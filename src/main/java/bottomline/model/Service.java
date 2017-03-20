@@ -80,4 +80,13 @@ public class Service {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Service{" +
+                "id=" + id +
+                ", label='" + label + '\'' +
+                ", desc='" + desc + '\'' +
+                ", owner=" + owner +
+                '}';
+    }
 }
