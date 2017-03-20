@@ -1,8 +1,8 @@
 import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import * as actionCreators from "../redux/actions/actions";
 import {hashHistory} from "react-router";
+import * as actionCreators from "../redux/actions/actions";
 import {addUser} from "../api";
 
 
@@ -36,53 +36,6 @@ class GoogleLogin extends React.Component {
         }
         console.debug("Got user " + JSON.stringify(build));
         return build;
-    }
-
-    render() {
-        if (this.state.loading) {
-            return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-default">
-                        <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
-                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i><span> Loading</span>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-        else if (this.state.error) {
-            return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-danger">
-                        <div className="panel-heading">
-                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
-                                                           aria-hidden="true"></i><span> Authentication error</span>
-                            </h3>
-                        </div>
-                        <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
-                            <i className="fa fa-frown-o" aria-hidden="true"></i><span> Something bad happened !</span>
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-        else {
-            return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-default">
-                        <div className="panel-heading">
-                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
-                                                           aria-hidden="true"></i><span> Authentication</span>
-                            </h3>
-                        </div>
-                        <div className="panel-body">
-                            <div id="my-signin2"
-                                 className="horizontal-fill margin-bottom-10percent margin-top-10percent"></div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
     }
 
     updateState(state) {
@@ -148,13 +101,60 @@ class GoogleLogin extends React.Component {
                             updateState({loading: false});
                         }
                     },
-                    function () {
-                        console.debug("Cannot initialise google authentication");
+                    function (err) {
+                        console.debug("Cannot initialise google authentication" + JSON.stringify(err));
                         updateState({loading: false, error: true});
                     }
                 );
             }
         );
+    }
+
+    render() {
+        if (this.state.loading) {
+            return (
+                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
+                    <div className="panel panel-default">
+                        <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
+                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i><span> Loading</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        else if (this.state.error) {
+            return (
+                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
+                    <div className="panel panel-danger">
+                        <div className="panel-heading">
+                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
+                                                           aria-hidden="true"></i><span> Authentication error</span>
+                            </h3>
+                        </div>
+                        <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
+                            <i className="fa fa-frown-o" aria-hidden="true"></i><span> Something bad happened !</span>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+        else {
+            return (
+                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
+                    <div className="panel panel-default">
+                        <div className="panel-heading">
+                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
+                                                           aria-hidden="true"></i><span> Authentication</span>
+                            </h3>
+                        </div>
+                        <div className="panel-body">
+                            <div id="my-signin2"
+                                 className="horizontal-fill margin-bottom-10percent margin-top-10percent"></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
     }
 }
 
