@@ -29,7 +29,7 @@ public class GroupController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> addGroup(@RequestBody Group group, @PathVariable("userId") String userId) {
+    public ResponseEntity<Group> addGroup(@RequestBody Group group, @PathVariable("userId") String userId) {
         LOG.info("Received request to add group {} for owner with id {}", group, userId);
 
         User user = em.find(User.class, userId);
@@ -46,7 +46,7 @@ public class GroupController {
         group.setOwner(user);
         em.persist(group);
         em.flush();
-        return new ResponseEntity<>(group.getId(), HttpStatus.OK);
+        return new ResponseEntity<>(group, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -55,6 +55,9 @@ public class GroupController {
 
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
+        }
+        if (doesGroupExist(group, group.getOwner().getId())) {
+            throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
 
         Group groupOld = em.find(Group.class, group.getId());
