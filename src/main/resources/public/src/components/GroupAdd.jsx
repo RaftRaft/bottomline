@@ -1,11 +1,18 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Link, hashHistory} from "react-router";
+import {bindActionCreators} from "redux";
+import * as actionCreators from "../redux/actions/actions";
 import {addGroup} from "../api.js";
 
 function mapStateToProps(state) {
     return {login: state.login};
 }
+
+function mapDispatchToProps(dispatch) {
+    return {actions: bindActionCreators(actionCreators, dispatch)};
+}
+
 
 class GroupAdd extends React.Component {
 
@@ -13,10 +20,9 @@ class GroupAdd extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "A group can be a house",
-            groupId: null
+            msg: "A group can be a house"
         }
-        this.data = {
+        this.formData = {
             group: {
                 label: null,
                 desc: null
@@ -29,27 +35,28 @@ class GroupAdd extends React.Component {
     }
 
     handleLabelChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.formData.group = Object.assign({}, this.formData.group, {
             label: event.target.value
         })
     }
 
     handleDescChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.formData.group = Object.assign({}, this.formData.group, {
             desc: event.target.value
         })
     }
 
     submit() {
-        console.debug("Form: " + JSON.stringify(this.data.group));
+        console.debug("Form: " + JSON.stringify(this.formData.group));
         this.setState({loading: true});
-        addGroup(JSON.stringify(this.data.group), this.props.login.currentUser.id).then((resolve) => {
+        addGroup(JSON.stringify(this.formData.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
+            let persistedGroup = JSON.parse(resolve.responseText);
             this.setState({
-                loading: false,
-                groupId: resolve.responseText
+                loading: false
             });
-            hashHistory.push("main/group/content/" + this.state.groupId);
+            this.props.actions.addGroup(persistedGroup);
+            hashHistory.push("main/group/content/" + persistedGroup.id);
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -121,4 +128,4 @@ class GroupAdd extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(GroupAdd);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupAdd);

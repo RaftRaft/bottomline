@@ -20,7 +20,7 @@ class ServiceAdd extends React.Component {
             msg: "A service can be a house water consumption",
             serviceId: null
         }
-        this.data = {
+        this.formData = {
             service: {
                 label: null,
                 desc: null
@@ -33,21 +33,21 @@ class ServiceAdd extends React.Component {
     }
 
     handleLabelChange(event) {
-        this.data.service = Object.assign({}, this.data.service, {
+        this.formData.service = Object.assign({}, this.formData.service, {
             label: event.target.value
         })
     }
 
     handleDescChange(event) {
-        this.data.service = Object.assign({}, this.data.service, {
+        this.formData.service = Object.assign({}, this.formData.service, {
             desc: event.target.value
         })
     }
 
     submit() {
-        console.debug("Form: " + JSON.stringify(this.data.service));
+        console.debug("Form: " + JSON.stringify(this.formData.service));
         this.setState({loading: true});
-        addGroup(JSON.stringify(this.data.group), this.props.login.currentUser.id).then((resolve) => {
+        addGroup(JSON.stringify(this.formData.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,

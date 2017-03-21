@@ -1,6 +1,8 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
+import {bindActionCreators} from "redux";
+import * as actionCreators from "../redux/actions/actions";
 import {updateGroup} from "../api.js";
 import {selectGroup} from "../common/Helper";
 
@@ -8,6 +10,10 @@ function mapStateToProps(state, ownProps) {
     return {
         group: selectGroup(state.main.group.list, ownProps.params.index)
     }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {actions: bindActionCreators(actionCreators, dispatch)};
 }
 
 class GroupEdit extends React.Component {
@@ -18,7 +24,7 @@ class GroupEdit extends React.Component {
             loading: false,
             msg: "Edit group message"
         }
-        this.data = {
+        this.formData = {
             group: Object.assign({}, this.props.group)
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
@@ -28,25 +34,26 @@ class GroupEdit extends React.Component {
     }
 
     handleLabelChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.formData.group = Object.assign({}, this.formData.group, {
             label: event.target.value
         })
     }
 
     handleDescChange(event) {
-        this.data.group = Object.assign({}, this.data.group, {
+        this.formData.group = Object.assign({}, this.formData.group, {
             desc: event.target.value
         })
     }
 
     submit() {
         this.setState({loading: true});
-        updateGroup(JSON.stringify(this.data.group)).then((resolve) => {
+        updateGroup(JSON.stringify(this.formData.group)).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
                 msg: "Group updated"
             });
+            this.props.actions.editGroup(this.formData.group);
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -127,4 +134,4 @@ class GroupEdit extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(GroupEdit);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupEdit);
