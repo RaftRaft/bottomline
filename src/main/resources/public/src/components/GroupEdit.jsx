@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {updateGroup} from "../api.js";
+import {updateGroup} from "../common/api.js";
 import {selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {

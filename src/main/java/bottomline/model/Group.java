@@ -5,7 +5,9 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,10 +42,10 @@ public class Group implements Serializable {
             @JoinColumn(name = "groupId", nullable = false, updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "serviceId",
                     nullable = false, updatable = false)})
-    public Set<Service> serviceList = new HashSet<>();
+    public List<Service> serviceList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "groups_users", joinColumns = {
+    @JoinTable(name = "groups_members", joinColumns = {
             @JoinColumn(name = "groupId", nullable = false, updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "userId",
                     nullable = false, updatable = false)})
@@ -81,11 +83,11 @@ public class Group implements Serializable {
         this.owner = owner;
     }
 
-    public Set<Service> getServiceList() {
+    public List<Service> getServiceList() {
         return serviceList;
     }
 
-    public void setServiceList(Set<Service> serviceList) {
+    public void setServiceList(List<Service> serviceList) {
         this.serviceList = serviceList;
     }
 

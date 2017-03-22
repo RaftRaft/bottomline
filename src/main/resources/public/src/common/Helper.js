@@ -5,3 +5,11 @@ export function selectGroup(groupList, id) {
         }
     }
 }
+
+export function selectService(serviceList, id) {
+    for (let i = 0; i < serviceList.length; i++) {
+        if (serviceList[i].id == id) {
+            return serviceList[i];
+        }
+    }
+}

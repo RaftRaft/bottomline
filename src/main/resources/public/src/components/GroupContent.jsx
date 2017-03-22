@@ -36,7 +36,9 @@ class GroupContent extends React.Component {
         return this.props.group.serviceList.map((service) =>
             <button key={service.id} type="button" className="list-group-item">
                 <div><b>{service.label}</b></div>
-                <div>{service.desc}</div>
+                <div>
+                    <small className="gray-dark">{service.desc}</small>
+                </div>
             </button>
         );
     }

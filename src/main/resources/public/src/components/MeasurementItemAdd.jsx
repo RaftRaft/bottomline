@@ -1,55 +1,57 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Link, hashHistory} from "react-router";
+import {Link} from "react-router";
 import {addService} from "../common/api.js";
-import {selectGroup} from "../common/Helper";
+import {selectService, selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
-        group: selectGroup(state.main.group.list, ownProps.params.index)
-    };
+        service: selectService(selectGroup(state.main.group.list, ownProps.params.index).serviceList, ownProps.params.serviceId)
+    }
 }
 
-class ServiceAdd extends React.Component {
+class MeasurementItemAdd extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            msg: "A service can be a house water consumption"
+            msg: "You are almost done"
         }
         this.formData = {
-            service: {
+            measurementItem: {
                 label: null,
-                desc: null
+                mu: null
             }
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
         this.submit = this.submit.bind(this);
-        console.debug("Service add construct");
+        console.debug("MeasurementItem add construct");
     }
 
     handleLabelChange(event) {
-        this.formData.service = Object.assign({}, this.formData.service, {
+        this.formData.measurementItem = Object.assign({}, this.formData.measurementItem, {
             label: event.target.value
         })
     }
 
     handleDescChange(event) {
-        this.formData.service = Object.assign({}, this.formData.service, {
-            desc: event.target.value
+        this.formData.measurementItem = Object.assign({}, this.formData.measurementItem, {
+            mu: event.target.value
         })
     }
 
     submit() {
-        console.debug("Form: " + JSON.stringify(this.formData.service));
+        console.debug("Form: " + JSON.stringify(this.formData.measurementItem));
         this.setState({loading: true});
         addService(JSON.stringify(this.formData.service), this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
-            let service = JSON.parse(resolve.responseText);
-            hashHistory.push("/main/group/" + this.props.group.id + "/service/" + service.id + "/mu/add");
+            this.setState({
+                loading: false,
+                msg: "Service added"
+            });
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -57,7 +59,7 @@ class ServiceAdd extends React.Component {
     }
 
     render() {
-        console.debug("Service add render");
+        console.debug("MeasurementItem add render");
         return (
             <div className="container">
                 <div className="panel panel-default">
@@ -65,7 +67,7 @@ class ServiceAdd extends React.Component {
                         <div className="row">
                             <div className="col-xs-12"><h5><i className="fa fa-plus-circle"
                                                               aria-hidden="true"></i>
-                                <span> Add service for group <strong>{this.props.group.label}</strong></span>
+                                <span> Measurement item setup for service <strong>{this.props.service.label}</strong></span>
                             </h5>
                             </div>
                         </div>
@@ -120,4 +122,4 @@ class ServiceAdd extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(ServiceAdd);
+export default connect(mapStateToProps)(MeasurementItemAdd);

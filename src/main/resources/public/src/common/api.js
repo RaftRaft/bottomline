@@ -1,4 +1,4 @@
-import Constants from "./common/Constants";
+import Constants from "./Constants";
 
 export function addUser(user) {
     console.debug("API: add user");
@@ -7,7 +7,7 @@ export function addUser(user) {
 
 export function addGroup(group, userId) {
     console.debug("API: add group for user");
-    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group/" + userId, group);
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group/user/" + userId, group);
 }
 
 export function updateGroup(group) {
@@ -18,6 +18,11 @@ export function updateGroup(group) {
 export function getGroups(userId) {
     console.debug("API: get groups for user");
     return genericAPICall("GET", Constants.SERVER_ADDRESS + "/group/" + userId);
+}
+
+export function addService(service, groupId, userId) {
+    console.debug("API: add service for group and user");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId + "/user/" + userId, service);
 }
 
 function genericAPICall(method, url, data) {

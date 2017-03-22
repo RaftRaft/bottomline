@@ -9,9 +9,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Created by raft on 09.03.2017.
  */
 @Entity
-@Table(name = "services", uniqueConstraints = @UniqueConstraint(columnNames = {"owner_id", "label"}))
+@Table(name = "measurement_items")
 @XmlRootElement
-public class Service {
+public class MeasurementItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,13 +22,9 @@ public class Service {
     @Length(max = 100)
     private String label;
 
-    @Column(name = "description")
-    @Length(max = 512)
-    private String desc;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    private User owner;
+    @Column(name = "measurement_unit")
+    @Length(max = 10)
+    private String unitOfMeasurement;
 
     public int getId() {
         return id;
@@ -46,20 +42,12 @@ public class Service {
         this.label = label;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getUnitOfMeasurement() {
+        return unitOfMeasurement;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setUnitOfMeasurement(String unitOfMeasurement) {
+        this.unitOfMeasurement = unitOfMeasurement;
     }
 
     @Override
@@ -67,26 +55,27 @@ public class Service {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Service service = (Service) o;
+        MeasurementItem that = (MeasurementItem) o;
 
-        if (label != null ? !label.equals(service.label) : service.label != null) return false;
-        return owner != null ? owner.equals(service.owner) : service.owner == null;
+        if (id != that.id) return false;
+        if (label != null ? !label.equals(that.label) : that.label != null) return false;
+        return unitOfMeasurement != null ? unitOfMeasurement.equals(that.unitOfMeasurement) : that.unitOfMeasurement == null;
     }
 
     @Override
     public int hashCode() {
-        int result = label != null ? label.hashCode() : 0;
-        result = 31 * result + (owner != null ? owner.hashCode() : 0);
+        int result = id;
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        result = 31 * result + (unitOfMeasurement != null ? unitOfMeasurement.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "Service{" +
+        return "MeasurementItem{" +
                 "id=" + id +
                 ", label='" + label + '\'' +
-                ", desc='" + desc + '\'' +
-                ", owner=" + owner +
+                ", unitOfMeasurement='" + unitOfMeasurement + '\'' +
                 '}';
     }
 }

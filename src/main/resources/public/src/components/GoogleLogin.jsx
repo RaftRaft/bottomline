@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {hashHistory} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
-import {addUser} from "../api";
+import {addUser} from "../common/api";
 
 
 function mapDispatchToProps(dispatch) {

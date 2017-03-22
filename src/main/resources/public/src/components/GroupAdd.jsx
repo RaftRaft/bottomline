@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {Link, hashHistory} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addGroup} from "../api.js";
+import {addGroup} from "../common/api.js";
 
 function mapStateToProps(state) {
     return {login: state.login};

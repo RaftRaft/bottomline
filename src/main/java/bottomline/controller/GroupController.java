@@ -28,9 +28,13 @@ public class GroupController {
     @PersistenceContext
     private EntityManager em;
 
-    @RequestMapping(method = RequestMethod.POST, path = "{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, path = "/user/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Group> addGroup(@RequestBody Group group, @PathVariable("userId") String userId) {
         LOG.info("Received request to add group {} for owner with id {}", group, userId);
+
+        if (!isGroupValid(group)) {
+            throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
+        }
 
         User user = em.find(User.class, userId);
         if (user == null) {
@@ -38,9 +42,6 @@ public class GroupController {
         }
         if (doesGroupExist(group, userId)) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
-        }
-        if (!isGroupValid(group)) {
-            throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
 
         group.setOwner(user);

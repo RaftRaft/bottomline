@@ -2,7 +2,7 @@ import React from "react";
 import {Link, hashHistory} from "react-router";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import {getGroups} from "../api.js";
+import {getGroups} from "../common/api.js";
 import * as actionCreators from "../redux/actions/actions";
 
 function mapStateToProps(state) {
