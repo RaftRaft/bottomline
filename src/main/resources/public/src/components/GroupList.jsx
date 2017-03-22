@@ -47,7 +47,9 @@ class GroupList extends React.Component {
         return this.props.group.list.map((group) =>
             <Link to={"main/group/content/" + group.id} type="button" className="list-group-item" key={group.id}>
                 <div><b>{group.label}</b></div>
-                <div>{group.desc}</div>
+                <div>
+                    <small className="gray-dark">{group.desc}</small>
+                </div>
             </Link>
         );
     }
@@ -67,7 +69,7 @@ class GroupList extends React.Component {
                                 <div className="btn-group pull-right">
                                     <Link to={"main/group/add"} type="button" className="btn btn-success"
                                           aria-expanded="false">
-                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> Add new
+                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> Add group
                                     </Link>
                                 </div>
                             </div>

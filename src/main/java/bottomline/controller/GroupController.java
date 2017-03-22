@@ -81,7 +81,8 @@ public class GroupController {
     }
 
     private boolean doesGroupExist(Group group, String userId) {
-        List<Group> groupList = em.createQuery("from Group g where g.label=:label and g.owner.id=:userId")
+        List<Group> groupList = em.createQuery("from Group g where g.id!=:id and g.label=:label and g.owner.id=:userId")
+                .setParameter("id", group.getId())
                 .setParameter("label", group.getLabel())
                 .setParameter("userId", userId).getResultList();
         return !groupList.isEmpty();
