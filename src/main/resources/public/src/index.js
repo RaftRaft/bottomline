@@ -12,7 +12,7 @@ import GroupEdit from "./components/GroupEdit.jsx";
 import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
 import ServiceAdd from "./components/ServiceAdd.jsx";
-import MeasurementItemAdd from "./components/MeasurementItemAdd.jsx";
+import MeasurementItem from "./components/MeasurementItem.jsx";
 import {store} from "./redux/store/store";
 
 ReactDOM.render((
@@ -27,7 +27,7 @@ ReactDOM.render((
                         <Route path="edit/:index" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
                         <Route path=":index/service/add" component={ServiceAdd}/>
-                        <Route path=":index/service/:serviceId/mu/add" component={MeasurementItemAdd}/>
+                        <Route path=":index/service/:serviceId/mu/add" component={MeasurementItem}/>
                     </Route>
                 </Route>
             </Route>

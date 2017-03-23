@@ -14,7 +14,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-class MeasurementItemAdd extends React.Component {
+class MeasurementItem extends React.Component {
 
     constructor(props) {
         super(props);
@@ -126,4 +126,4 @@ class MeasurementItemAdd extends React.Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MeasurementItemAdd);
+export default connect(mapStateToProps, mapDispatchToProps)(MeasurementItem);

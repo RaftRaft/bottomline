@@ -25,6 +25,11 @@ export function addService(service, groupId, userId) {
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId + "/user/" + userId, service);
 }
 
+export function addItem(item, serviceId) {
+    console.debug("API: add item for service");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/measurement-item/service/" + serviceId, item);
+}
+
 function genericAPICall(method, url, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
