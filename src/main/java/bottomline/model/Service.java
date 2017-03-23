@@ -4,6 +4,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by raft on 09.03.2017.
@@ -29,6 +31,13 @@ public class Service {
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "services_items", joinColumns = {
+            @JoinColumn(name = "serviceId", nullable = false, updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "itemId",
+                    nullable = false, updatable = false)})
+    public List<MeasurementItem> itemList = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -60,6 +69,14 @@ public class Service {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public List<MeasurementItem> getItemList() {
+        return itemList;
+    }
+
+    public void setItemList(List<MeasurementItem> itemList) {
+        this.itemList = itemList;
     }
 
     @Override

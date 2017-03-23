@@ -1,8 +1,11 @@
 import React from "react";
 import {connect} from "react-redux";
 import {Link, hashHistory} from "react-router";
+import {bindActionCreators} from "redux";
+import * as actionCreators from "../redux/actions/actions";
 import {addService} from "../common/api.js";
 import {selectGroup} from "../common/Helper";
+
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -11,13 +14,18 @@ function mapStateToProps(state, ownProps) {
     };
 }
 
+function mapDispatchToProps(dispatch) {
+    return {actions: bindActionCreators(actionCreators, dispatch)};
+}
+
 class ServiceAdd extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            msg: "A service can be a house water consumption"
+            msg: "A service can be a house water consumption",
+            addedService: null
         }
         this.formData = {
             service: {
@@ -49,7 +57,13 @@ class ServiceAdd extends React.Component {
         addService(JSON.stringify(this.formData.service), this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             let service = JSON.parse(resolve.responseText);
-            hashHistory.push("/main/group/" + this.props.group.id + "/service/" + service.id + "/mu/add");
+            this.setState({
+                loading: false,
+                addedService: service,
+                msg: "Service created. Now, configure some measurement items"
+            });
+            this.props.actions.addService(service, this.props.group.id);
+            hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/mu/add");
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -100,15 +114,12 @@ class ServiceAdd extends React.Component {
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
-                                    <Link to="main/group" type="button" className="btn btn-default pull-left"
-                                          aria-expanded="false">
-                                        <i className="fa fa-chevron-left" aria-hidden="true"></i> Groups
-                                    </Link>
                                 </div>
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <span>Next </span><i className="fa fa-chevron-right" aria-hidden="true"></i>
+                                        <i className="fa fa-chevron-right" aria-hidden="true"></i>
+                                        <span> Next</span>
                                     </button>
                                 </div>
                             </div>
@@ -120,4 +131,4 @@ class ServiceAdd extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(ServiceAdd);
+export default connect(mapStateToProps, mapDispatchToProps)(ServiceAdd);

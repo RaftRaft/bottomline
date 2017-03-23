@@ -25,3 +25,8 @@ export function editGroup(group) {
     console.debug("Invoke edit group action ");
     return {type: Constants.EDIT_GROUP, group};
 }
+
+export function addService(service, groupId) {
+    console.debug("Invoke add new service action " + groupId);
+    return {type: Constants.ADD_SERVICE, service, groupId};
+}

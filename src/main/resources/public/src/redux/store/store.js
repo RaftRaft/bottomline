@@ -8,9 +8,6 @@ var defaultState = {
     main: {
         group: {
             list: []
-        },
-        service: {
-            show: false
         }
     }
 };
