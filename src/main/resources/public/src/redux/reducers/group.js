@@ -1,6 +1,20 @@
 import Constants from "../../common/Constants";
 
-const service = (group, action) => {
+const serviceElement = (service, action) => {
+    switch (action.type) {
+        case Constants.ADD_ITEM:
+            return Object.assign({}, group, {
+                itemList: [
+                    ...service.itemList,
+                    action.item
+                ]
+            })
+        default:
+            return service
+    }
+}
+
+const groupElement = (group, action) => {
     switch (action.type) {
         case Constants.ADD_SERVICE:
             return Object.assign({}, group, {
@@ -9,6 +23,18 @@ const service = (group, action) => {
                     action.service
                 ]
             })
+        case Constants.ADD_ITEM:
+            return Object.assign({}, group, {
+                serviceList: group.serviceList.map(t => {
+                    if (t.id == action.serviceId) {
+                        return serviceElement(t, action)
+                    } else {
+                        return t;
+                    }
+                })
+            })
+        default:
+            return group
     }
 }
 
@@ -43,10 +69,17 @@ const group = (state = {}, action) => {
             return Object.assign({}, state, {
                 list: state.list.map(t => {
                     if (t.id == action.groupId) {
-                        return service(t, action)
+                        return groupElement(t, action)
                     } else {
                         return t;
                     }
+                })
+            })
+        case Constants.ADD_ITEM:
+            console.debug("Reducer adds item: " + action.item + "for service id " + action.serviceId);
+            return Object.assign({}, state, {
+                list: state.list.map(t => {
+                    return groupElement(t, action)
                 })
             })
         default:

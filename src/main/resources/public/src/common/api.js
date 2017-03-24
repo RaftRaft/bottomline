@@ -2,12 +2,12 @@ import Constants from "./Constants";
 
 export function addUser(user) {
     console.debug("API: add user");
-    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/user", user);
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/user", user.id, user);
 }
 
 export function addGroup(group, userId) {
     console.debug("API: add group for user");
-    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group/user/" + userId, group);
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group", userId, group);
 }
 
 export function updateGroup(group) {
@@ -17,24 +17,25 @@ export function updateGroup(group) {
 
 export function getGroups(userId) {
     console.debug("API: get groups for user");
-    return genericAPICall("GET", Constants.SERVER_ADDRESS + "/group/" + userId);
+    return genericAPICall("GET", Constants.SERVER_ADDRESS + "/group", userId);
 }
 
 export function addService(service, groupId, userId) {
     console.debug("API: add service for group and user");
-    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId + "/user/" + userId, service);
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId, userId, service);
 }
 
-export function addItem(item, serviceId) {
+export function addItem(item, serviceId, userId) {
     console.debug("API: add item for service");
-    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/measurement-item/service/" + serviceId, item);
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/measurement-item/service/" + serviceId, userId, item);
 }
 
-function genericAPICall(method, url, data) {
+function genericAPICall(method, url, userheader, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("user", userheader);
         xhr.onload = function () {
             if (this.status == 200) {
                 resolve(xhr);

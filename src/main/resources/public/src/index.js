@@ -26,8 +26,8 @@ ReactDOM.render((
                         <Route path="content/:index" component={GroupContent}/>
                         <Route path="edit/:index" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
-                        <Route path=":index/service/add" component={ServiceAdd}/>
-                        <Route path=":index/service/:serviceId/mu/add" component={MeasurementItem}/>
+                        <Route path=":groupId/service/add" component={ServiceAdd}/>
+                        <Route path=":groupId/service/:serviceId/mu/add" component={MeasurementItem}/>
                     </Route>
                 </Route>
             </Route>

@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
 import bottomline.model.Service;
@@ -29,19 +30,16 @@ public class ServiceController {
     @PersistenceContext
     private EntityManager em;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}/user/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> addService(@RequestBody Service service, @PathVariable("groupId") Integer groupId,
-                                              @PathVariable("userId") String userId) {
-        LOG.info("Received request to add service {} for group id {} and owner with id {}", service, groupId, userId);
+    @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service, @PathVariable("groupId") Integer groupId
+    ) {
+        LOG.info("Received request to add service {} for item id {} and owner with id {}", service, groupId, userId);
 
         if (!isServiceValid(service)) {
             throw new WebApplicationException("Service is not valid.", HttpStatus.BAD_REQUEST);
         }
 
-        User user = em.find(User.class, userId);
-        if (user == null) {
-            throw new WebApplicationException("User does not exist", HttpStatus.BAD_REQUEST);
-        }
+        User user = ControllerHelper.getUser(em, userId);
 
         Group group = em.find(Group.class, groupId);
         if (group == null) {
@@ -49,7 +47,7 @@ public class ServiceController {
         }
 
         if (groupHasService(group, service)) {
-            throw new WebApplicationException("A service with same name already exists for this group", HttpStatus.BAD_REQUEST);
+            throw new WebApplicationException("A service with same name already exists for this item", HttpStatus.BAD_REQUEST);
         }
 
         service.setOwner(user);
@@ -61,6 +59,17 @@ public class ServiceController {
 
     private boolean groupHasService(Group group, Service service) {
         List<Service> serviceList = group.getServiceList();
+        for (Service el : serviceList) {
+            if (el.getLabel().equals(service.getLabel())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean ownerHasService(User user, Service service) {
+        List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId")
+                .setParameter("userId", user.getId()).getResultList();
         for (Service el : serviceList) {
             if (el.getLabel().equals(service.getLabel())) {
                 return true;

@@ -26,6 +26,10 @@ public class MeasurementItem {
     @Length(max = 10)
     private String unitOfMeasurement;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    private User owner;
+
     public int getId() {
         return id;
     }
@@ -48,6 +52,14 @@ public class MeasurementItem {
 
     public void setUnitOfMeasurement(String unitOfMeasurement) {
         this.unitOfMeasurement = unitOfMeasurement;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     @Override

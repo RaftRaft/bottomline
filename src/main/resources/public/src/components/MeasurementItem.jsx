@@ -3,10 +3,15 @@ import {connect} from "react-redux";
 import {Link, hashHistory} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addGroup} from "../common/api.js";
+import {addItem} from "../common/api.js";
+import {selectGroup, selectService} from "../common/Helper";
 
-function mapStateToProps(state) {
-    return {login: state.login};
+
+function mapStateToProps(state, ownProps) {
+    return {
+        login: state.login,
+        service: selectService(selectGroup(state.main.group.list, ownProps.params.groupId).serviceList, ownProps.params.serviceId)
+    };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -20,43 +25,57 @@ class MeasurementItem extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "A group can be a house"
+            msg: "Add measurement items"
         }
         this.formData = {
-            group: {
+            item: {
                 label: null,
-                desc: null
+                unitOfMeasurement: null
             }
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
-        this.handleDescChange = this.handleDescChange.bind(this);
+        this.handleMuChange = this.handleMuChange.bind(this);
+        this.measurementItems = this.measurementItems.bind(this);
+
         this.submit = this.submit.bind(this);
         console.debug("Group add construct");
     }
 
     handleLabelChange(event) {
-        this.formData.group = Object.assign({}, this.formData.group, {
+        this.formData.item = Object.assign({}, this.formData.item, {
             label: event.target.value
         })
     }
 
-    handleDescChange(event) {
-        this.formData.group = Object.assign({}, this.formData.group, {
-            desc: event.target.value
+    handleMuChange(event) {
+        this.formData.item = Object.assign({}, this.formData.item, {
+            unitOfMeasurement: event.target.value
         })
     }
 
+    measurementItems() {
+        return this.props.service.itemList.map((item) =>
+            <Link to={"main/group/content/"} type="button" className="list-group-item" key={index}>
+                <div><b>{item.label}</b></div>
+                <div>
+                    <small className="gray-dark">{item.mu}</small>
+                </div>
+            </Link>
+        );
+    }
+
     submit() {
-        console.debug("Form: " + JSON.stringify(this.formData.group));
+        console.debug("Form: " + JSON.stringify(this.formData.item));
         this.setState({loading: true});
-        addGroup(JSON.stringify(this.formData.group), this.props.login.currentUser.id).then((resolve) => {
+        addItem(JSON.stringify(this.formData.item), this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
-            let persistedGroup = JSON.parse(resolve.responseText);
+            let item = JSON.parse(resolve.responseText);
             this.setState({
-                loading: false
+                loading: false,
+                msg: "Measurement item added."
             });
-            this.props.actions.addGroup(persistedGroup);
-            hashHistory.push("main/group/content/" + persistedGroup.id);
+            this.props.actions.addItem(item, this.props.service.id);
+            // hashHistory.push("main/item/content/" + persistedGroup.id);
         }).catch((err) => {
             console.error(err.statusText);
             this.setState({loading: false, msg: err.responseText});
@@ -64,7 +83,7 @@ class MeasurementItem extends React.Component {
     }
 
     render() {
-        console.debug("Group add render");
+        console.debug("Measurement item add render");
         return (
             <div className="container">
                 <div className="panel panel-default">
@@ -90,6 +109,9 @@ class MeasurementItem extends React.Component {
                                 </div>
                             </div>
                         }
+                        <div id="groupListId" className="list-group">
+                            {this.measurementItems()}
+                        </div>
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Measurement item label
@@ -104,7 +126,7 @@ class MeasurementItem extends React.Component {
                                                             aria-hidden="true"></i></sup></label>
                             <div className="input-group col-xs-4 col-lg-6">
                                 <input type="text" className="form-control" maxLength="10"
-                                       placeholder="Eg: m³, $" onChange={this.handleLabelChange}
+                                       placeholder="Eg: m³, $" onChange={this.handleMuChange}
                                        aria-describedby="basic-addon1"/>
                             </div>
                             <div className="row margin-top-2vh">

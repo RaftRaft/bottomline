@@ -17,16 +17,21 @@ export function setGroupList(list) {
 }
 
 export function addGroup(group) {
-    console.debug("Invoke add new group action");
+    console.debug("Invoke add new item action");
     return {type: Constants.ADD_GROUP, group};
 }
 
 export function editGroup(group) {
-    console.debug("Invoke edit group action ");
+    console.debug("Invoke edit item action ");
     return {type: Constants.EDIT_GROUP, group};
 }
 
 export function addService(service, groupId) {
-    console.debug("Invoke add new service action " + groupId);
+    console.debug("Invoke add new service action for group" + groupId);
     return {type: Constants.ADD_SERVICE, service, groupId};
+}
+
+export function addItem(item, serviceId) {
+    console.debug("Invoke add new item action for service " + serviceId);
+    return {type: Constants.ADD_ITEM, item, serviceId};
 }

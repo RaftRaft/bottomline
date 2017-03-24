@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
 import bottomline.model.User;
@@ -28,18 +29,16 @@ public class GroupController {
     @PersistenceContext
     private EntityManager em;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/user/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Group> addGroup(@RequestBody Group group, @PathVariable("userId") String userId) {
-        LOG.info("Received request to add group {} for owner with id {}", group, userId);
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Group> addGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Group group) {
+        LOG.info("Received request to add item {} for owner with id {}", group, userId);
 
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
 
-        User user = em.find(User.class, userId);
-        if (user == null) {
-            throw new WebApplicationException("User does not exist", HttpStatus.BAD_REQUEST);
-        }
+        User user = ControllerHelper.getUser(em, userId);
+
         if (doesGroupExist(group, userId)) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
@@ -52,7 +51,7 @@ public class GroupController {
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateGroup(@RequestBody Group group) {
-        LOG.info("Received request to update group  {}", group);
+        LOG.info("Received request to update item  {}", group);
 
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
@@ -73,9 +72,10 @@ public class GroupController {
         return new ResponseEntity<>("Group updated", HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Group>> getGroups(@PathVariable("userId") String userId) {
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Group>> getGroups(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
         LOG.info("Received request to get groups for user {}", userId);
+        ControllerHelper.getUser(em, userId);
         List<Group> groupList = em.createQuery("from Group g where g.owner.id=:userId")
                 .setParameter("userId", userId).getResultList();
         return new ResponseEntity<>(groupList, HttpStatus.OK);

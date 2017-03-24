@@ -20,7 +20,7 @@ class GroupAdd extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "A group can be a house"
+            msg: "A item can be a house"
         }
         this.formData = {
             group: {

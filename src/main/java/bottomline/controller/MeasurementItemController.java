@@ -1,8 +1,10 @@
 package bottomline.controller;
 
+import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.MeasurementItem;
 import bottomline.model.Service;
+import bottomline.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,12 +31,14 @@ public class MeasurementItemController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "service/{serviceId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MeasurementItem> addItem(@RequestBody MeasurementItem item, @PathVariable("serviceId") Integer serviceId) {
+    public ResponseEntity<MeasurementItem> addItem(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody MeasurementItem item, @PathVariable("serviceId") Integer serviceId) {
         LOG.info("Received request to add measurement item for service with id {}", serviceId);
 
         if (!isMeasurementItemValid(item)) {
             throw new WebApplicationException("Measurement item is not valid.", HttpStatus.BAD_REQUEST);
         }
+
+        User user = ControllerHelper.getUser(em, userId);
 
         Service service = em.find(Service.class, serviceId);
         if (service == null) {
@@ -42,9 +46,11 @@ public class MeasurementItemController {
         }
 
         if (serviceHasItem(service, item)) {
-            throw new WebApplicationException("A measurement item with same name already exists for this service", HttpStatus.BAD_REQUEST);
+            throw new WebApplicationException("A measurement item with same name and unit of measurement already exists for this service",
+                    HttpStatus.BAD_REQUEST);
         }
 
+        item.setOwner(user);
         service.getItemList().add(item);
         em.merge(service);
         em.flush();
@@ -54,7 +60,7 @@ public class MeasurementItemController {
     private boolean serviceHasItem(Service service, MeasurementItem item) {
         List<MeasurementItem> itemList = service.getItemList();
         for (MeasurementItem el : itemList) {
-            if (el.getLabel().equals(service.getLabel())) {
+            if (el.getLabel().equals(item.getLabel()) && el.getUnitOfMeasurement().equals(item.getUnitOfMeasurement())) {
                 return true;
             }
         }

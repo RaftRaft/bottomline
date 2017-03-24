@@ -5,4 +5,5 @@ module.exports = {
     ADD_GROUP: "ADD_GROUP",
     EDIT_GROUP: "EDIT_GROUP",
     ADD_SERVICE: "ADD_SERVICE",
+    ADD_ITEM: "ADD_ITEM"
 }
