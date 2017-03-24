@@ -10,9 +10,9 @@ export function addGroup(group, userId) {
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/group", userId, group);
 }
 
-export function updateGroup(group) {
+export function updateGroup(group, userId) {
     console.debug("API: update group for user");
-    return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/group", group);
+    return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/group", userId, group);
 }
 
 export function getGroups(userId) {

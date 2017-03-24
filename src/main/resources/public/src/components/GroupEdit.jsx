@@ -8,6 +8,7 @@ import {selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {
     return {
+        login: state.login,
         group: selectGroup(state.main.group.list, ownProps.params.index)
     }
 }
@@ -47,7 +48,7 @@ class GroupEdit extends React.Component {
 
     submit() {
         this.setState({loading: true});
-        updateGroup(JSON.stringify(this.formData.group)).then((resolve) => {
+        updateGroup(JSON.stringify(this.formData.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
@@ -98,7 +99,7 @@ class GroupEdit extends React.Component {
                         }
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
-                                <label>Label
+                                <label>Group label
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"

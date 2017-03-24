@@ -3,7 +3,7 @@ import Constants from "../../common/Constants";
 const serviceElement = (service, action) => {
     switch (action.type) {
         case Constants.ADD_ITEM:
-            return Object.assign({}, group, {
+            return Object.assign({}, service, {
                 itemList: [
                     ...service.itemList,
                     action.item
@@ -29,7 +29,7 @@ const groupElement = (group, action) => {
                     if (t.id == action.serviceId) {
                         return serviceElement(t, action)
                     } else {
-                        return t;
+                        return Object.assign({}, t)
                     }
                 })
             })
@@ -60,7 +60,7 @@ const group = (state = {}, action) => {
                     if (t.id == action.group.id) {
                         return Object.assign({}, t, action.group)
                     } else {
-                        return t;
+                        return Object.assign({}, t)
                     }
                 })
             })
@@ -71,7 +71,7 @@ const group = (state = {}, action) => {
                     if (t.id == action.groupId) {
                         return groupElement(t, action)
                     } else {
-                        return t;
+                        return Object.assign({}, t)
                     }
                 })
             })

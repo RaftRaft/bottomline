@@ -54,7 +54,7 @@ class MeasurementItem extends React.Component {
     }
 
     measurementItems() {
-        return this.props.service.itemList.map((item) =>
+        return this.props.service.itemList.map((item, index) =>
             <Link to={"main/group/content/"} type="button" className="list-group-item" key={index}>
                 <div><b>{item.label}</b></div>
                 <div>
