@@ -16,6 +16,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by raft on 09.03.2017.
@@ -50,21 +51,39 @@ public class MeasurementItemController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        item.setOwner(user);
+        MeasurementItem oldItem = getOwnerMeasurementItem(user, item);
+        if (oldItem != null) {
+            item = oldItem;
+        } else {
+            item.setOwner(user);
+        }
+
         service.getItemList().add(item);
         em.merge(service);
         em.flush();
-        return new ResponseEntity<>(service.getItemList().get(service.getItemList().size() - 1), HttpStatus.OK);
+        item = getOwnerMeasurementItem(user, item);
+        return new ResponseEntity<>(item, HttpStatus.OK);
     }
 
     private boolean serviceHasItem(Service service, MeasurementItem item) {
-        List<MeasurementItem> itemList = service.getItemList();
+        Set<MeasurementItem> itemList = service.getItemList();
         for (MeasurementItem el : itemList) {
             if (el.getLabel().equals(item.getLabel()) && el.getUnitOfMeasurement().equals(item.getUnitOfMeasurement())) {
                 return true;
             }
         }
         return false;
+    }
+
+    private MeasurementItem getOwnerMeasurementItem(User user, MeasurementItem item) {
+        List<MeasurementItem> itemList = em.createQuery("from MeasurementItem mu where mu.owner.id=:userId and mu.label=:label")
+                .setParameter("userId", user.getId()).setParameter("label", item.getLabel()).getResultList();
+        for (MeasurementItem oldItem : itemList) {
+            if (oldItem.getLabel().equals(item.getLabel())) {
+                return oldItem;
+            }
+        }
+        return null;
     }
 
     private static boolean isMeasurementItemValid(MeasurementItem item) {

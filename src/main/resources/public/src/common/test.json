@@ -1,0 +1,68 @@
+{
+  "group": {
+    "list": [
+      {
+        "id": 1,
+        "label": "1",
+        "desc": "1",
+        "owner": {
+          "id": "110773359609176790078",
+          "name": "Slevoaca Florin",
+          "email": "slevoaca.florin@gmail.com",
+          "profileImageUrl": "https://lh4.googleusercontent.com/-VK56KaxGwTs/AAAAAAAAAAI/AAAAAAAAAuw/lld-kzRhukc/s96-c/photo.jpg"
+        },
+        "serviceList": [
+          {
+            "id": 1,
+            "label": "1",
+            "desc": "1",
+            "owner": {
+              "id": "110773359609176790078",
+              "name": "Slevoaca Florin",
+              "email": "slevoaca.florin@gmail.com",
+              "profileImageUrl": "https://lh4.googleusercontent.com/-VK56KaxGwTs/AAAAAAAAAAI/AAAAAAAAAuw/lld-kzRhukc/s96-c/photo.jpg"
+            },
+            "itemList": [
+              {
+                "id": 1,
+                "label": "1",
+                "unitOfMeasurement": "1",
+                "owner": {
+                  "id": "110773359609176790078",
+                  "name": "Slevoaca Florin",
+                  "email": "slevoaca.florin@gmail.com",
+                  "profileImageUrl": "https://lh4.googleusercontent.com/-VK56KaxGwTs/AAAAAAAAAAI/AAAAAAAAAuw/lld-kzRhukc/s96-c/photo.jpg"
+                }
+              },
+              {
+                "id": 2,
+                "label": "2",
+                "unitOfMeasurement": "2",
+                "owner": {
+                  "id": "110773359609176790078",
+                  "name": "Slevoaca Florin",
+                  "email": "slevoaca.florin@gmail.com",
+                  "profileImageUrl": "https://lh4.googleusercontent.com/-VK56KaxGwTs/AAAAAAAAAAI/AAAAAAAAAuw/lld-kzRhukc/s96-c/photo.jpg"
+                }
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "label": "2",
+            "desc": "2",
+            "owner": {
+              "id": "110773359609176790078",
+              "name": "Slevoaca Florin",
+              "email": "slevoaca.florin@gmail.com",
+              "profileImageUrl": "https://lh4.googleusercontent.com/-VK56KaxGwTs/AAAAAAAAAAI/AAAAAAAAAuw/lld-kzRhukc/s96-c/photo.jpg"
+            },
+            "itemList": []
+          }
+        ],
+        "memberList": []
+      }
+    ]
+  },
+  "service": {}
+}

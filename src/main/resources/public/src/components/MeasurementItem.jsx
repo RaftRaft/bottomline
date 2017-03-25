@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Link, hashHistory} from "react-router";
+import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {addItem} from "../common/api.js";
@@ -56,9 +56,10 @@ class MeasurementItem extends React.Component {
     measurementItems() {
         return this.props.service.itemList.map((item, index) =>
             <Link to={"main/group/content/"} type="button" className="list-group-item" key={index}>
-                <div><b>{item.label}</b></div>
+                <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
                 <div>
-                    <small className="gray-dark">{item.mu}</small>
+                    <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong> Unit of
+                        measurement: </strong>{item.unitOfMeasurement}</small>
                 </div>
             </Link>
         );
@@ -89,8 +90,8 @@ class MeasurementItem extends React.Component {
                 <div className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-tachometer" aria-hidden="true"></i>
-                                <span> Configure measurement items for service</span>
+                            <div className="col-xs-12"><h5><i className="fa fa-tachometer cyan" aria-hidden="true"></i>
+                                <span> Measurement items</span>
                             </h5>
                             </div>
                         </div>

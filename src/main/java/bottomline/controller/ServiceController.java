@@ -16,6 +16,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by raft on 09.03.2017.
@@ -31,7 +32,8 @@ public class ServiceController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service, @PathVariable("groupId") Integer groupId
+    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
+                                              @PathVariable("groupId") Integer groupId
     ) {
         LOG.info("Received request to add service {} for item id {} and owner with id {}", service, groupId, userId);
 
@@ -47,18 +49,25 @@ public class ServiceController {
         }
 
         if (groupHasService(group, service)) {
-            throw new WebApplicationException("A service with same name already exists for this item", HttpStatus.BAD_REQUEST);
+            throw new WebApplicationException("A service with same name already exists for this group", HttpStatus.BAD_REQUEST);
         }
 
-        service.setOwner(user);
+        Service oldService = getOwnerService(user, service);
+        if (oldService != null) {
+            service = oldService;
+        } else {
+            service.setOwner(user);
+        }
+
         group.getServiceList().add(service);
         em.merge(group);
         em.flush();
-        return new ResponseEntity<>(group.getServiceList().get(group.getServiceList().size() - 1), HttpStatus.OK);
+        service = getOwnerService(user, service);
+        return new ResponseEntity<>(service, HttpStatus.OK);
     }
 
     private boolean groupHasService(Group group, Service service) {
-        List<Service> serviceList = group.getServiceList();
+        Set<Service> serviceList = group.getServiceList();
         for (Service el : serviceList) {
             if (el.getLabel().equals(service.getLabel())) {
                 return true;
@@ -67,15 +76,15 @@ public class ServiceController {
         return false;
     }
 
-    private boolean ownerHasService(User user, Service service) {
-        List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId")
-                .setParameter("userId", user.getId()).getResultList();
-        for (Service el : serviceList) {
-            if (el.getLabel().equals(service.getLabel())) {
-                return true;
+    private Service getOwnerService(User user, Service service) {
+        List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId and s.label=:label")
+                .setParameter("userId", user.getId()).setParameter("label", service.getLabel()).getResultList();
+        for (Service oldService : serviceList) {
+            if (oldService.getLabel().equals(service.getLabel())) {
+                return oldService;
             }
         }
-        return false;
+        return null;
     }
 
     private static boolean isServiceValid(Service service) {

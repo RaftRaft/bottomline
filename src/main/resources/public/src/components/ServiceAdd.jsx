@@ -65,7 +65,7 @@ class ServiceAdd extends React.Component {
             this.props.actions.addService(service, this.props.group.id);
             hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/mu/add");
         }).catch((err) => {
-            console.error("Error adding service: " + err.statusText);
+            console.error("Error adding service: " + err.responseText);
             this.setState({loading: false, msg: err.responseText});
         });
     }

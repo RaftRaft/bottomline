@@ -4,8 +4,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by raft on 09.03.2017.
@@ -37,7 +37,7 @@ public class Service {
             @JoinColumn(name = "serviceId", nullable = false, updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "itemId",
                     nullable = false, updatable = false)})
-    public List<MeasurementItem> itemList = new ArrayList<>();
+    public Set<MeasurementItem> itemList = new LinkedHashSet<>();
 
     public int getId() {
         return id;
@@ -71,11 +71,11 @@ public class Service {
         this.owner = owner;
     }
 
-    public List<MeasurementItem> getItemList() {
+    public Set<MeasurementItem> getItemList() {
         return itemList;
     }
 
-    public void setItemList(List<MeasurementItem> itemList) {
+    public void setItemList(Set<MeasurementItem> itemList) {
         this.itemList = itemList;
     }
 
