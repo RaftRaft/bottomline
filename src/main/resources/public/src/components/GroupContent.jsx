@@ -6,7 +6,7 @@ import {selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {
     return {
-        group: selectGroup(state.main.group.list, ownProps.params.index)
+        group: selectGroup(state.main.group.list, ownProps.params.groupId)
     }
 }
 
@@ -34,12 +34,13 @@ class GroupContent extends React.Component {
 
     serviceElements() {
         return this.props.group.serviceList.map((service) =>
-            <button key={service.id} type="button" className="list-group-item">
-                <div><b>{service.label}</b></div>
+            <Link key={service.id} to={"main/group/" + this.props.group.id + "/service/" + service.id + "/cons"}
+                  type="button" className="list-group-item">
+                <div><i className="fa fa-line-chart gray-dark" aria-hidden="true"></i><b> {service.label}</b></div>
                 <div>
                     <small className="gray-dark">{service.desc}</small>
                 </div>
-            </button>
+            </Link>
         );
     }
 
@@ -61,7 +62,7 @@ class GroupContent extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-6"><h5><i className="fa fa-th-large cyan" aria-hidden="true"></i>
+                            <div className="col-xs-6"><h5><i className="fa fa-cubes cyan" aria-hidden="true"></i>
                                 <span> <b>{this.props.group.label}</b></span>
                             </h5>
                             </div>
@@ -105,8 +106,8 @@ class GroupContent extends React.Component {
                         <div>
                             <div className="row">
                                 <div className="col-xs-6">
-                                    <h4 className="pull-left"><i className="fa fa-cogs" aria-hidden=" true"></i>
-                                        <span> Services</span>
+                                    <h4 className="pull-left"><i className="fa fa-cogs" aria-hidden="true"></i>
+                                        <span> Service usage</span>
                                     </h4>
                                 </div>
                                 <div className="col-xs-6">
@@ -120,7 +121,7 @@ class GroupContent extends React.Component {
                             </div>
                         </div>
                         <div id="serviceListPanelBodyId" className="panel-body">
-                            <div id="groupListId" className="list-group">
+                            <div id="groupListId" className="list-group margin-top-05">
                                 {this.serviceElements()}
                             </div>
                             {this.props.group.serviceList.length == 0 ?

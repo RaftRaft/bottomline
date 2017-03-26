@@ -43,6 +43,10 @@ hr {
     margin-top: 0.5em;
 }
 
+.margin-top-02 {
+    margin-top: 0.2em;
+}
+
 .margin-top-10percent {
     margin-top: 10%;
 }
@@ -110,6 +114,19 @@ hr {
     border-bottom-left-radius: 0.4em;
     border-bottom-right-radius: 0.4em;
     padding: 0.1em;
+}
+
+.dropdown-menu {
+    height: auto;
+    max-height: 300px;
+    width: 20em;
+    max-width: 370px;
+    overflow-x: hidden;
+}
+
+.dropdown-menu li a {
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 textarea {

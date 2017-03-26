@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {Router, Route, hashHistory, IndexRoute} from "react-router";
+import {hashHistory, IndexRoute, Route, Router} from "react-router";
 import {createStore} from "redux";
 import {Provider} from "react-redux";
 import App from "./components/App.jsx";
@@ -13,6 +13,10 @@ import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
 import ServiceAdd from "./components/ServiceAdd.jsx";
 import MeasurementItem from "./components/MeasurementItem.jsx";
+import ServiceConsumption from "./components/ServiceConsumption.jsx";
+import ServiceEdit from "./components/ServiceEdit.jsx";
+
+
 import {store} from "./redux/store/store";
 
 ReactDOM.render((
@@ -23,11 +27,13 @@ ReactDOM.render((
                 <Route path="main" component={Main}>
                     <Route path="group" component={Group}>
                         <IndexRoute component={GroupList}/>
-                        <Route path="content/:index" component={GroupContent}/>
-                        <Route path="edit/:index" component={GroupEdit}/>
+                        <Route path="content/:groupId" component={GroupContent}/>
+                        <Route path="edit/:groupId" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
                         <Route path=":groupId/service/add" component={ServiceAdd}/>
                         <Route path=":groupId/service/:serviceId/mu/add" component={MeasurementItem}/>
+                        <Route path=":groupId/service/:serviceId/cons" component={ServiceConsumption}/>
+                        <Route path=":groupId/service/:serviceId/edit" component={ServiceEdit}/>
                     </Route>
                 </Route>
             </Route>

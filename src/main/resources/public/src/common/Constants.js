@@ -5,5 +5,10 @@ module.exports = {
     ADD_GROUP: "ADD_GROUP",
     EDIT_GROUP: "EDIT_GROUP",
     ADD_SERVICE: "ADD_SERVICE",
-    ADD_ITEM: "ADD_ITEM"
+    EDIT_SERVICE: "EDIT_SERVICE",
+    ADD_ITEM: "ADD_ITEM",
+    GENERIC_ERROR_MSG: "Something stopped working :(",
+    HttpStatus: {
+        BAD_REQUEST: 400
+    }
 }

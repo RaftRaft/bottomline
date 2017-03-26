@@ -16,7 +16,7 @@ public class MeasurementItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    public int id;
+    public Integer id;
 
     @Column(name = "label", nullable = false)
     @Length(max = 100)
@@ -30,11 +30,11 @@ public class MeasurementItem {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -43,7 +43,7 @@ public class MeasurementItem {
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.label = (label != null) ? label.trim() : label;
     }
 
     public String getUnitOfMeasurement() {
@@ -51,7 +51,7 @@ public class MeasurementItem {
     }
 
     public void setUnitOfMeasurement(String unitOfMeasurement) {
-        this.unitOfMeasurement = unitOfMeasurement;
+        this.unitOfMeasurement = (unitOfMeasurement != null) ? unitOfMeasurement.trim() : unitOfMeasurement;
     }
 
     public User getOwner() {
@@ -69,16 +69,17 @@ public class MeasurementItem {
 
         MeasurementItem that = (MeasurementItem) o;
 
-        if (id != that.id) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        return unitOfMeasurement != null ? unitOfMeasurement.equals(that.unitOfMeasurement) : that.unitOfMeasurement == null;
+        if (unitOfMeasurement != null ? !unitOfMeasurement.equals(that.unitOfMeasurement) : that.unitOfMeasurement != null)
+            return false;
+        return owner != null ? owner.equals(that.owner) : that.owner == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (label != null ? label.hashCode() : 0);
+        int result = label != null ? label.hashCode() : 0;
         result = 31 * result + (unitOfMeasurement != null ? unitOfMeasurement.hashCode() : 0);
+        result = 31 * result + (owner != null ? owner.hashCode() : 0);
         return result;
     }
 

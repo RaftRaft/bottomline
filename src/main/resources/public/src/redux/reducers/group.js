@@ -9,8 +9,6 @@ const serviceElement = (service, action) => {
                     action.item
                 ]
             })
-        default:
-            return service
     }
 }
 
@@ -22,6 +20,16 @@ const groupElement = (group, action) => {
                     ...group.serviceList,
                     action.service
                 ]
+            })
+        case Constants.EDIT_SERVICE:
+            return Object.assign({}, group, {
+                serviceList: group.serviceList.map(t => {
+                    if (t.id == action.service.id) {
+                        return Object.assign({}, t, action.service)
+                    } else {
+                        return Object.assign({}, t)
+                    }
+                })
             })
         case Constants.ADD_ITEM:
             return Object.assign({}, group, {
@@ -66,6 +74,17 @@ const group = (state = {}, action) => {
             })
         case Constants.ADD_SERVICE:
             console.debug("Reducer adds service: " + action.service + " for group id " + action.groupId);
+            return Object.assign({}, state, {
+                list: state.list.map(t => {
+                    if (t.id == action.groupId) {
+                        return groupElement(t, action)
+                    } else {
+                        return Object.assign({}, t)
+                    }
+                })
+            })
+        case Constants.EDIT_SERVICE:
+            console.debug("Reducer edits service");
             return Object.assign({}, state, {
                 list: state.list.map(t => {
                     if (t.id == action.groupId) {

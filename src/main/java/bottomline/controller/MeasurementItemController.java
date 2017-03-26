@@ -58,6 +58,7 @@ public class MeasurementItemController {
             item.setOwner(user);
         }
 
+        System.out.print("zzzz: " + service.getItemList());
         service.getItemList().add(item);
         em.merge(service);
         em.flush();
@@ -68,7 +69,8 @@ public class MeasurementItemController {
     private boolean serviceHasItem(Service service, MeasurementItem item) {
         Set<MeasurementItem> itemList = service.getItemList();
         for (MeasurementItem el : itemList) {
-            if (el.getLabel().equals(item.getLabel()) && el.getUnitOfMeasurement().equals(item.getUnitOfMeasurement())) {
+            if (el.getLabel().toLowerCase().equals(item.getLabel().toLowerCase())
+                    && el.getUnitOfMeasurement().toLowerCase().equals(item.getUnitOfMeasurement().toLowerCase())) {
                 return true;
             }
         }
@@ -79,7 +81,7 @@ public class MeasurementItemController {
         List<MeasurementItem> itemList = em.createQuery("from MeasurementItem mu where mu.owner.id=:userId and mu.label=:label")
                 .setParameter("userId", user.getId()).setParameter("label", item.getLabel()).getResultList();
         for (MeasurementItem oldItem : itemList) {
-            if (oldItem.getLabel().equals(item.getLabel())) {
+            if (oldItem.getLabel().toLowerCase().equals(item.getLabel().toLowerCase())) {
                 return oldItem;
             }
         }
@@ -87,7 +89,8 @@ public class MeasurementItemController {
     }
 
     private static boolean isMeasurementItemValid(MeasurementItem item) {
-        if (item.getLabel() == null || item.getUnitOfMeasurement() == null) {
+        if (item.getLabel() == null || item.getUnitOfMeasurement() == null
+                || item.getLabel().isEmpty() || item.getUnitOfMeasurement().isEmpty()) {
             return false;
         }
         return true;

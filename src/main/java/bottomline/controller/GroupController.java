@@ -39,7 +39,7 @@ public class GroupController {
 
         User user = ControllerHelper.getUser(em, userId);
 
-        if (doesGroupExist(group, userId)) {
+        if (isGroupDuplicated(group, userId)) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -56,7 +56,7 @@ public class GroupController {
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
-        if (doesGroupExist(group, group.getOwner().getId())) {
+        if (isGroupDuplicated(group, group.getOwner().getId())) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -81,7 +81,7 @@ public class GroupController {
         return new ResponseEntity<>(groupList, HttpStatus.OK);
     }
 
-    private boolean doesGroupExist(Group group, String userId) {
+    private boolean isGroupDuplicated(Group group, String userId) {
         List<Group> groupList = em.createQuery("from Group g where g.id!=:id and g.label=:label and g.owner.id=:userId")
                 .setParameter("id", group.getId())
                 .setParameter("label", group.getLabel())
@@ -90,7 +90,7 @@ public class GroupController {
     }
 
     private static boolean isGroupValid(Group group) {
-        if (group.getLabel() == null) {
+        if (group.getLabel() == null || group.getLabel().isEmpty()) {
             return false;
         }
         return true;

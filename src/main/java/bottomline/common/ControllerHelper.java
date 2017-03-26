@@ -21,26 +21,4 @@ public class ControllerHelper {
         }
         throw new WebApplicationException("User does not exist", HttpStatus.BAD_REQUEST);
     }
-
-    public static Object getLastElement(Set set) {
-        Iterator it = set.iterator();
-        while (it.hasNext()) {
-            Object el = it.next();
-            if (!it.hasNext()) {
-                return el;
-            }
-        }
-        return null;
-    }
-
-    public static void main(String... args) {
-        Set<String> set = new LinkedHashSet<>();
-        set.add("0");
-        set.add("2");
-        set.add("1");
-        set.add("-1");
-        set.add("4");
-        set.add("-9");
-        System.out.println(getLastElement(set));
-    }
 }

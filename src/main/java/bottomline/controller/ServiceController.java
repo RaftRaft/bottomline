@@ -32,8 +32,8 @@ public class ServiceController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
-                                              @PathVariable("groupId") Integer groupId
+    public ResponseEntity<Service> addServiceToGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
+                                                     @PathVariable("groupId") Integer groupId
     ) {
         LOG.info("Received request to add service {} for item id {} and owner with id {}", service, groupId, userId);
 
@@ -48,15 +48,16 @@ public class ServiceController {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        if (groupHasService(group, service)) {
-            throw new WebApplicationException("A service with same name already exists for this group", HttpStatus.BAD_REQUEST);
+
+        if (service.getId() == null) {
+            if (getOwnerService(user, service) != null) {
+                throw new WebApplicationException("You already have a service with same label", HttpStatus.BAD_REQUEST);
+            }
+            service.setOwner(user);
         }
 
-        Service oldService = getOwnerService(user, service);
-        if (oldService != null) {
-            service = oldService;
-        } else {
-            service.setOwner(user);
+        if (groupHasService(group, service)) {
+            throw new WebApplicationException("A service with same name already exists for this group", HttpStatus.BAD_REQUEST);
         }
 
         group.getServiceList().add(service);
@@ -64,6 +65,38 @@ public class ServiceController {
         em.flush();
         service = getOwnerService(user, service);
         return new ResponseEntity<>(service, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateService(@RequestBody Service service) {
+        LOG.info("Received request to update service  {}", service);
+
+        if (!isServiceValid(service)) {
+            throw new WebApplicationException("Service not valid", HttpStatus.BAD_REQUEST);
+        }
+        if (isServiceDuplicated(service, service.getOwner().getId())) {
+            throw new WebApplicationException("Service already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        Service oldService = em.find(Service.class, service.getId());
+        if (oldService == null) {
+            throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        oldService.setLabel(service.getLabel());
+        oldService.setDesc(service.getDesc());
+
+        em.merge(oldService);
+        return new ResponseEntity<>("Service updated", HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<Service>> getServicesFromOwner(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
+        LOG.info("Received request to get services from owner with id {}", userId);
+        User user = ControllerHelper.getUser(em, userId);
+        List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId")
+                .setParameter("userId", user.getId()).getResultList();
+        return new ResponseEntity<>(serviceList, HttpStatus.OK);
     }
 
     private boolean groupHasService(Group group, Service service) {
@@ -80,15 +113,23 @@ public class ServiceController {
         List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId and s.label=:label")
                 .setParameter("userId", user.getId()).setParameter("label", service.getLabel()).getResultList();
         for (Service oldService : serviceList) {
-            if (oldService.getLabel().equals(service.getLabel())) {
+            if (oldService.getLabel().toLowerCase().equals(service.getLabel().toLowerCase())) {
                 return oldService;
             }
         }
         return null;
     }
 
+    private boolean isServiceDuplicated(Service service, String userId) {
+        List<Service> serviceList = em.createQuery("from Service s where s.id!=:id and s.label=:label and s.owner.id=:userId")
+                .setParameter("id", service.getId())
+                .setParameter("label", service.getLabel())
+                .setParameter("userId", userId).getResultList();
+        return !serviceList.isEmpty();
+    }
+
     private static boolean isServiceValid(Service service) {
-        if (service.getLabel() == null) {
+        if (service.getLabel() == null || service.getLabel().isEmpty()) {
             return false;
         }
         return true;

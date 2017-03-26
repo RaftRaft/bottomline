@@ -4,7 +4,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -18,7 +18,7 @@ public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    public int id;
+    public Integer id;
 
     @Column(name = "label", nullable = false)
     @Length(max = 100)
@@ -37,13 +37,13 @@ public class Service {
             @JoinColumn(name = "serviceId", nullable = false, updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "itemId",
                     nullable = false, updatable = false)})
-    public Set<MeasurementItem> itemList = new LinkedHashSet<>();
+    public Set<MeasurementItem> itemList = new HashSet<>();
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -52,7 +52,7 @@ public class Service {
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.label = (label != null) ? label.trim() : label;
     }
 
     public String getDesc() {
@@ -60,7 +60,7 @@ public class Service {
     }
 
     public void setDesc(String desc) {
-        this.desc = desc;
+        this.desc = (desc != null) ? desc.trim() : desc;
     }
 
     public User getOwner() {

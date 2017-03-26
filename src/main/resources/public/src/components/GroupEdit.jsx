@@ -5,11 +5,12 @@ import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {updateGroup} from "../common/api.js";
 import {selectGroup} from "../common/Helper";
+import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
-        group: selectGroup(state.main.group.list, ownProps.params.index)
+        group: selectGroup(state.main.group.list, ownProps.params.groupId)
     }
 }
 
@@ -56,8 +57,13 @@ class GroupEdit extends React.Component {
             });
             this.props.actions.editGroup(this.formData.group);
         }).catch((err) => {
-            console.error(err.statusText);
-            this.setState({loading: false, msg: err.responseText});
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
         });
     }
 
@@ -68,10 +74,15 @@ class GroupEdit extends React.Component {
                 <div className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-7"><h5><i className="fa fa-pencil-square cyan"
-                                                             aria-hidden="true"></i>
-                                <span> Edit group <strong>{this.props.group.label}</strong></span>
-                            </h5>
+                            <div className="col-xs-7">
+                                <i className="fa fa-pencil-square cyan"
+                                   aria-hidden="true"></i>
+                                <span> Edit group</span>
+                                <h5 className="margin-top-02">
+                                    <strong>
+                                        {this.props.group.label}
+                                    </strong>
+                                </h5>
                             </div>
                             <div className="col-xs-5">
                                 <div className="btn-group pull-right">

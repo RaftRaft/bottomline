@@ -5,7 +5,7 @@ import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {addItem} from "../common/api.js";
 import {selectGroup, selectService} from "../common/Helper";
-
+import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -17,7 +17,6 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch) {
     return {actions: bindActionCreators(actionCreators, dispatch)};
 }
-
 
 class MeasurementItem extends React.Component {
 
@@ -76,10 +75,14 @@ class MeasurementItem extends React.Component {
                 msg: "Measurement item added."
             });
             this.props.actions.addItem(item, this.props.service.id);
-            // hashHistory.push("main/item/content/" + persistedGroup.id);
         }).catch((err) => {
-            console.error(err.statusText);
-            this.setState({loading: false, msg: err.responseText});
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
         });
     }
 

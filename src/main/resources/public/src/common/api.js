@@ -25,6 +25,16 @@ export function addService(service, groupId, userId) {
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId, userId, service);
 }
 
+export function updateService(service, userId) {
+    console.debug("API: update service for user");
+    return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/service", userId, service);
+}
+
+export function getServices(userId) {
+    console.debug("API: get services for user");
+    return genericAPICall("GET", Constants.SERVER_ADDRESS + "/service", userId);
+}
+
 export function addItem(item, serviceId, userId) {
     console.debug("API: add item for service");
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/measurement-item/service/" + serviceId, userId, item);

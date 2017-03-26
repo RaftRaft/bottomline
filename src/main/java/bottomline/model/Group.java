@@ -5,7 +5,9 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by raft on 09.03.2017.
@@ -20,7 +22,7 @@ public class Group implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    public int id;
+    public Integer id;
 
     @Column(name = "label", nullable = false)
     @Length(max = 100)
@@ -39,7 +41,7 @@ public class Group implements Serializable {
             @JoinColumn(name = "groupId", nullable = false, updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "serviceId",
                     nullable = false, updatable = false)})
-    public Set<Service> serviceList = new LinkedHashSet<>();
+    public Set<Service> serviceList = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "groups_members", joinColumns = {
@@ -48,11 +50,11 @@ public class Group implements Serializable {
                     nullable = false, updatable = false)})
     public Set<User> memberList = new HashSet<>();
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -61,7 +63,7 @@ public class Group implements Serializable {
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.label = (label != null) ? label.trim() : label;
     }
 
     public String getDesc() {
@@ -69,7 +71,7 @@ public class Group implements Serializable {
     }
 
     public void setDesc(String desc) {
-        this.desc = desc;
+        this.desc = (desc != null) ? desc.trim() : desc;
     }
 
     public User getOwner() {

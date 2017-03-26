@@ -31,6 +31,11 @@ export function addService(service, groupId) {
     return {type: Constants.ADD_SERVICE, service, groupId};
 }
 
+export function editService(service, groupId) {
+    console.debug("Invoke edit service action for group" + groupId);
+    return {type: Constants.EDIT_SERVICE, service, groupId};
+}
+
 export function addItem(item, serviceId) {
     console.debug("Invoke add new item action for service " + serviceId);
     return {type: Constants.ADD_ITEM, item, serviceId};
