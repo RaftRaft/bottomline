@@ -41,7 +41,7 @@ public class ServiceController {
             throw new WebApplicationException("Service is not valid.", HttpStatus.BAD_REQUEST);
         }
 
-        User user = ControllerHelper.getUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         Group group = em.find(Group.class, groupId);
         if (group == null) {
@@ -60,6 +60,7 @@ public class ServiceController {
             throw new WebApplicationException("A service with same name already exists for this group", HttpStatus.BAD_REQUEST);
         }
 
+        service.getGroupList().add(group);
         group.getServiceList().add(service);
         em.merge(group);
         em.flush();
@@ -93,10 +94,29 @@ public class ServiceController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<Service>> getServicesFromOwner(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
         LOG.info("Received request to get services from owner with id {}", userId);
-        User user = ControllerHelper.getUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
         List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId")
                 .setParameter("userId", user.getId()).getResultList();
         return new ResponseEntity<>(serviceList, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "{serviceId}")
+    public ResponseEntity<String> removeService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId) {
+        LOG.info("Received request to remove service with id", serviceId);
+
+        ControllerHelper.processUser(em, userId);
+
+        Service service = em.find(Service.class, serviceId);
+        if (service == null) {
+            throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        for (Group group : service.getGroupList()) {
+            group.getServiceList().remove(service);
+        }
+
+        em.remove(service);
+        return new ResponseEntity<>("Service removed", HttpStatus.OK);
     }
 
     private boolean groupHasService(Group group, Service service) {

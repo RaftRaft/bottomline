@@ -1,5 +1,6 @@
 package bottomline.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -26,9 +27,10 @@ public class MeasurementItem {
     @Length(max = 10)
     private String unitOfMeasurement;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    private User owner;
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    @JsonIgnore
+    private Service service;
 
     public Integer getId() {
         return id;
@@ -54,12 +56,12 @@ public class MeasurementItem {
         this.unitOfMeasurement = (unitOfMeasurement != null) ? unitOfMeasurement.trim() : unitOfMeasurement;
     }
 
-    public User getOwner() {
-        return owner;
+    public Service getService() {
+        return service;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setService(Service service) {
+        this.service = service;
     }
 
     @Override
@@ -69,17 +71,16 @@ public class MeasurementItem {
 
         MeasurementItem that = (MeasurementItem) o;
 
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (label != null ? !label.equals(that.label) : that.label != null) return false;
-        if (unitOfMeasurement != null ? !unitOfMeasurement.equals(that.unitOfMeasurement) : that.unitOfMeasurement != null)
-            return false;
-        return owner != null ? owner.equals(that.owner) : that.owner == null;
+        return unitOfMeasurement != null ? unitOfMeasurement.equals(that.unitOfMeasurement) : that.unitOfMeasurement == null;
     }
 
     @Override
     public int hashCode() {
-        int result = label != null ? label.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (label != null ? label.hashCode() : 0);
         result = 31 * result + (unitOfMeasurement != null ? unitOfMeasurement.hashCode() : 0);
-        result = 31 * result + (owner != null ? owner.hashCode() : 0);
         return result;
     }
 

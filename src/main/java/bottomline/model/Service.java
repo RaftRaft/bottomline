@@ -1,5 +1,6 @@
 package bottomline.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -32,11 +33,11 @@ public class Service {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "services_items", joinColumns = {
-            @JoinColumn(name = "serviceId", nullable = false, updatable = false)},
-            inverseJoinColumns = {@JoinColumn(name = "itemId",
-                    nullable = false, updatable = false)})
+    @ManyToMany(mappedBy = "serviceList")
+    @JsonIgnore
+    private Set<Group> groupList = new HashSet<Group>();
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     public Set<MeasurementItem> itemList = new HashSet<>();
 
     public Integer getId() {
@@ -79,6 +80,14 @@ public class Service {
         this.itemList = itemList;
     }
 
+    public Set<Group> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(Set<Group> groupList) {
+        this.groupList = groupList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -86,14 +95,16 @@ public class Service {
 
         Service service = (Service) o;
 
+        if (id != null ? !id.equals(service.id) : service.id != null) return false;
         if (label != null ? !label.equals(service.label) : service.label != null) return false;
-        return owner != null ? owner.equals(service.owner) : service.owner == null;
+        return desc != null ? desc.equals(service.desc) : service.desc == null;
     }
 
     @Override
     public int hashCode() {
-        int result = label != null ? label.hashCode() : 0;
-        result = 31 * result + (owner != null ? owner.hashCode() : 0);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        result = 31 * result + (desc != null ? desc.hashCode() : 0);
         return result;
     }
 

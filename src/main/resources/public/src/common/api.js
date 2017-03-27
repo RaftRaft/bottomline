@@ -30,6 +30,12 @@ export function updateService(service, userId) {
     return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/service", userId, service);
 }
 
+export function removeService(serviceId, userId) {
+    console.debug("API: remove service");
+    return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/service/" + serviceId, userId);
+}
+
+
 export function getServices(userId) {
     console.debug("API: get services for user");
     return genericAPICall("GET", Constants.SERVER_ADDRESS + "/service", userId);
@@ -38,6 +44,11 @@ export function getServices(userId) {
 export function addItem(item, serviceId, userId) {
     console.debug("API: add item for service");
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/measurement-item/service/" + serviceId, userId, item);
+}
+
+export function removeItem(itemId, userId) {
+    console.debug("API: remove item");
+    return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/measurement-item/" + itemId, userId);
 }
 
 function genericAPICall(method, url, userheader, data) {

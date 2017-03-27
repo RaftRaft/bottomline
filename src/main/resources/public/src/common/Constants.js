@@ -6,7 +6,9 @@ module.exports = {
     EDIT_GROUP: "EDIT_GROUP",
     ADD_SERVICE: "ADD_SERVICE",
     EDIT_SERVICE: "EDIT_SERVICE",
+    REMOVE_SERVICE: "REMOVE_SERVICE",
     ADD_ITEM: "ADD_ITEM",
+    REMOVE_ITEM: "REMOVE_ITEM",
     GENERIC_ERROR_MSG: "Something stopped working :(",
     HttpStatus: {
         BAD_REQUEST: 400

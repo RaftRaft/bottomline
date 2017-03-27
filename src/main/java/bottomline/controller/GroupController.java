@@ -37,7 +37,7 @@ public class GroupController {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
 
-        User user = ControllerHelper.getUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         if (isGroupDuplicated(group, userId)) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
@@ -75,7 +75,7 @@ public class GroupController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Group>> getGroups(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
         LOG.info("Received request to get groups for user {}", userId);
-        ControllerHelper.getUser(em, userId);
+        ControllerHelper.processUser(em, userId);
         List<Group> groupList = em.createQuery("from Group g where g.owner.id=:userId")
                 .setParameter("userId", userId).getResultList();
         return new ResponseEntity<>(groupList, HttpStatus.OK);

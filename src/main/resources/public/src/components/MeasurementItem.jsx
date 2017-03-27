@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addItem} from "../common/api.js";
+import {addItem, removeItem} from "../common/api.js";
 import {selectGroup, selectService} from "../common/Helper";
 import Constants from "../common/Constants";
 
@@ -24,7 +24,8 @@ class MeasurementItem extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "Add measurement items"
+            msg: "Add measurement items",
+            itemToBeRemoved: null
         }
         this.formData = {
             item: {
@@ -35,9 +36,11 @@ class MeasurementItem extends React.Component {
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleMuChange = this.handleMuChange.bind(this);
         this.measurementItems = this.measurementItems.bind(this);
-
+        this.removeItemConfirmation = this.removeItemConfirmation.bind(this);
+        this.removeItem = this.removeItem.bind(this);
+        this.renderRemoveItemConfirmationButton = this.renderRemoveItemConfirmationButton.bind(this);
         this.submit = this.submit.bind(this);
-        console.debug("Group add construct");
+        console.debug("Measurement item construct");
     }
 
     handleLabelChange(event) {
@@ -53,20 +56,39 @@ class MeasurementItem extends React.Component {
     }
 
     measurementItems() {
-        return this.props.service.itemList.map((item, index) =>
-            <Link to={"main/group/content/"} type="button" className="list-group-item" key={index}>
-                <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
-                <div>
-                    <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong> Unit of
-                        measurement: </strong>{item.unitOfMeasurement}</small>
+        return this.props.service.itemList.map((item) =>
+            <li type="button" className="list-group-item" key={item.id}>
+                <div className="row">
+                    <div className="col-xs-10">
+                        <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
+                        <div>
+                            <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong> Unit of
+                                measure: </strong>{item.unitOfMeasurement}</small>
+                        </div>
+                    </div>
+                    <div className="col-xs-2">
+                        <button type="button" className="btn btn-danger btn-xs pull-right"
+                                aria-expanded="false" onClick={() => this.removeItemConfirmation(item)}>
+                            <i className="fa fa-times" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
-            </Link>
+            </li>
         );
+    }
+
+    removeItemConfirmation(item) {
+        this.setState(
+            {
+                msg: "Remove item '" + item.label + "' ?",
+                itemToBeRemoved: item
+            }
+        )
     }
 
     submit() {
         console.debug("Form: " + JSON.stringify(this.formData.item));
-        this.setState({loading: true});
+        this.setState({loading: true, itemToBeRemoved: null});
         addItem(JSON.stringify(this.formData.item), this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             let item = JSON.parse(resolve.responseText);
@@ -86,8 +108,42 @@ class MeasurementItem extends React.Component {
         });
     }
 
+    removeItem() {
+        let item = this.state.itemToBeRemoved;
+        this.setState({loading: true, itemToBeRemoved: null});
+        removeItem(item.id, this.props.login.currentUser.id).then((resolve) => {
+            console.debug(resolve);
+            this.setState({
+                loading: false,
+                msg: "Measurement item removed."
+            });
+            console.debug("ASTA: " + JSON.stringify(item));
+            this.props.actions.removeItem(item.id, this.props.service.id);
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
+    renderRemoveItemConfirmationButton() {
+        if (this.state.itemToBeRemoved != null) {
+            return (
+                <button type="button" className="btn btn-info btn-xs margin-right-2vh pull-right"
+                        aria-expanded="false" onClick={() => this.removeItem()}>
+                    <i className="fa fa-check" aria-hidden="true"></i>
+                    <span> Yes</span>
+                </button>
+            )
+        }
+    }
+
     render() {
-        console.debug("Measurement item add render");
+        console.debug("Measurement item render");
         return (
             <div className="container">
                 <div className="panel panel-default">
@@ -110,6 +166,9 @@ class MeasurementItem extends React.Component {
                                 <div className="alert alert-info" role="alert">
                                     <i className="fa fa-info-circle" aria-hidden="true"></i>
                                     <span> {this.state.msg}</span>
+                                    <div className="row">
+                                        {this.renderRemoveItemConfirmationButton()}
+                                    </div>
                                 </div>
                             </div>
                         }
