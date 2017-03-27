@@ -34,13 +34,25 @@ class GroupContent extends React.Component {
 
     serviceElements() {
         return this.props.group.serviceList.map((service) =>
-            <Link key={service.id} to={"main/group/" + this.props.group.id + "/service/" + service.id + "/cons"}
-                  type="button" className="list-group-item">
-                <div><i className="fa fa-line-chart gray-dark" aria-hidden="true"></i><b> {service.label}</b></div>
-                <div>
-                    <small className="gray-dark">{service.desc}</small>
+            <li key={service.id}
+                type="button" className="list-group-item">
+                <div className="row">
+                    <Link to={"main/group/" + this.props.group.id + "/service/" + service.id + "/cons"}
+                          className="col-xs-10">
+                        <div><i className="fa fa-line-chart gray-dark" aria-hidden="true"></i><b> {service.label}</b>
+                        </div>
+                        <div>
+                            <small className="gray-dark">{service.desc}</small>
+                        </div>
+                    </Link>
+                    <div className="col-xs-2">
+                        <button type="button" className="btn btn-info btn-xs pull-right"
+                                aria-expanded="false" onClick={() => this.removeItemConfirmation(item)}>
+                            <i className="fa fa-chain-broken" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
-            </Link>
+            </li>
         );
     }
 

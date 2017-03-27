@@ -81,6 +81,22 @@ public class GroupController {
         return new ResponseEntity<>(groupList, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, path = "{groupId}")
+    public ResponseEntity<String> removeGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("groupId") Integer groupId) {
+        LOG.info("Received request to remove group with id", groupId);
+
+        ControllerHelper.processUser(em, userId);
+
+        Group group = em.find(Group.class, groupId);
+        if (group == null) {
+            throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        group.getServiceList().clear();
+        em.remove(group);
+        return new ResponseEntity<>("Group removed", HttpStatus.OK);
+    }
+
     private boolean isGroupDuplicated(Group group, String userId) {
         List<Group> groupList = em.createQuery("from Group g where g.id!=:id and g.label=:label and g.owner.id=:userId")
                 .setParameter("id", group.getId())

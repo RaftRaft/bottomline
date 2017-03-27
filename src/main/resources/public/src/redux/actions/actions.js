@@ -27,17 +27,17 @@ export function editGroup(group) {
 }
 
 export function addService(service, groupId) {
-    console.debug("Invoke add new service action for group" + groupId);
+    console.debug("Invoke add new service action for group " + groupId);
     return {type: Constants.ADD_SERVICE, service, groupId};
 }
 
-export function editService(service, groupId) {
-    console.debug("Invoke edit service action for group" + groupId);
-    return {type: Constants.EDIT_SERVICE, service, groupId};
+export function editService(service) {
+    console.debug("Invoke edit service action");
+    return {type: Constants.EDIT_SERVICE, service};
 }
 
 export function removeService(serviceId) {
-    console.debug("Invoke remove service action with id" + serviceId);
+    console.debug("Invoke remove service action with id " + serviceId);
     return {type: Constants.REMOVE_SERVICE, serviceId};
 }
 

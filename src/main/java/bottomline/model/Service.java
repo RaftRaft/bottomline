@@ -35,7 +35,7 @@ public class Service {
 
     @ManyToMany(mappedBy = "serviceList")
     @JsonIgnore
-    private Set<Group> groupList = new HashSet<Group>();
+    private Set<Group> groupList = new HashSet<>();
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     public Set<MeasurementItem> itemList = new HashSet<>();
@@ -115,6 +115,8 @@ public class Service {
                 ", label='" + label + '\'' +
                 ", desc='" + desc + '\'' +
                 ", owner=" + owner +
+                ", groupList=" + groupList +
+                ", itemList=" + itemList +
                 '}';
     }
 }

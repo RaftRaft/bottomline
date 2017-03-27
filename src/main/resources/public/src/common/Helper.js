@@ -13,3 +13,12 @@ export function selectService(serviceList, id) {
         }
     }
 }
+
+export function containsService(serviceList, service) {
+    for (let i = 0; i < serviceList.length; i++) {
+        if (serviceList[i].id == service.id) {
+            return true;
+        }
+    }
+    return false;
+}

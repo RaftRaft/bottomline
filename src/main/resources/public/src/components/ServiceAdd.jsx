@@ -4,7 +4,7 @@ import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {addService, getServices} from "../common/api.js";
-import {selectGroup} from "../common/Helper";
+import {containsService, selectGroup} from "../common/Helper";
 import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
@@ -96,17 +96,34 @@ class ServiceAdd extends React.Component {
     }
 
     serviceElements() {
-        return this.state.userServiceList.map((service) =>
-            <li key={service.id}>
-                <a onClick={() => this.handleSelect(service)}>
-                    <div><strong>{service.label}</strong></div>
-                    <div>
-                        <small className="gray-dark">{service.desc}</small>
-                    </div>
-                </a>
-                <div role="separator" className="divider"></div>
-            </li>
-        );
+        var availableServices = 0;
+        return this.state.userServiceList.map((service, index) => {
+                if (!containsService(this.props.group.serviceList, service)) {
+                    availableServices++;
+                    return (
+                        <li key={service.id}>
+                            <a onClick={() => this.handleSelect(service)}>
+                                <div><strong>{service.label}</strong></div>
+                                <div>
+                                    <small className="gray-dark">{service.desc}</small>
+                                </div>
+                            </a>
+                            <div id="customDividerId" role="separator" className="divider"></div>
+                        </li>
+                    )
+                }
+                if (index == this.state.userServiceList.length - 1 && availableServices == 0) {
+                    return (
+                        <li key={service.id}>
+                            <a>
+                                <div><i className="fa fa-info-circle" aria-hidden="true"></i><strong> All your services are
+                                    already assigned to current group</strong></div>
+                            </a>
+                        </li>
+                    )
+                }
+            }
+        )
     }
 
     submit() {
@@ -182,13 +199,12 @@ class ServiceAdd extends React.Component {
                                     <div className="margin-top-05">
                                         <label>Or, add an existing service</label>
                                     </div>
-                                    <div className="btn-group dropup">
-                                        <button type="button" className="btn btn-default">Your services</button>
-                                        <button type="button" className="btn btn-default dropdown-toggle"
-                                                data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
+                                    <div className="dropup">
+                                        <button className="btn btn-default dropdown-toggle" type="button"
+                                                id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <span>Your services&nbsp;&nbsp;</span>
                                             <span className="caret"></span>
-                                            <span className="sr-only">Your services</span>
                                         </button>
                                         <ul className="dropdown-menu" role="menu">
                                             {this.serviceElements()}

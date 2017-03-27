@@ -109,11 +109,7 @@ const group = (state = {}, action) => {
             console.debug("Reducer edits service");
             return Object.assign({}, state, {
                 list: state.list.map(t => {
-                    if (t.id == action.groupId) {
-                        return groupElement(t, action)
-                    } else {
-                        return Object.assign({}, t)
-                    }
+                    return groupElement(t, action)
                 })
             })
         case Constants.REMOVE_SERVICE:

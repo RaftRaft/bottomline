@@ -62,7 +62,8 @@ class MeasurementItem extends React.Component {
                     <div className="col-xs-10">
                         <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
                         <div>
-                            <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong> Unit of
+                            <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong>
+                                Unit of
                                 measure: </strong>{item.unitOfMeasurement}</small>
                         </div>
                     </div>
@@ -117,7 +118,6 @@ class MeasurementItem extends React.Component {
                 loading: false,
                 msg: "Measurement item removed."
             });
-            console.debug("ASTA: " + JSON.stringify(item));
             this.props.actions.removeItem(item.id, this.props.service.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {

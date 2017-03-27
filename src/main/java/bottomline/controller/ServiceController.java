@@ -35,7 +35,7 @@ public class ServiceController {
     public ResponseEntity<Service> addServiceToGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
                                                      @PathVariable("groupId") Integer groupId
     ) {
-        LOG.info("Received request to add service {} for item id {} and owner with id {}", service, groupId, userId);
+        LOG.info("Received request to add service {} for group id {} and owner with id {}", service, groupId, userId);
 
         if (!isServiceValid(service)) {
             throw new WebApplicationException("Service is not valid.", HttpStatus.BAD_REQUEST);
@@ -48,12 +48,13 @@ public class ServiceController {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
         }
 
-
         if (service.getId() == null) {
             if (getOwnerService(user, service) != null) {
                 throw new WebApplicationException("You already have a service with same label", HttpStatus.BAD_REQUEST);
             }
             service.setOwner(user);
+        } else {
+            service = em.find(Service.class, service.getId());
         }
 
         if (groupHasService(group, service)) {
@@ -122,7 +123,7 @@ public class ServiceController {
     private boolean groupHasService(Group group, Service service) {
         Set<Service> serviceList = group.getServiceList();
         for (Service el : serviceList) {
-            if (el.getLabel().equals(service.getLabel())) {
+            if (el.getLabel().toLowerCase().equals(service.getLabel().toLowerCase())) {
                 return true;
             }
         }

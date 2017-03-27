@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {updateService} from "../common/api.js";
+import {removeService, updateService} from "../common/api.js";
 import {selectGroup, selectService} from "../common/Helper";
 import Constants from "../common/Constants";
 
@@ -25,7 +25,8 @@ class ServiceEdit extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "Service edit first msg"
+            msg: "Service edit first msg",
+            serviceToBeRemoved: null
         }
         this.formData = {
             service: Object.assign({}, this.props.service)
@@ -33,6 +34,9 @@ class ServiceEdit extends React.Component {
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
         this.submit = this.submit.bind(this);
+        this.removeServiceConfirmation = this.removeServiceConfirmation.bind(this);
+        this.renderRemoveServiceConfirmationButton = this.renderRemoveServiceConfirmationButton.bind(this);
+        this.removeService = this.removeService.bind(this);
         console.debug("Service edit construct");
     }
 
@@ -48,16 +52,25 @@ class ServiceEdit extends React.Component {
         })
     }
 
+    removeServiceConfirmation() {
+        this.setState(
+            {
+                msg: "Permanently remove service '" + this.props.service.label + "' ?",
+                serviceToBeRemoved: this.props.service
+            }
+        )
+    }
+
     submit() {
         console.debug("Form: " + JSON.stringify(this.formData.service));
-        this.setState({loading: true});
+        this.setState({loading: true, serviceToBeRemoved: null});
         updateService(JSON.stringify(this.formData.service), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
                 msg: resolve.responseText
             });
-            this.props.actions.editService(this.formData.service, this.props.group.id);
+            this.props.actions.editService(this.formData.service);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
                 this.setState({loading: false, msg: err.responseText});
@@ -67,6 +80,39 @@ class ServiceEdit extends React.Component {
                 this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
             }
         });
+    }
+
+    removeService() {
+        this.setState({loading: true, serviceToBeRemoved: null});
+        removeService(this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
+            console.debug(resolve);
+            this.setState({
+                loading: false,
+                msg: "Service removed."
+            });
+            hashHistory.push("main/group/content/" + this.props.group.id);
+            this.props.actions.removeService(this.props.service.id);
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
+    renderRemoveServiceConfirmationButton() {
+        if (this.state.serviceToBeRemoved != null) {
+            return (
+                <button type="button" className="btn btn-danger btn-xs margin-right-2vh pull-right"
+                        aria-expanded="false" onClick={() => this.removeService()}>
+                    <i className="fa fa-check" aria-hidden="true"></i>
+                    <span> Yes</span>
+                </button>
+            )
+        }
     }
 
     render() {
@@ -83,10 +129,10 @@ class ServiceEdit extends React.Component {
                             </div>
                             <div className="col-xs-5">
                                 <div className="btn-group pull-right">
-                                    <Link to="" type="button"
-                                          className="btn btn-danger" aria-expanded="false">
+                                    <button type="button" onClick={() => this.removeServiceConfirmation()}
+                                            className="btn btn-danger" aria-expanded="false">
                                         <i className="fa fa-trash" aria-hidden="true"></i> Delete service
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -102,6 +148,9 @@ class ServiceEdit extends React.Component {
                                 <div className="alert alert-info" role="alert">
                                     <i className="fa fa-info-circle" aria-hidden="true"></i>
                                     <span> {this.state.msg}</span>
+                                    <div className="row">
+                                        {this.renderRemoveServiceConfirmationButton()}
+                                    </div>
                                 </div>
                             </div>
                         }
