@@ -127,7 +127,7 @@ class GroupContent extends React.Component {
                                 </div>
                                 <div className="col-xs-6">
                                     <div className="btn-group pull-right">
-                                        <Link to={"main/group/" + this.props.group.id + "/service/add"} type="button"
+                                        <Link to={"main/service/add/" + this.props.group.id} type="button"
                                               className="btn btn-default" aria-expanded="false">
                                             <i className="fa fa-plus-circle" aria-hidden="true"></i> Add service
                                         </Link>

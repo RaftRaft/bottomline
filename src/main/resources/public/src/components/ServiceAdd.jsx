@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addService, getServices} from "../common/api.js";
+import {addServiceForGroup, getServices} from "../common/api.js";
 import {containsService, selectGroup} from "../common/Helper";
 import Constants from "../common/Constants";
 
@@ -22,9 +22,11 @@ class ServiceAdd extends React.Component {
 
     constructor(props) {
         super(props);
+        let initialMsg = (this.props.group != null) ? "Add service for group " + this.props.group.label : "Add new service";
+
         this.state = {
             loading: false,
-            msg: "A service can be a house water consumption",
+            msg: initialMsg,
             addedService: null,
             userServiceList: null,
             formData: {
@@ -39,6 +41,8 @@ class ServiceAdd extends React.Component {
         this.serviceElements = this.serviceElements.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
         this.submit = this.submit.bind(this);
+        this.addFreeService = this.addFreeService.bind(this);
+        this.addServiceForGroup = this.addServiceForGroup.bind(this);
         console.debug("Service add construct");
     }
 
@@ -127,18 +131,44 @@ class ServiceAdd extends React.Component {
     }
 
     submit() {
-        console.debug("Form: " + JSON.stringify(this.state.formData.service));
+        if (this.props.group != null) {
+            this.addServiceForGroup();
+        } else {
+            this.addFreeService();
+        }
+    }
+
+    addFreeService() {
         this.setState({loading: true});
-        addService(JSON.stringify(this.state.formData.service), this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
-            console.debug(resolve);
+        addService(JSON.stringify(this.state.formData.service), this.props.login.currentUser.id).then((resolve) => {
             let service = JSON.parse(resolve.responseText);
             this.setState({
                 loading: false,
-                addedService: service,
-                msg: "Service created. Now, configure some measurement items"
+                addedService: service
             });
-            this.props.actions.addService(service, this.props.group.id);
-            hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/mu/add");
+            this.props.actions.addService(service);
+            hashHistory.push("main/service/" + service.id + "/mi");
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
+    addServiceForGroup() {
+        this.setState({loading: true});
+        addServiceForGroup(JSON.stringify(this.state.formData.service), this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
+            let service = JSON.parse(resolve.responseText);
+            this.setState({
+                loading: false,
+                addedService: service
+            });
+            this.props.actions.addServiceForGroup(service, this.props.group.id);
+            hashHistory.push("main/service/" + service.id + "/mi");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
                 this.setState({loading: false, msg: err.responseText});
@@ -157,9 +187,9 @@ class ServiceAdd extends React.Component {
                 <div className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle"
+                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle green"
                                                               aria-hidden="true"></i>
-                                <span> Add service for group <strong>{this.props.group.label}</strong></span>
+                                <strong> Service add</strong>
                             </h5>
                             </div>
                         </div>

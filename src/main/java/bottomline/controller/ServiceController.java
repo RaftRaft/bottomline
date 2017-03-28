@@ -31,10 +31,31 @@ public class ServiceController {
     @PersistenceContext
     private EntityManager em;
 
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service) {
+        LOG.info("Received request to add service {} for owner with id {}", service, userId);
+
+        if (!isServiceValid(service)) {
+            throw new WebApplicationException("Service is not valid", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = ControllerHelper.processUser(em, userId);
+
+        if (getOwnerService(user, service) != null) {
+            throw new WebApplicationException("You already have a service with same label", HttpStatus.BAD_REQUEST);
+        }
+
+        service.setOwner(user);
+
+        em.merge(service);
+        em.flush();
+        service = getOwnerService(user, service);
+        return new ResponseEntity<>(service, HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Service> addServiceToGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
-                                                     @PathVariable("groupId") Integer groupId
-    ) {
+                                                     @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to add service {} for group id {} and owner with id {}", service, groupId, userId);
 
         if (!isServiceValid(service)) {

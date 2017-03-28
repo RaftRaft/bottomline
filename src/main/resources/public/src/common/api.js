@@ -20,9 +20,14 @@ export function getGroups(userId) {
     return genericAPICall("GET", Constants.SERVER_ADDRESS + "/group", userId);
 }
 
-export function addService(service, groupId, userId) {
+export function addServiceForGroup(service, groupId, userId) {
     console.debug("API: add service for group and user");
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service/group/" + groupId, userId, service);
+}
+
+export function addService(service, userId) {
+    console.debug("API: add service for user");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service", userId, service);
 }
 
 export function updateService(service, userId) {

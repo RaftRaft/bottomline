@@ -12,6 +12,7 @@ import GroupEdit from "./components/GroupEdit.jsx";
 import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
 import ServiceAdd from "./components/ServiceAdd.jsx";
+import Service from "./components/Service.jsx";
 import MeasurementItem from "./components/MeasurementItem.jsx";
 import ServiceConsumption from "./components/ServiceConsumption.jsx";
 import ServiceEdit from "./components/ServiceEdit.jsx";
@@ -30,10 +31,12 @@ ReactDOM.render((
                         <Route path="content/:groupId" component={GroupContent}/>
                         <Route path="edit/:groupId" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
-                        <Route path=":groupId/service/add" component={ServiceAdd}/>
-                        <Route path=":groupId/service/:serviceId/mu/add" component={MeasurementItem}/>
                         <Route path=":groupId/service/:serviceId/cons" component={ServiceConsumption}/>
-                        <Route path=":groupId/service/:serviceId/edit" component={ServiceEdit}/>
+                    </Route>
+                    <Route path="service" component={Service}>
+                        <Route path="add/(:groupId)" component={ServiceAdd}/>
+                        <Route path=":serviceId/mi" component={MeasurementItem}/>
+                        <Route path=":serviceId/edit" component={ServiceEdit}/>
                     </Route>
                 </Route>
             </Route>

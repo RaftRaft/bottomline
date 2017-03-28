@@ -1,4 +1,7 @@
 export function selectGroup(groupList, id) {
+    if (id == null || groupList == null) {
+        return null;
+    }
     for (let i = 0; i < groupList.length; i++) {
         if (groupList[i].id == id) {
             return groupList[i];

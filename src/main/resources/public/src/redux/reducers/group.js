@@ -94,6 +94,11 @@ const group = (state = {}, action) => {
                     }
                 })
             })
+        case Constants.SELECT_GROUP:
+            console.debug("Reducer selects group");
+            return Object.assign({}, state, {
+                selectedGroup: action.group
+            })
         case Constants.ADD_SERVICE:
             console.debug("Reducer adds service: " + action.service + " for group id " + action.groupId);
             return Object.assign({}, state, {
