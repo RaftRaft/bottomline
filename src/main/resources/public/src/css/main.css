@@ -7,10 +7,6 @@ hr {
     margin-bottom: 1em;
 }
 
-.custom-link {
-    color: darkgray;
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 0;

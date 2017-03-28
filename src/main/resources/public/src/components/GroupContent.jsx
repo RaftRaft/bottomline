@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import {Link} from "react-router";
+import {hashHistory, Link} from "react-router";
 import {selectGroup} from "../common/Helper";
 
 function mapStateToProps(state, ownProps) {
@@ -14,12 +14,14 @@ class GroupContent extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            serviceToRetract: null
+        }
         this.memberElements = this.memberElements.bind(this);
         this.serviceElements = this.serviceElements.bind(this);
+        this.renderUnassignServiceConfirmation = this.renderUnassignServiceConfirmation.bind(this);
+        this.retractServiceConfirmation = this.retractServiceConfirmation.bind(this);
         console.debug("Group content construct");
-    }
-
-    componentWillMount() {
     }
 
     memberElements() {
@@ -34,29 +36,52 @@ class GroupContent extends React.Component {
 
     serviceElements() {
         return this.props.group.serviceList.map((service) =>
-            <li key={service.id}
-                type="button" className="list-group-item">
+            <a key={service.id}
+               type="button" className="list-group-item">
                 <div className="row">
-                    <div className="col-xs-10">
-                        <Link to={"main/group/" + this.props.group.id + "/service/" + service.id + "/cons"}
-                              className="custom-link">
-                            <div><i className="fa fa-line-chart gray-dark"
-                                    aria-hidden="true"></i><b> {service.label}</b>
-                            </div>
-                            <div>
-                                <small className="gray-dark">{service.desc}</small>
-                            </div>
-                        </Link>
+                    <div className="col-xs-10" onClick={() => {
+                        hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/cons")
+                    }}>
+                        <div><i className="fa fa-line-chart gray-dark"
+                                aria-hidden="true"></i><b> {service.label}</b>
+                        </div>
+                        <div>
+                            <small className="gray-dark">{service.desc}</small>
+                        </div>
                     </div>
                     <div className="col-xs-2">
                         <button type="button" className="btn btn-info btn-xs pull-right"
-                                aria-expanded="false" onClick={() => this.removeItemConfirmation(item)}>
+                                aria-expanded="false" onClick={() => this.retractServiceConfirmation(service)}>
                             <i className="fa fa-chain-broken" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
-            </li>
+                {this.state.serviceToRetract != null && this.state.serviceToRetract.id == service.id ?
+                    this.renderUnassignServiceConfirmation() :
+                    <div></div>}
+            </a>
         );
+    }
+
+    retractServiceConfirmation(service) {
+        if (this.state.serviceToRetract != null && this.state.serviceToRetract.id == service.id) {
+            this.setState({serviceToRetract: null});
+        } else {
+            this.setState({serviceToRetract: service});
+        }
+    }
+
+    renderUnassignServiceConfirmation() {
+        return (
+            <div className="row">
+                <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Retract service from group ? </h5></div>
+                <div className="col-xs-3 col-lg-1">
+                    <button type="button" className="btn btn-default pull-right" aria-expanded="false">
+                        <i className="fa fa-check" aria-hidden="true"></i> Yes
+                    </button>
+                </div>
+            </div>
+        )
     }
 
     render() {

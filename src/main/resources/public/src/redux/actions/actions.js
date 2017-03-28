@@ -21,11 +21,6 @@ export function addGroup(group) {
     return {type: Constants.ADD_GROUP, group};
 }
 
-export function selectGroup(group) {
-    console.debug("Invoke select group action");
-    return {type: Constants.SELECT_GROUP, group};
-}
-
 export function editGroup(group) {
     console.debug("Invoke edit group action ");
     return {type: Constants.EDIT_GROUP, group};
@@ -44,11 +39,6 @@ export function editService(service) {
 export function removeService(serviceId) {
     console.debug("Invoke remove service action with id " + serviceId);
     return {type: Constants.REMOVE_SERVICE, serviceId};
-}
-
-export function selectService(service) {
-    console.debug("Invoke select service action");
-    return {type: Constants.SELECT_SERVICE, service};
 }
 
 export function addItem(item, serviceId) {
