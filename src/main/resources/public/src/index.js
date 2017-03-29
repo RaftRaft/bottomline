@@ -13,6 +13,7 @@ import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
 import ServiceAdd from "./components/ServiceAdd.jsx";
 import Service from "./components/Service.jsx";
+import ServiceList from "./components/ServiceList.jsx";
 import MeasurementItem from "./components/MeasurementItem.jsx";
 import ServiceConsumption from "./components/ServiceConsumption.jsx";
 import ServiceEdit from "./components/ServiceEdit.jsx";
@@ -34,6 +35,7 @@ ReactDOM.render((
                         <Route path=":groupId/service/:serviceId/cons" component={ServiceConsumption}/>
                     </Route>
                     <Route path="service" component={Service}>
+                        <Route path="list" component={ServiceList}/>
                         <Route path="add/(:groupId)" component={ServiceAdd}/>
                         <Route path=":serviceId/mi" component={MeasurementItem}/>
                         <Route path=":serviceId/edit" component={ServiceEdit}/>

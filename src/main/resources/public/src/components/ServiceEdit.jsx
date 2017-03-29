@@ -4,14 +4,13 @@ import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {removeService, updateService} from "../common/api.js";
-import {selectGroup, selectService} from "../common/Helper";
+import {selectService} from "../common/Helper";
 import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
-        group: selectGroup(state.main.group.list, ownProps.params.groupId),
-        service: selectService(selectGroup(state.main.group.list, ownProps.params.groupId).serviceList, ownProps.params.serviceId)
+        service: selectService(state.main.service.list, ownProps.params.serviceId)
     };
 }
 
@@ -90,7 +89,7 @@ class ServiceEdit extends React.Component {
                 loading: false,
                 msg: "Service removed."
             });
-            hashHistory.push("main/group/content/" + this.props.group.id);
+            hashHistory.push("main/service/list");
             this.props.actions.removeService(this.props.service.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
@@ -186,7 +185,7 @@ class ServiceEdit extends React.Component {
                         <div className="text-align-center">
                             <div className="btn-group">
                                 <Link
-                                    to={"main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/mu/add"}
+                                    to={"main/service/" + this.props.service.id + "/mi"}
                                     type="button" className="btn btn-default" aria-expanded="false">
                                     <i className="fa fa-tachometer" aria-hidden="true"></i> Configure measurement items
                                 </Link>

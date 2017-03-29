@@ -26,6 +26,11 @@ export function editGroup(group) {
     return {type: Constants.EDIT_GROUP, group};
 }
 
+export function setServiceList(list) {
+    console.debug("Invoke set list of services action");
+    return {type: Constants.SET_SERVICE_LIST, list};
+}
+
 export function addServiceForGroup(service, groupId) {
     console.debug("Invoke add new service action for group " + groupId);
     return {type: Constants.ADD_SERVICE, service, groupId};

@@ -35,8 +35,8 @@ class Header extends React.Component {
                             <ul className="nav navbar-nav navbar-right">
                                 <li><Link to="main/group"><i
                                     className="fa fa-cubes" aria-hidden="true"></i>&nbsp;Groups</Link></li>
-                                <li><a href="#"><i className="fa fa-cogs" aria-hidden="true"></i>&nbsp;
-                                    Services</a></li>
+                                <li><Link to="main/service/list"><i className="fa fa-cogs" aria-hidden="true"></i>&nbsp;
+                                    Services</Link></li>
                                 <li><a href="#"><i className="fa fa-sign-out" aria-hidden="true"></i>&nbsp;&nbsp;Sign
                                     Out&nbsp;&nbsp;<img
                                         width="22px" height="22px"

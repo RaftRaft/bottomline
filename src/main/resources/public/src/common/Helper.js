@@ -9,12 +9,13 @@ export function selectGroup(groupList, id) {
     }
 }
 
-export function selectService(serviceList, id) {
+export function selectService(serviceList, serviceId) {
     for (let i = 0; i < serviceList.length; i++) {
-        if (serviceList[i].id == id) {
+        if (serviceList[i].id == serviceId) {
             return serviceList[i];
         }
     }
+    return null;
 }
 
 export function containsService(serviceList, service) {
