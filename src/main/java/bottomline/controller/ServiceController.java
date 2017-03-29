@@ -122,9 +122,31 @@ public class ServiceController {
         return new ResponseEntity<>(serviceList, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, path = "{serviceId}/group/{groupId}")
+    public ResponseEntity<String> removeServiceFromGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId, @PathVariable("groupId") Integer groupId) {
+        LOG.info("Received request to remove service with id {} from group with id {}", serviceId, groupId);
+
+        ControllerHelper.processUser(em, userId);
+
+        Service service = em.find(Service.class, serviceId);
+        if (service == null) {
+            throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        Group group = em.find(Group.class, groupId);
+        if (group == null) {
+            throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        group.getServiceList().remove(service);
+
+        em.merge(group);
+        return new ResponseEntity<>("Service removed from group", HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.DELETE, path = "{serviceId}")
     public ResponseEntity<String> removeService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId) {
-        LOG.info("Received request to remove service with id", serviceId);
+        LOG.info("Received request to remove service with id {}", serviceId);
 
         ControllerHelper.processUser(em, userId);
 

@@ -40,6 +40,10 @@ export function removeService(serviceId, userId) {
     return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/service/" + serviceId, userId);
 }
 
+export function removeServiceFromGroup(serviceId, groupId, userId) {
+    console.debug("API: remove service from group");
+    return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/service/" + serviceId + "/group/" + groupId, userId);
+}
 
 export function getServices(userId) {
     console.debug("API: get services for user");

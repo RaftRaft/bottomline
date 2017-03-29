@@ -2,12 +2,21 @@ import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {hashHistory, Link} from "react-router";
+import * as actionCreators from "../redux/actions/actions";
 import {selectGroup} from "../common/Helper";
+import {removeServiceFromGroup} from "../common/api.js";
+import Constants from "../common/Constants";
+
 
 function mapStateToProps(state, ownProps) {
     return {
+        login: state.login,
         group: selectGroup(state.main.group.list, ownProps.params.groupId)
     }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {actions: bindActionCreators(actionCreators, dispatch)};
 }
 
 class GroupContent extends React.Component {
@@ -15,13 +24,34 @@ class GroupContent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            serviceToRetract: null
+            serviceToRetract: null,
+            retractingService: false,
+            retractingServiceMsg: null
         }
         this.memberElements = this.memberElements.bind(this);
         this.serviceElements = this.serviceElements.bind(this);
-        this.renderUnassignServiceConfirmation = this.renderUnassignServiceConfirmation.bind(this);
+        this.renderRetractServiceConfirmation = this.renderRetractServiceConfirmation.bind(this);
         this.retractServiceConfirmation = this.retractServiceConfirmation.bind(this);
         console.debug("Group content construct");
+    }
+
+    retractService(service, groupId) {
+        this.setState({retractingService: true});
+        removeServiceFromGroup(service.id, groupId, this.props.login.currentUser.id).then((resolve) => {
+            this.setState({
+                retractingService: false,
+                retractingServiceMsg: null
+            });
+            this.props.actions.removeServiceFromGroup(service.id, groupId);
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({retractingService: false, retractingServiceMsg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({retractingService: false, retractingServiceMsg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
     }
 
     memberElements() {
@@ -57,7 +87,7 @@ class GroupContent extends React.Component {
                     </div>
                 </div>
                 {this.state.serviceToRetract != null && this.state.serviceToRetract.id == service.id ?
-                    this.renderUnassignServiceConfirmation() :
+                    this.renderRetractServiceConfirmation(service) :
                     <div></div>}
             </a>
         );
@@ -65,21 +95,40 @@ class GroupContent extends React.Component {
 
     retractServiceConfirmation(service) {
         if (this.state.serviceToRetract != null && this.state.serviceToRetract.id == service.id) {
-            this.setState({serviceToRetract: null});
+            this.setState({serviceToRetract: null, retractingServiceMsg: null});
         } else {
-            this.setState({serviceToRetract: service});
+            this.setState({serviceToRetract: service, retractingServiceMsg: null});
         }
     }
 
-    renderUnassignServiceConfirmation() {
+    renderRetractServiceConfirmation(service) {
         return (
-            <div className="row">
-                <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Retract service from group ? </h5></div>
-                <div className="col-xs-3 col-lg-1">
-                    <button type="button" className="btn btn-default pull-right" aria-expanded="false">
-                        <i className="fa fa-check" aria-hidden="true"></i> Yes
-                    </button>
-                </div>
+            <div>
+                {!this.state.retractingService ?
+                    <div className="row">
+                        <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Retract service from group ? </h5></div>
+                        <div className="col-xs-3 col-lg-1">
+                            <button type="button" className="btn btn-default pull-right" aria-expanded="false"
+                                    onClick={() => this.retractService(service, this.props.group.id)}>
+                                <i className="fa fa-check" aria-hidden="true"></i> Yes
+                            </button>
+                        </div>
+                    </div> :
+                    <div className="row">
+                        <div className="col-xs-10 col-lg-11"><span className="pull-right">Loading </span></div>
+                        <div className="col-xs-2 col-lg-1">
+                            <i className="fa fa-spinner fa-spin pull-right" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                }
+                {this.state.retractingServiceMsg != null ?
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <span className="pull-right red-gray margin-top-05">{this.state.retractingServiceMsg}</span>
+                        </div>
+                    </div> :
+                    <div></div>
+                }
             </div>
         )
     }
@@ -180,4 +229,4 @@ class GroupContent extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(GroupContent);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupContent);

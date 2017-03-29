@@ -36,6 +36,11 @@ export function editService(service) {
     return {type: Constants.EDIT_SERVICE, service};
 }
 
+export function removeServiceFromGroup(serviceId, groupId) {
+    console.debug("Invoke remove service from group action");
+    return {type: Constants.REMOVE_SERVICE_FROM_GROUP, serviceId, groupId};
+}
+
 export function removeService(serviceId) {
     console.debug("Invoke remove service action with id " + serviceId);
     return {type: Constants.REMOVE_SERVICE, serviceId};
