@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addServiceForGroup} from "../common/api.js";
+import {addService, addServiceForGroup} from "../common/api.js";
 import {containsService, selectGroup} from "../common/Helper";
 import Constants from "../common/Constants";
 
@@ -98,7 +98,7 @@ class ServiceAdd extends React.Component {
                         </li>
                     )
                 }
-                if (index == this.state.userServiceList.length - 1 && availableServices == 0) {
+                if (index == this.props.serviceList.length - 1 && availableServices == 0) {
                     return (
                         <li key={service.id}>
                             <a>
@@ -206,7 +206,7 @@ class ServiceAdd extends React.Component {
                                           value={this.state.formData.service.desc}
                                           onChange={this.handleDescChange}></textarea>
                             </div>
-                            {this.state.userServiceList != null && this.state.userServiceList.length != 0 && this.props.group != null ?
+                            {this.props.serviceList != null && this.props.serviceList.length != 0 && this.props.group != null ?
                                 <div>
                                     <div className="margin-top-05">
                                         <label>Or, add an existing service</label>

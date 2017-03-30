@@ -11,31 +11,29 @@ function mapStateToProps(state, ownProps) {
     }
 }
 
-class ServiceConsumption extends React.Component {
+class ServiceUsage extends React.Component {
 
     constructor(props) {
         super(props);
-        console.debug("Service consumption construct");
+        console.debug("Service usage construct");
     }
 
     render() {
-        console.debug("Service consumption render");
+        console.debug("Service usage render");
         return (
             <div className="container">
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
                             <div className="col-xs-6">
-                                <h5><i className="fa fa-line-chart cyan" aria-hidden="true"></i>
+                                <h5><i className="fa fa-cogs cyan" aria-hidden="true"></i>
                                     <span> <strong>Service usage</strong></span>
                                 </h5>
-                                <small><strong>{this.props.service.label}</strong></small>
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
                                     <Link
-                                        to={"main/service/" + this.props.service.id + "/edit"}
-                                        type="button"
+                                        to={"main/service/" + this.props.service.id + "/edit"} type="button"
                                         className="btn btn-default" aria-expanded="false">
                                         <i className="fa fa-pencil-square" aria-hidden="true"></i> Service Edit
                                     </Link>
@@ -44,6 +42,20 @@ class ServiceConsumption extends React.Component {
                         </div>
                     </div>
                     <div className="panel-body">
+                        <div className="row">
+                            <div className="col-xs-9">
+                                <h4><i className="fa fa-area-chart cyan"
+                                       aria-hidden="true"></i> {this.props.service.label}
+                                </h4>
+                            </div>
+                            <div className="col-xs-3">
+                                <Link
+                                    to={"main/service/" + this.props.service.id + "/edit"} type="button"
+                                    className="btn btn-info" aria-expanded="false">
+                                    New
+                                </Link>
+                            </div>
+                        </div>
                         <hr/>
                     </div>
                 </div>
@@ -52,4 +64,4 @@ class ServiceConsumption extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(ServiceConsumption);
+export default connect(mapStateToProps)(ServiceUsage);

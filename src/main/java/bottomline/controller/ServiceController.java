@@ -150,11 +150,15 @@ public class ServiceController {
     public ResponseEntity<String> removeService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId) {
         LOG.info("Received request to remove service with id {}", serviceId);
 
-        ControllerHelper.processUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         Service service = em.find(Service.class, serviceId);
         if (service == null) {
             throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(service.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can remove this service", HttpStatus.BAD_REQUEST);
         }
 
         for (Group group : service.getGroupList()) {
