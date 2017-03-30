@@ -32,7 +32,7 @@ ReactDOM.render((
                         <Route path="content/:groupId" component={GroupContent}/>
                         <Route path="edit/:groupId" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
-                        <Route path=":groupId/service/:serviceId/cons" component={ServiceConsumption}/>
+                        <Route path=":groupId/service/:serviceId/usage" component={ServiceConsumption}/>
                     </Route>
                     <Route path="service" component={Service}>
                         <Route path="list" component={ServiceList}/>

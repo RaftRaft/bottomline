@@ -39,7 +39,7 @@ public class GroupController {
 
         User user = ControllerHelper.processUser(em, userId);
 
-        if (isGroupDuplicated(group, userId)) {
+        if (getSimilarGroup(user, group) != null) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -50,13 +50,15 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateGroup(@RequestBody Group group) {
+    public ResponseEntity<String> updateGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Group group) {
         LOG.info("Received request to update item  {}", group);
+
+        User user = ControllerHelper.processUser(em, userId);
 
         if (!isGroupValid(group)) {
             throw new WebApplicationException("Group not valid", HttpStatus.BAD_REQUEST);
         }
-        if (isGroupDuplicated(group, group.getOwner().getId())) {
+        if (getSimilarGroup(user, group) != null) {
             throw new WebApplicationException("Group already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -85,11 +87,15 @@ public class GroupController {
     public ResponseEntity<String> removeGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to remove group with id", groupId);
 
-        ControllerHelper.processUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         Group group = em.find(Group.class, groupId);
         if (group == null) {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(group.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can remove this group", HttpStatus.BAD_REQUEST);
         }
 
         group.getServiceList().clear();
@@ -97,12 +103,15 @@ public class GroupController {
         return new ResponseEntity<>("Group removed", HttpStatus.OK);
     }
 
-    private boolean isGroupDuplicated(Group group, String userId) {
-        List<Group> groupList = em.createQuery("from Group g where g.id!=:id and g.label=:label and g.owner.id=:userId")
-                .setParameter("id", group.getId())
-                .setParameter("label", group.getLabel())
-                .setParameter("userId", userId).getResultList();
-        return !groupList.isEmpty();
+    private Group getSimilarGroup(User user, Group group) {
+        List<Group> groupList = em.createQuery("from Group g where g.owner.id=:userId and g.label=:label")
+                .setParameter("userId", user.getId()).setParameter("label", group.getLabel()).getResultList();
+        for (Group el : groupList) {
+            if (el.getId() != group.getId() && el.getLabel().toLowerCase().equals(el.getLabel().toLowerCase())) {
+                return el;
+            }
+        }
+        return null;
     }
 
     private static boolean isGroupValid(Group group) {

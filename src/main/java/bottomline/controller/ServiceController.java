@@ -41,7 +41,7 @@ public class ServiceController {
 
         User user = ControllerHelper.processUser(em, userId);
 
-        if (getOwnerService(user, service) != null) {
+        if (getSimilarService(user, service) != null) {
             throw new WebApplicationException("You already have a service with same label", HttpStatus.BAD_REQUEST);
         }
 
@@ -49,7 +49,7 @@ public class ServiceController {
 
         em.merge(service);
         em.flush();
-        service = getOwnerService(user, service);
+        service = getSimilarService(user, service);
         return new ResponseEntity<>(service, HttpStatus.OK);
     }
 
@@ -70,7 +70,7 @@ public class ServiceController {
         }
 
         if (service.getId() == null) {
-            if (getOwnerService(user, service) != null) {
+            if (getSimilarService(user, service) != null) {
                 throw new WebApplicationException("You already have a service with same label", HttpStatus.BAD_REQUEST);
             }
             service.setOwner(user);
@@ -86,13 +86,15 @@ public class ServiceController {
         group.getServiceList().add(service);
         em.merge(group);
         em.flush();
-        service = getOwnerService(user, service);
+        service = getSimilarService(user, service);
         return new ResponseEntity<>(service, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateService(@RequestBody Service service) {
+    public ResponseEntity<String> updateService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service) {
         LOG.info("Received request to update service  {}", service);
+
+        ControllerHelper.processUser(em, userId);
 
         if (!isServiceValid(service)) {
             throw new WebApplicationException("Service not valid", HttpStatus.BAD_REQUEST);
@@ -173,7 +175,7 @@ public class ServiceController {
         return false;
     }
 
-    private Service getOwnerService(User user, Service service) {
+    private Service getSimilarService(User user, Service service) {
         List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId and s.label=:label")
                 .setParameter("userId", user.getId()).setParameter("label", service.getLabel()).getResultList();
         for (Service oldService : serviceList) {

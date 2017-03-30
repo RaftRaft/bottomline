@@ -42,8 +42,8 @@ public class MeasurementItemController {
             throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        if (getServiceItem(service, item) != null) {
-            throw new WebApplicationException("A measurement item with same name and unit of measurement already exists for this service",
+        if (getSimilarItem(service, item) != null) {
+            throw new WebApplicationException("Another identical item exists",
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -51,7 +51,7 @@ public class MeasurementItemController {
         item.setService(service);
         em.merge(service);
         em.flush();
-        item = getServiceItem(service, item);
+        item = getSimilarItem(service, item);
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
 
@@ -72,10 +72,37 @@ public class MeasurementItemController {
         return new ResponseEntity<>("Item removed", HttpStatus.OK);
     }
 
-    private MeasurementItem getServiceItem(Service service, MeasurementItem item) {
+    @RequestMapping(method = RequestMethod.PUT)
+    public ResponseEntity<String> updateItem(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody MeasurementItem item) {
+        LOG.info("Received request to update measurement item {}", item);
+
+        ControllerHelper.processUser(em, userId);
+
+        if (!isMeasurementItemValid(item)) {
+            throw new WebApplicationException("Measurement item is not valid.", HttpStatus.BAD_REQUEST);
+        }
+
+        MeasurementItem oldItem = em.find(MeasurementItem.class, item.getId());
+        if (oldItem == null) {
+            throw new WebApplicationException("Item does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (getSimilarItem(oldItem.getService(), item) != null) {
+            throw new WebApplicationException("Another identical item exists",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        oldItem.setLabel(item.getLabel());
+        oldItem.setUnitOfMeasurement(item.getUnitOfMeasurement());
+
+        em.merge(oldItem);
+        return new ResponseEntity<>("Item removed", HttpStatus.OK);
+    }
+
+    private MeasurementItem getSimilarItem(Service service, MeasurementItem item) {
         Set<MeasurementItem> itemList = service.getItemList();
         for (MeasurementItem el : itemList) {
-            if (el.getLabel().toLowerCase().equals(item.getLabel().toLowerCase())
+            if (el.getId() != item.id && el.getLabel().toLowerCase().equals(item.getLabel().toLowerCase())
                     && el.getUnitOfMeasurement().toLowerCase().equals(item.getUnitOfMeasurement().toLowerCase())) {
                 return el;
             }

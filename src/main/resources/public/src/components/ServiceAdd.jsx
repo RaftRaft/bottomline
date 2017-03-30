@@ -3,14 +3,15 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addServiceForGroup, getServices} from "../common/api.js";
+import {addServiceForGroup} from "../common/api.js";
 import {containsService, selectGroup} from "../common/Helper";
 import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
-        group: selectGroup(state.main.group.list, ownProps.params.groupId)
+        group: selectGroup(state.main.group.list, ownProps.params.groupId),
+        serviceList: state.main.service.list
     };
 }
 
@@ -28,7 +29,6 @@ class ServiceAdd extends React.Component {
             loading: false,
             msg: initialMsg,
             addedService: null,
-            userServiceList: null,
             formData: {
                 service: {
                     label: "",
@@ -81,27 +81,9 @@ class ServiceAdd extends React.Component {
         this.setState({msg: "Service selected"})
     }
 
-    componentDidMount() {
-        getServices(this.props.login.currentUser.id).then((resolve) => {
-            console.debug(resolve);
-            let serviceList = JSON.parse(resolve.responseText);
-            this.setState({
-                userServiceList: serviceList
-            });
-        }).catch((err) => {
-            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
-            }
-            else {
-                console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
-            }
-        });
-    }
-
     serviceElements() {
         var availableServices = 0;
-        return this.state.userServiceList.map((service, index) => {
+        return this.props.serviceList.map((service, index) => {
                 if (!containsService(this.props.group.serviceList, service)) {
                     availableServices++;
                     return (
@@ -224,7 +206,7 @@ class ServiceAdd extends React.Component {
                                           value={this.state.formData.service.desc}
                                           onChange={this.handleDescChange}></textarea>
                             </div>
-                            {this.state.userServiceList != null && this.state.userServiceList.length != 0 ?
+                            {this.state.userServiceList != null && this.state.userServiceList.length != 0 && this.props.group != null ?
                                 <div>
                                     <div className="margin-top-05">
                                         <label>Or, add an existing service</label>

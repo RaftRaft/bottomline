@@ -8,7 +8,6 @@ function mapStateToProps(state, ownProps) {
     return {
         group: selectGroup(state.main.group.list, ownProps.params.groupId),
         service: selectService(selectGroup(state.main.group.list, ownProps.params.groupId).serviceList, ownProps.params.serviceId)
-
     }
 }
 
@@ -35,7 +34,7 @@ class ServiceConsumption extends React.Component {
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
                                     <Link
-                                        to={"main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/edit"}
+                                        to={"main/service/" + this.props.service.id + "/edit"}
                                         type="button"
                                         className="btn btn-default" aria-expanded="false">
                                         <i className="fa fa-pencil-square" aria-hidden="true"></i> Service Edit

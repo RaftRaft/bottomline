@@ -74,7 +74,7 @@ class ServiceList extends React.Component {
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link to={"main/service/add"} type="button" className="btn btn-warning"
+                                    <Link to={"main/service/add/"} type="button" className="btn btn-warning"
                                           aria-expanded="false">
                                         <i className="fa fa-plus-circle" aria-hidden="true"></i> Add service
                                     </Link>

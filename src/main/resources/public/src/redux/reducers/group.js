@@ -9,6 +9,16 @@ const serviceElement = (service, action) => {
                     action.item
                 ]
             })
+        case Constants.EDIT_ITEM:
+            return Object.assign({}, service, {
+                itemList: service.itemList.map(t => {
+                    if (t.id == action.item.id) {
+                        return Object.assign({}, t, action.item);
+                    } else {
+                        return Object.assign({}, t);
+                    }
+                })
+            })
         case Constants.REMOVE_ITEM:
             return Object.assign({}, service, {
                 itemList: service.itemList.filter(t => {
@@ -20,7 +30,7 @@ const serviceElement = (service, action) => {
 
 const groupElement = (group, action) => {
     switch (action.type) {
-        case Constants.ADD_SERVICE:
+        case Constants.ADD_SERVICE_FOR_GROUP:
             return Object.assign({}, group, {
                 serviceList: [
                     ...group.serviceList,
@@ -59,14 +69,14 @@ const groupElement = (group, action) => {
                     }
                 })
             })
+        case Constants.EDIT_ITEM:
+            serviceList: group.serviceList.map(t => {
+                return serviceElement(t, action)
+            })
         case Constants.REMOVE_ITEM:
             return Object.assign({}, group, {
                 serviceList: group.serviceList.map(t => {
-                    if (t.id == action.serviceId) {
-                        return serviceElement(t, action)
-                    } else {
-                        return Object.assign({}, t)
-                    }
+                    return serviceElement(t, action)
                 })
             })
         default:
@@ -100,7 +110,14 @@ const group = (state = {}, action) => {
                     }
                 })
             })
-        case Constants.ADD_SERVICE:
+        case Constants.REMOVE_GROUP:
+            console.debug("Reducer removes group");
+            return Object.assign({}, state, {
+                list: state.list.filter(t => {
+                    return t.id != action.groupId
+                })
+            })
+        case Constants.ADD_SERVICE_FOR_GROUP:
             console.debug("Reducer adds service: " + action.service + " for group id " + action.groupId);
             return Object.assign({}, state, {
                 list: state.list.map(t => {
@@ -143,8 +160,15 @@ const group = (state = {}, action) => {
                     return groupElement(t, action)
                 })
             })
+        case Constants.EDIT_ITEM:
+            console.debug("Reducer edits item");
+            return Object.assign({}, state, {
+                list: state.list.map(t => {
+                    return groupElement(t, action)
+                })
+            })
         case Constants.REMOVE_ITEM:
-            console.debug("Reducer removes item with id " + action.itemId + " for service with id " + action.serviceId);
+            console.debug("Reducer removes item with id " + action.itemId);
             return Object.assign({}, state, {
                 list: state.list.map(t => {
                     return groupElement(t, action)

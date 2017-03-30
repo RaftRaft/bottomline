@@ -3,14 +3,14 @@ import {connect} from "react-redux";
 import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {addItem, removeItem} from "../common/api.js";
-import {selectGroup, selectService} from "../common/Helper";
+import {addItem, removeItem, updateItem} from "../common/api.js";
+import {selectService} from "../common/Helper";
 import Constants from "../common/Constants";
 
 function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
-        service: selectService(selectGroup(state.main.group.list, ownProps.params.groupId).serviceList, ownProps.params.serviceId)
+        service: selectService(state.main.service.list, ownProps.params.serviceId)
     };
 }
 
@@ -25,12 +25,13 @@ class MeasurementItem extends React.Component {
         this.state = {
             loading: false,
             msg: "Add measurement items",
-            itemToBeRemoved: null
-        }
-        this.formData = {
-            item: {
-                label: null,
-                unitOfMeasurement: null
+            itemToRemove: null,
+            itemToEdit: null,
+            formData: {
+                item: {
+                    label: "",
+                    unitOfMeasurement: ""
+                }
             }
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
@@ -38,33 +39,45 @@ class MeasurementItem extends React.Component {
         this.measurementItems = this.measurementItems.bind(this);
         this.removeItemConfirmation = this.removeItemConfirmation.bind(this);
         this.removeItem = this.removeItem.bind(this);
+        this.setItemToEdit = this.setItemToEdit.bind(this);
         this.renderRemoveItemConfirmationButton = this.renderRemoveItemConfirmationButton.bind(this);
         this.submit = this.submit.bind(this);
         console.debug("Measurement item construct");
     }
 
     handleLabelChange(event) {
-        this.formData.item = Object.assign({}, this.formData.item, {
-            label: event.target.value
-        })
+        this.setState(
+            {
+                formData: {
+                    item: Object.assign({}, this.state.formData.item, {
+                        label: event.target.value
+                    })
+                }
+            }
+        )
     }
 
     handleMuChange(event) {
-        this.formData.item = Object.assign({}, this.formData.item, {
-            unitOfMeasurement: event.target.value
-        })
+        this.setState(
+            {
+                formData: {
+                    item: Object.assign({}, this.state.formData.item, {
+                        unitOfMeasurement: event.target.value
+                    })
+                }
+            }
+        )
     }
 
     measurementItems() {
         return this.props.service.itemList.map((item) =>
-            <li type="button" className="list-group-item" key={item.id}>
+            <a type="button" className="list-group-item" key={item.id}>
                 <div className="row">
-                    <div className="col-xs-10">
+                    <div className="col-xs-10" onClick={() => this.setItemToEdit(item)}>
                         <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
                         <div>
                             <small className="gray-dark"><i className="fa fa-compress" aria-hidden="true"></i><strong>
-                                Unit of
-                                measure: </strong>{item.unitOfMeasurement}</small>
+                                &nbsp;&nbsp;Unit of measure: </strong>{item.unitOfMeasurement}</small>
                         </div>
                     </div>
                     <div className="col-xs-2">
@@ -74,51 +87,87 @@ class MeasurementItem extends React.Component {
                         </button>
                     </div>
                 </div>
-            </li>
+            </a>
         );
+    }
+
+    setItemToEdit(item) {
+        this.setState(
+            {
+                itemToEdit: item,
+                formData: {
+                    item: Object.assign({}, item, {
+                        label: (item != null) ? item.label : "",
+                        unitOfMeasurement: (item != null) ? item.unitOfMeasurement : ""
+                    })
+                }
+            }
+        )
     }
 
     removeItemConfirmation(item) {
         this.setState(
             {
                 msg: "Remove item '" + item.label + "' ?",
-                itemToBeRemoved: item
+                itemToRemove: item
             }
         )
     }
 
     submit() {
-        console.debug("Form: " + JSON.stringify(this.formData.item));
-        this.setState({loading: true, itemToBeRemoved: null});
-        addItem(JSON.stringify(this.formData.item), this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
-            console.debug(resolve);
-            let item = JSON.parse(resolve.responseText);
-            this.setState({
-                loading: false,
-                msg: "Measurement item added."
+        console.debug("Form: " + JSON.stringify(this.state.formData.item));
+        this.setState({loading: true, itemToRemove: null});
+        if (this.state.itemToEdit == null) {
+            //Add new item
+            addItem(JSON.stringify(this.state.formData.item), this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
+                console.debug(resolve);
+                let item = JSON.parse(resolve.responseText);
+                this.setState({
+                    loading: false,
+                    msg: "Measurement item added."
+                });
+                this.props.actions.addItem(item, this.props.service.id);
+            }).catch((err) => {
+                if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                    this.setState({loading: false, msg: err.responseText});
+                }
+                else {
+                    console.error(err);
+                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                }
             });
-            this.props.actions.addItem(item, this.props.service.id);
-        }).catch((err) => {
-            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
-            }
-            else {
-                console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
-            }
-        });
+        } else {
+            //Update item
+            updateItem(JSON.stringify(this.state.formData.item), this.props.login.currentUser.id).then((resolve) => {
+                console.debug(resolve);
+                this.setState({
+                    loading: false,
+                    msg: "Measurement item updated."
+                });
+                this.props.actions.editItem(this.state.formData.item);
+            }).catch((err) => {
+                if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                    this.setState({loading: false, msg: err.responseText});
+                }
+                else {
+                    console.error(err);
+                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                }
+            });
+        }
     }
 
     removeItem() {
-        let item = this.state.itemToBeRemoved;
-        this.setState({loading: true, itemToBeRemoved: null});
+        let item = this.state.itemToRemove;
+        this.setState({loading: true, itemToRemove: null});
+        this.setItemToEdit(null);
         removeItem(item.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
                 loading: false,
                 msg: "Measurement item removed."
             });
-            this.props.actions.removeItem(item.id, this.props.service.id);
+            this.props.actions.removeItem(item.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
                 this.setState({loading: false, msg: err.responseText});
@@ -131,9 +180,9 @@ class MeasurementItem extends React.Component {
     }
 
     renderRemoveItemConfirmationButton() {
-        if (this.state.itemToBeRemoved != null) {
+        if (this.state.itemToRemove != null) {
             return (
-                <button type="button" className="btn btn-info btn-xs margin-right-2vh pull-right"
+                <button type="button" className="btn btn-danger btn-xs margin-right-2vh pull-right"
                         aria-expanded="false" onClick={() => this.removeItem()}>
                     <i className="fa fa-check" aria-hidden="true"></i>
                     <span> Yes</span>
@@ -175,6 +224,25 @@ class MeasurementItem extends React.Component {
                         <div id="groupListId" className="list-group">
                             {this.measurementItems()}
                         </div>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                {this.state.itemToEdit == null ?
+                                    <h4>Add new Item</h4> :
+                                    <h4>Edit Item</h4>
+                                }
+                            </div>
+                            <div className="col-xs-6">
+                                {this.state.itemToEdit != null ?
+                                    <button type="button" className="btn btn-info pull-right"
+                                            aria-expanded="false" onClick={() => this.setItemToEdit(null)}>
+                                        <i className="fa fa-check-circle" aria-hidden="true"></i>
+                                        <span> Add new</span>
+                                    </button> :
+                                    <div></div>
+                                }
+                            </div>
+                        </div>
+                        <hr/>
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Measurement item label
@@ -182,7 +250,7 @@ class MeasurementItem extends React.Component {
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
                                        placeholder="Happy tree friends" onChange={this.handleLabelChange}
-                                       aria-describedby="basic-addon1"/>
+                                       aria-describedby="basic-addon1" value={this.state.formData.item.label}/>
                             </div>
                             <label className="margin-top-05">
                                 Unit of measurement<sup> <i className="fa fa-star red"
@@ -190,16 +258,16 @@ class MeasurementItem extends React.Component {
                             <div className="input-group col-xs-4 col-lg-6">
                                 <input type="text" className="form-control" maxLength="10"
                                        placeholder="Eg: m³, $" onChange={this.handleMuChange}
-                                       aria-describedby="basic-addon1"/>
+                                       aria-describedby="basic-addon1" value={this.state.formData.item.unitOfMeasurement}/>
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
                                 </div>
                                 <div className="col-xs-6">
-                                    <button type="button" className="btn btn-warning pull-right"
+                                    <button type="button" className="btn btn-default pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-check-circle" aria-hidden="true"></i>
-                                        <span> Add</span>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
+                                        <span> Apply</span>
                                     </button>
                                 </div>
                             </div>

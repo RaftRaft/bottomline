@@ -1,9 +1,9 @@
 import React from "react";
 import {connect} from "react-redux";
-import {Link} from "react-router";
+import {hashHistory, Link} from "react-router";
 import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
-import {updateGroup} from "../common/api.js";
+import {removeGroup, updateGroup} from "../common/api.js";
 import {selectGroup} from "../common/Helper";
 import Constants from "../common/Constants";
 
@@ -24,13 +24,17 @@ class GroupEdit extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            msg: "Edit group message"
+            msg: "Edit group message",
+            groupToBeRemoved: null
         }
         this.formData = {
             group: Object.assign({}, this.props.group)
         }
         this.handleLabelChange = this.handleLabelChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
+        this.removeGroupConfirmation = this.removeGroupConfirmation.bind(this);
+        this.renderRemoveGroupConfirmationButton = this.renderRemoveGroupConfirmationButton.bind(this);
+        this.removeGroup = this.removeGroup.bind(this);
         this.submit = this.submit.bind(this);
         console.debug("Group edit construct");
     }
@@ -47,8 +51,38 @@ class GroupEdit extends React.Component {
         })
     }
 
+    removeGroupConfirmation() {
+        this.setState(
+            {
+                msg: "Permanently remove group '" + this.props.group.label + "' ?",
+                groupToBeRemoved: this.props.group
+            }
+        )
+    }
+
+    removeGroup() {
+        this.setState({loading: true, groupToBeRemoved: null});
+        removeGroup(this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
+            console.debug(resolve);
+            this.setState({
+                loading: false,
+                msg: "Group removed."
+            });
+            hashHistory.push("main/group");
+            this.props.actions.removeGroup(this.props.group.id);
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
     submit() {
-        this.setState({loading: true});
+        this.setState({loading: true, groupToBeRemoved: null});
         updateGroup(JSON.stringify(this.formData.group), this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
@@ -65,6 +99,18 @@ class GroupEdit extends React.Component {
                 this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
             }
         });
+    }
+
+    renderRemoveGroupConfirmationButton() {
+        if (this.state.groupToBeRemoved != null) {
+            return (
+                <button type="button" className="btn btn-danger btn-xs margin-right-2vh pull-right margin-top-05"
+                        aria-expanded="false" onClick={() => this.removeGroup()}>
+                    <i className="fa fa-check" aria-hidden="true"></i>
+                    <span> Yes</span>
+                </button>
+            )
+        }
     }
 
     render() {
@@ -86,10 +132,10 @@ class GroupEdit extends React.Component {
                             </div>
                             <div className="col-xs-5">
                                 <div className="btn-group pull-right">
-                                    <Link to="" type="button"
-                                          className="btn btn-danger" aria-expanded="false">
+                                    <button to="" type="button"
+                                            className="btn btn-danger" aria-expanded="false" onClick={() => this.removeGroupConfirmation()}>
                                         <i className="fa fa-trash" aria-hidden="true"></i> Delete group
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -105,6 +151,9 @@ class GroupEdit extends React.Component {
                                 <div className="alert alert-info" role="alert">
                                     <i className="fa fa-info-circle" aria-hidden="true"></i>
                                     <span> {this.state.msg}</span>
+                                    <div className="row">
+                                        {this.renderRemoveGroupConfirmationButton()}
+                                    </div>
                                 </div>
                             </div>
                         }

@@ -70,7 +70,7 @@ class GroupContent extends React.Component {
                type="button" className="list-group-item">
                 <div className="row">
                     <div className="col-xs-10" onClick={() => {
-                        hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/cons")
+                        hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/usage")
                     }}>
                         <div><i className="fa fa-line-chart gray-dark"
                                 aria-hidden="true"></i><b> {service.label}</b>

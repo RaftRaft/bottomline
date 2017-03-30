@@ -26,14 +26,24 @@ export function editGroup(group) {
     return {type: Constants.EDIT_GROUP, group};
 }
 
+export function removeGroup(groupId) {
+    console.debug("Invoke remove group action with id " + groupId);
+    return {type: Constants.REMOVE_GROUP, groupId};
+}
+
 export function setServiceList(list) {
     console.debug("Invoke set list of services action");
     return {type: Constants.SET_SERVICE_LIST, list};
 }
 
+export function addService(service) {
+    console.debug("Invoke add new service action");
+    return {type: Constants.ADD_SERVICE, service};
+}
+
 export function addServiceForGroup(service, groupId) {
     console.debug("Invoke add new service action for group " + groupId);
-    return {type: Constants.ADD_SERVICE, service, groupId};
+    return {type: Constants.ADD_SERVICE_FOR_GROUP, service, groupId};
 }
 
 export function editService(service) {
@@ -56,7 +66,12 @@ export function addItem(item, serviceId) {
     return {type: Constants.ADD_ITEM, item, serviceId};
 }
 
-export function removeItem(itemId, serviceId) {
+export function editItem(item) {
+    console.debug("Invoke edit item action");
+    return {type: Constants.EDIT_ITEM, item};
+}
+
+export function removeItem(itemId) {
     console.debug("Invoke remove item with id " + itemId);
-    return {type: Constants.REMOVE_ITEM, itemId, serviceId};
+    return {type: Constants.REMOVE_ITEM, itemId};
 }
