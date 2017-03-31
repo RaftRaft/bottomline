@@ -37,7 +37,6 @@ public class ServiceUsage {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
@@ -47,7 +46,6 @@ public class ServiceUsage {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "item_id", nullable = false)
     private MeasurementItem item;

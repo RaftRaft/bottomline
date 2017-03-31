@@ -70,6 +70,12 @@ export function removeItem(itemId, userId) {
     return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/measurement-item/" + itemId, userId);
 }
 
+export function addServiceUsage(usage, groupId, serviceId, itemId, userId) {
+    console.debug("API: add service for user");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service-usage/group/" + groupId + "/service/"
+        + serviceId + "/item/" + itemId, userId, usage);
+}
+
 function genericAPICall(method, url, userheader, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();

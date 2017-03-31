@@ -50,7 +50,8 @@ class ServiceUsage extends React.Component {
                             </div>
                             <div className="col-xs-3">
                                 <Link
-                                    to={"main/service/" + this.props.service.id + "/edit"} type="button"
+                                    to={"main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage/edit/"}
+                                    type="button"
                                     className="btn btn-info" aria-expanded="false">
                                     New
                                 </Link>

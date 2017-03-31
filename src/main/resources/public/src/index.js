@@ -11,12 +11,13 @@ import GroupList from "./components/GroupList.jsx";
 import GroupEdit from "./components/GroupEdit.jsx";
 import GroupAdd from "./components/GroupAdd.jsx";
 import GroupContent from "./components/GroupContent.jsx";
-import ServiceAdd from "./components/ServiceAdd.jsx";
 import Service from "./components/Service.jsx";
 import ServiceList from "./components/ServiceList.jsx";
+import ServiceAdd from "./components/ServiceAdd.jsx";
+import ServiceEdit from "./components/ServiceEdit.jsx";
 import MeasurementItem from "./components/MeasurementItem.jsx";
 import ServiceUsage from "./components/ServiceUsage.jsx";
-import ServiceEdit from "./components/ServiceEdit.jsx";
+import ServiceUsageEdit from "./components/ServiceUsageEdit.jsx";
 
 
 import {store} from "./redux/store/store";
@@ -33,6 +34,7 @@ ReactDOM.render((
                         <Route path="edit/:groupId" component={GroupEdit}/>
                         <Route path="add" component={GroupAdd}/>
                         <Route path=":groupId/service/:serviceId/usage" component={ServiceUsage}/>
+                        <Route path=":groupId/service/:serviceId/usage/edit/(:usageId)" component={ServiceUsageEdit}/>
                     </Route>
                     <Route path="service" component={Service}>
                         <Route path="list" component={ServiceList}/>
