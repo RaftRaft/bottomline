@@ -1,6 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
+import DatePicker from "react-bootstrap-date-picker";
 import {Link} from "react-router";
 import {selectGroup, selectService} from "../common/Helper";
 
@@ -18,19 +19,20 @@ class ServiceUsageEdit extends React.Component {
         this.state = {
             loading: false,
             msg: "Test",
-            selectedItem: null,
             formData: {
                 usage: {
                     value: 0,
                     consumption: "",
                     desc: "",
-                    date: ""
+                    date: "",
+                    item: null
                 }
             }
         }
         this.handleValueChange = this.handleValueChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
         this.measurementItemElements = this.measurementItemElements.bind(this);
+        this.renderDate = this.renderDate.bind(this);
         console.debug("Service usage edit construct");
     }
 
@@ -60,10 +62,36 @@ class ServiceUsageEdit extends React.Component {
         )
     }
 
+    selectItem(item) {
+        this.setState(
+            {
+                formData: {
+                    usage: Object.assign({}, this.state.formData.usage, {
+                        item: item
+                    })
+                }
+            }
+        );
+    }
+
     measurementItemElements() {
         return this.props.service.itemList.map((item) =>
-            <li key={item.id}><a href="#">{item.label}</a></li>
+            <li key={item.id}>
+                <a onClick={() => this.selectItem(item)}>
+                    <i className="fa fa-tachometer" aria-hidden="true"></i>&nbsp;{item.label}
+                </a>
+                <div id="customDividerId" role="separator" className="divider"></div>
+            </li>
         );
+    }
+
+    renderDate() {
+        return (
+            <div className="input-group col-xs-6 col-lg-6 margin-top-05">
+                <label>Date</label><sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
+                <DatePicker id="example-datepicker"/>
+            </div>
+        )
     }
 
     render() {
@@ -100,18 +128,32 @@ class ServiceUsageEdit extends React.Component {
                         <hr/>
                         <form>
                             <div className="btn-group">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">Select a measurement item <span className="caret"></span>
+                                <button type="button" className="btn btn-default dropdown-toggle wrap-text"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    {this.state.formData.usage.item == null ?
+                                        <span>Select a measurement item&nbsp;
+                                        </span> :
+                                        <span className="margin-top-05 margin-bottom-2em">
+                                            <i className="fa fa-tachometer cyan" aria-hidden="true"></i>
+                                            &nbsp;{this.state.formData.usage.item.label}&nbsp;
+                                        </span>
+                                    }
+                                    &nbsp;<span className="caret"></span>
                                 </button>
-                                <sup>&nbsp;&nbsp;<i className="fa fa-star red" aria-hidden="true"></i></sup>
-                                <ul className="dropdown-menu">
+                                <ul className="dropdown-menu" role="menu">
                                     {this.measurementItemElements()}
                                 </ul>
                             </div>
-                            <div className="input-group col-xs-8 col-lg-4 margin-top-05">
+                            {this.renderDate()}
+                            <div className="input-group col-xs-4 col-lg-4 margin-top-05">
                                 <label>Amount
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
+                                {this.state.formData.usage.item != null ?
+                                    <sup className="gray-dark">&nbsp;
+                                        ({this.state.formData.usage.item.unitOfMeasurement})&nbsp;</sup> :
+                                    <span></span>
+                                }
                                 <input type="tel" className="form-control" maxLength="20"
                                        placeholder=" Happy tree friends" value={this.state.formData.usage.value}
                                        onChange={this.handleValueChange}
@@ -124,7 +166,7 @@ class ServiceUsageEdit extends React.Component {
                                        onChange={this.handleValueChange}
                                        aria-describedby=" basic-addon1"/>
                             </div>
-                            <div className=" input-group col-xs-12 col-lg-6 margin-top-05">
+                            <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
                                 <textarea className=" form-control" maxLength="256" rows="2" placeholder="Some desc"
                                           value={this.state.formData.usage.desc}
@@ -148,5 +190,6 @@ class ServiceUsageEdit extends React.Component {
         )
     }
 }
+
 
 export default connect(mapStateToProps)(ServiceUsageEdit);

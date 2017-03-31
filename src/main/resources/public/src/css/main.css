@@ -39,6 +39,12 @@ hr {
     }
 }
 
+.wrap-text {
+    white-space: normal !important;
+    word-wrap: break-word;
+    text-align: left;
+}
+
 .panel {
     padding-bottom: 2em;
 }
