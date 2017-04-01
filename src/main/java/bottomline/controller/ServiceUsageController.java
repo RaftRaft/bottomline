@@ -33,17 +33,17 @@ public class ServiceUsageController {
                                                         @PathVariable("groupId") Integer groupId,
                                                         @PathVariable("serviceId") Integer serviceId,
                                                         @PathVariable("itemId") Integer itemId,
-                                                        @RequestBody ServiceUsage usage) {
+                                                        @RequestBody ServiceUsage serviceUsage) {
 
-        LOG.info("Received request to add service usage {}", usage, userId);
+        LOG.info("Received request to add service usage {}", serviceUsage, userId);
 
         User user = ControllerHelper.processUser(em, userId);
 
-        if (!isServiceUsageValid(usage)) {
+        if (!isServiceUsageValid(serviceUsage)) {
             throw new WebApplicationException("Please fill all required fields", HttpStatus.BAD_REQUEST);
         }
 
-        if (isServiceUsageDuplicated(usage, groupId, serviceId, itemId)) {
+        if (isServiceUsageDuplicated(serviceUsage, groupId, serviceId, itemId)) {
             throw new WebApplicationException("An identical registration already exists", HttpStatus.BAD_REQUEST);
         }
 
@@ -60,15 +60,52 @@ public class ServiceUsageController {
             throw new WebApplicationException("Item does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        usage.setOwner(user);
-        usage.setGroup(group);
-        usage.setService(service);
-        usage.setItem(item);
+        ServiceUsage prevServiceUsage = getPreviousServiceUsage(serviceUsage, groupId, serviceId, itemId);
+        double currConsumption = 0;
+        if (prevServiceUsage != null) {
+            currConsumption = serviceUsage.getIndex() - prevServiceUsage.getIndex();
+        }
 
-        em.merge(usage);
+        serviceUsage.setConsumption(currConsumption);
+        serviceUsage.setOwner(user);
+        serviceUsage.setGroup(group);
+        serviceUsage.setService(service);
+        serviceUsage.setItem(item);
+
+        em.merge(serviceUsage);
         em.flush();
 
-        return new ResponseEntity<>(usage, HttpStatus.OK);
+        return new ResponseEntity<>(serviceUsage, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}/offset/{offset}/max/{max}",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+                                                                  @PathVariable("groupId") Integer groupId,
+                                                                  @PathVariable("serviceId") Integer serviceId,
+                                                                  @PathVariable("offset") Integer offset,
+                                                                  @PathVariable("max") Integer maxResults) {
+
+        LOG.info("Received request to retrieve service usages for group {} and service {}", groupId, serviceId);
+
+        Group group = em.find(Group.class, groupId);
+        if (group == null) {
+            throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+        Service service = em.find(Service.class, serviceId);
+        if (service == null) {
+            throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        List<ServiceUsage> serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
+                "and su.service.id=:serviceId order by su.date desc")
+                .setFirstResult(offset)
+                .setMaxResults(maxResults)
+                .setParameter("groupId", groupId)
+                .setParameter("serviceId", serviceId)
+                .getResultList();
+
+        return new ResponseEntity<>(serviceUsageList, HttpStatus.OK);
     }
 
     private static boolean isServiceUsageValid(ServiceUsage usage) {
@@ -83,9 +120,21 @@ public class ServiceUsageController {
                 " and su.item.id=:itemId and su.date=:date")
                 .setParameter("groupId", groupId).setParameter("serviceId", serviceId).setParameter("itemId", itemId)
                 .setParameter("date", usage.getDate()).getResultList();
-        if (!usageList.isEmpty()) {
+        if (usageList.isEmpty()) {
             return false;
         }
         return true;
+    }
+
+    private ServiceUsage getPreviousServiceUsage(ServiceUsage usage, Integer groupId, Integer serviceId, Integer itemId) {
+        List<ServiceUsage> serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId and su.service.id=:serviceId" +
+                " and su.item.id=:itemId and su.date<:date order by su.date desc").setMaxResults(1)
+                .setParameter("groupId", groupId).setParameter("serviceId", serviceId).setParameter("itemId", itemId)
+                .setParameter("date", usage.getDate()).getResultList();
+        if (serviceUsageList.isEmpty()) {
+            return null;
+        } else {
+            return serviceUsageList.get(0);
+        }
     }
 }

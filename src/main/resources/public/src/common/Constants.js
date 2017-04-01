@@ -14,8 +14,10 @@ module.exports = {
     ADD_ITEM: "ADD_ITEM",
     EDIT_ITEM: "EDIT_ITEM",
     REMOVE_ITEM: "REMOVE_ITEM",
+    SET_SERVICE_USAGE_LIST: "SET_SERVICE_USAGE_LIST",
     GENERIC_ERROR_MSG: "Something stopped working :(",
     HttpStatus: {
         BAD_REQUEST: 400
-    }
+    },
+    MAX_RESULTS: 10
 }

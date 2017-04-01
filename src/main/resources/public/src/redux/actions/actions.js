@@ -75,3 +75,8 @@ export function removeItem(itemId) {
     console.debug("Invoke remove item with id " + itemId);
     return {type: Constants.REMOVE_ITEM, itemId};
 }
+
+export function setServiceUsageList(list) {
+    console.debug("Invoke set list of service usage action");
+    return {type: Constants.SET_SERVICE_USAGE_LIST, list};
+}

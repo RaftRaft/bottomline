@@ -76,6 +76,12 @@ export function addServiceUsage(usage, groupId, serviceId, itemId, userId) {
         + serviceId + "/item/" + itemId, userId, usage);
 }
 
+export function getServiceUsage(groupId, serviceId, offset, maxResults, userId) {
+    console.debug("API: get service usage list");
+    return genericAPICall("GET", Constants.SERVER_ADDRESS + "/service-usage/group/" + groupId + "/service/"
+        + serviceId + "/offset/" + offset + "/max/" + maxResults, userId);
+}
+
 function genericAPICall(method, url, userheader, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();

@@ -1,10 +1,12 @@
 package bottomline.model;
 
+import bottomline.common.Util;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.ParseException;
 
 /**
  * Created by raft on 09.03.2017.
@@ -63,7 +65,11 @@ public class ServiceUsage {
     }
 
     public void setDate(Long date) {
-        this.date = date;
+        try {
+            this.date = (date != null) ? Util.getDateWithoutTime(date) : date;
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Double getIndex() {

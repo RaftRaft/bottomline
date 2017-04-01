@@ -11,6 +11,9 @@ var defaultState = {
         },
         service: {
             list: []
+        },
+        serviceUsage: {
+            list: []
         }
     }
 };

@@ -4,9 +4,13 @@ import {bindActionCreators} from "redux";
 import DatePicker from "react-bootstrap-date-picker";
 import {Link} from "react-router";
 import {selectGroup, selectService} from "../common/Helper";
+import {addServiceUsage} from "../common/api.js";
+import Constants from "../common/Constants";
+
 
 function mapStateToProps(state, ownProps) {
     return {
+        login: state.login,
         group: selectGroup(state.main.group.list, ownProps.params.groupId),
         service: selectService(state.main.service.list, ownProps.params.serviceId)
     }
@@ -16,33 +20,53 @@ class ServiceUsageEdit extends React.Component {
 
     constructor(props) {
         super(props);
+        var date = new Date().toISOString();
         this.state = {
             loading: false,
-            msg: "Test",
+            msg: "Add service usage",
+            selectedItem: null,
+            selectedDate: date,
             formData: {
                 usage: {
-                    value: 0,
+                    index: "",
                     consumption: "",
                     desc: "",
-                    date: "",
-                    item: null
+                    date: new Date(date).getTime()
                 }
             }
         }
-        this.handleValueChange = this.handleValueChange.bind(this);
+        console.log(new Date(date).getTime());
+        this.handleIndexChange = this.handleIndexChange.bind(this);
+        this.handleConsumptionChange = this.handleConsumptionChange.bind(this);
         this.handleDescChange = this.handleDescChange.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
         this.measurementItemElements = this.measurementItemElements.bind(this);
+        this.submit = this.submit.bind(this);
         this.renderDate = this.renderDate.bind(this);
         console.debug("Service usage edit construct");
     }
 
-    handleValueChange(event) {
+    handleIndexChange(event) {
         if (!isNaN(event.target.value)) {
             this.setState(
                 {
                     formData: {
                         usage: Object.assign({}, this.state.formData.usage, {
-                            value: event.target.value
+                            index: event.target.value
+                        })
+                    }
+                }
+            )
+        }
+    }
+
+    handleConsumptionChange(event) {
+        if (!isNaN(event.target.value)) {
+            this.setState(
+                {
+                    formData: {
+                        usage: Object.assign({}, this.state.formData.usage, {
+                            consumption: event.target.value
                         })
                     }
                 }
@@ -62,14 +86,24 @@ class ServiceUsageEdit extends React.Component {
         )
     }
 
+    handleDateChange(value) {
+
+        this.setState(
+            {
+                loading: false,
+                selectedDate: value,
+                formData: {
+                    usage: Object.assign({}, this.state.formData.usage, {
+                        date: new Date(value).getTime()
+                    })
+                }
+            });
+    }
+
     selectItem(item) {
         this.setState(
             {
-                formData: {
-                    usage: Object.assign({}, this.state.formData.usage, {
-                        item: item
-                    })
-                }
+                selectedItem: item
             }
         );
     }
@@ -85,11 +119,36 @@ class ServiceUsageEdit extends React.Component {
         );
     }
 
+    submit() {
+        if (this.state.selectedItem == null) {
+            this.setState({msg: "Please select a measurement item"});
+            return;
+        }
+        this.setState({loading: true});
+        addServiceUsage(JSON.stringify(this.state.formData.usage), this.props.group.id, this.props.service.id,
+            this.state.selectedItem.id, this.props.login.currentUser.id).then((resolve) => {
+            // let service = JSON.parse(resolve.responseText);
+            this.setState({
+                loading: false,
+                msg: "Registration added"
+            });
+        }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
     renderDate() {
         return (
-            <div className="input-group col-xs-6 col-lg-6 margin-top-05">
+            <div className="input-group col-xs-6 col-lg-2 margin-top-1">
                 <label>Date</label><sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
-                <DatePicker id="example-datepicker"/>
+                <DatePicker id="example-datepicker" value={this.state.selectedDate}
+                            onChange={this.handleDateChange} dateFormat={"DD/MM/YYYY"}/>
             </div>
         )
     }
@@ -126,16 +185,29 @@ class ServiceUsageEdit extends React.Component {
                             </div>
                         </div>
                         <hr/>
+                        {this.state.loading ?
+                            <div className="alert alert-info" role="alert">
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <span> Loading</span>
+                            </div>
+                            :
+                            <div>
+                                <div className="alert alert-info" role="alert">
+                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
+                                    <span> {this.state.msg}</span>
+                                </div>
+                            </div>
+                        }
                         <form>
                             <div className="btn-group">
                                 <button type="button" className="btn btn-default dropdown-toggle wrap-text"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {this.state.formData.usage.item == null ?
+                                    {this.state.selectedItem == null ?
                                         <span>Select a measurement item&nbsp;
                                         </span> :
                                         <span className="margin-top-05 margin-bottom-2em">
                                             <i className="fa fa-tachometer cyan" aria-hidden="true"></i>
-                                            &nbsp;{this.state.formData.usage.item.label}&nbsp;
+                                            &nbsp;{this.state.selectedItem.label}&nbsp;
                                         </span>
                                     }
                                     &nbsp;<span className="caret"></span>
@@ -145,26 +217,33 @@ class ServiceUsageEdit extends React.Component {
                                 </ul>
                             </div>
                             {this.renderDate()}
-                            <div className="input-group col-xs-4 col-lg-4 margin-top-05">
-                                <label>Amount
-                                    <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
-                                </label>
-                                {this.state.formData.usage.item != null ?
-                                    <sup className="gray-dark">&nbsp;
-                                        ({this.state.formData.usage.item.unitOfMeasurement})&nbsp;</sup> :
-                                    <span></span>
-                                }
-                                <input type="tel" className="form-control" maxLength="20"
-                                       placeholder=" Happy tree friends" value={this.state.formData.usage.value}
-                                       onChange={this.handleValueChange}
-                                       aria-describedby=" basic-addon1"/>
-                            </div>
-                            <div className="input-group col-xs-8 col-lg-4 margin-top-05">
-                                <label>Consumption</label>
-                                <input type="tel" className="form-control" maxLength="20"
-                                       placeholder=" Happy tree friends" value={this.state.formData.usage.consumption}
-                                       onChange={this.handleValueChange}
-                                       aria-describedby=" basic-addon1"/>
+                            <div className="row">
+                                <div className="col-xs-6 col-lg-3">
+                                    <div className="input-group col-xs-12 col-lg-12 margin-top-05">
+                                        <label>Amount
+                                            <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
+                                        </label>
+                                        {this.state.selectedItem != null ?
+                                            <sup className="gray-dark">&nbsp;
+                                                ({this.state.selectedItem.unitOfMeasurement})&nbsp;</sup> :
+                                            <span></span>
+                                        }
+                                        <input type="tel" className="form-control" maxLength="20"
+                                               placeholder="0" value={this.state.formData.usage.index}
+                                               onChange={this.handleIndexChange}
+                                               aria-describedby=" basic-addon1"/>
+                                    </div>
+                                </div>
+                                <div className="col-xs-6 col-lg-3">
+                                    <div className="input-group col-xs-12 col-lg-12 margin-top-05">
+                                        <label>Consumption</label>
+                                        <input type="tel" className="form-control" maxLength="20"
+                                               placeholder=""
+                                               value={this.state.formData.usage.consumption}
+                                               onChange={this.handleConsumptionChange}
+                                               aria-describedby=" basic-addon1"/>
+                                    </div>
+                                </div>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
@@ -178,8 +257,8 @@ class ServiceUsageEdit extends React.Component {
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-chevron-right" aria-hidden="true"></i>
-                                        <span> Next</span>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
+                                        <span> Done</span>
                                     </button>
                                 </div>
                             </div>
