@@ -68,6 +68,7 @@ public class MeasurementItemController {
 
         Service service = item.getService();
         service.getItemList().remove(item);
+        removeServiceUsageFromItem(item);
         em.merge(service);
         return new ResponseEntity<>("Item removed", HttpStatus.OK);
     }
@@ -108,6 +109,12 @@ public class MeasurementItemController {
             }
         }
         return null;
+    }
+
+    private void removeServiceUsageFromItem(MeasurementItem item) {
+        em.createQuery("delete from ServiceUsage su where su.item.id=:itemId")
+                .setParameter("itemId", item.getId())
+                .executeUpdate();
     }
 
     private static boolean isMeasurementItemValid(MeasurementItem item) {

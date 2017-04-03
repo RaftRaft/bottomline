@@ -99,6 +99,9 @@ public class GroupController {
         }
 
         group.getServiceList().clear();
+
+        removeServiceUsageFromGroup(group);
+
         em.remove(group);
         return new ResponseEntity<>("Group removed", HttpStatus.OK);
     }
@@ -112,6 +115,12 @@ public class GroupController {
             }
         }
         return null;
+    }
+
+    private void removeServiceUsageFromGroup(Group group) {
+        em.createQuery("delete from ServiceUsage su where su.group.id=:groupId")
+                .setParameter("groupId", group.getId())
+                .executeUpdate();
     }
 
     private static boolean isGroupValid(Group group) {

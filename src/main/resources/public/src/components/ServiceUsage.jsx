@@ -33,12 +33,16 @@ class ServiceUsage extends React.Component {
         }
         this.serviceUsageElements = this.serviceUsageElements.bind(this);
         this.toggleFilter = this.toggleFilter.bind(this);
+        this.getServiceUsageFromServer = this.getServiceUsageFromServer.bind(this);
         console.debug("Service usage construct");
     }
 
-    componentDidMount() {
+    getServiceUsageFromServer() {
         this.setState({loading: true});
-        getServiceUsage(this.props.group.id, this.props.service.id, 0, Constants.MAX_RESULTS, 0, this.props.login.currentUser.id).then((resolve) => {
+        console.debug("zzz" + this.props.serviceUsage.filter.itemIdList);
+        getServiceUsage(this.props.group.id, this.props.service.id, 0, Constants.MAX_RESULTS,
+            new Date(this.props.serviceUsage.filter.date).getTime(), this.props.serviceUsage.filter.itemIdList,
+            this.props.login.currentUser.id).then((resolve) => {
             this.props.actions.setServiceUsageList(JSON.parse(resolve.responseText));
             if (JSON.parse(resolve.responseText).length != 0) {
                 this.setState({loading: false});
@@ -56,6 +60,10 @@ class ServiceUsage extends React.Component {
         });
     }
 
+    componentDidMount() {
+        this.getServiceUsageFromServer();
+    }
+
     toggleFilter() {
         this.props.actions.showServiceUsageFilter(!this.props.serviceUsage.filter.show);
     }
@@ -71,7 +79,8 @@ class ServiceUsage extends React.Component {
                     </div>
                     <div className="row">
                         <div className="col-xs-3">
-                            <small className="pull-right gray-dark"><strong>{dateFormat(serviceUsage.date, "dd/mm/yyyy")}</strong></small>
+                            <small className="pull-right gray-dark">
+                                <strong>{dateFormat(serviceUsage.date, "dd/mm/yyyy")}</strong></small>
                         </div>
                     </div>
                 </div>
@@ -86,14 +95,17 @@ class ServiceUsage extends React.Component {
                         </span>
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-xs-12">
+                {this.props.serviceUsage.filter.showConsumption ?
+                    <div className="row">
+                        <div className="col-xs-12">
                         <span className="pull-right"><small className="gray-dark">consumption:</small>
                             <strong className="gray-dark"> {serviceUsage.consumption}</strong>
                             <sup className="gray-dark"><small> {serviceUsage.item.unitOfMeasurement}</small></sup>
                         </span>
-                    </div>
-                </div>
+                        </div>
+                    </div> :
+                    <div></div>
+                }
             </a>
         );
     }
@@ -151,13 +163,16 @@ class ServiceUsage extends React.Component {
                         }
                         <div className="row">
                             <div className="col-xs-12 col-md-4 col-md-offset-4">
-                                <button type="button" className="btn btn-default btn-block gray-dark" aria-expanded="false"
+                                <button type="button" className="btn btn-default btn-block gray-dark"
+                                        aria-expanded="false"
                                         onClick={() => this.toggleFilter()}> Show filters
                                 </button>
                             </div>
                         </div>
                         {this.props.serviceUsage.filter.show ?
-                            <Filter service={this.props.service} serviceUsage={this.props.serviceUsage} actions={this.props.actions}/> :
+                            <Filter service={this.props.service} serviceUsage={this.props.serviceUsage}
+                                    actions={this.props.actions}
+                                    getServiceUsageFromServer={this.getServiceUsageFromServer}/> :
                             <div></div>
                         }
                         <div id="groupListId" className="list-group margin-top-1">
@@ -175,6 +190,9 @@ class Filter extends React.Component {
         super(props);
         this.itemElements = this.itemElements.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
+        this.handleItemCheck = this.handleItemCheck.bind(this);
+        this.isItemInFilter = this.isItemInFilter.bind(this);
+        this.applyFilter = this.applyFilter.bind(this);
         this.handleConsumptionCheck = this.handleConsumptionCheck.bind(this);
     }
 
@@ -186,16 +204,38 @@ class Filter extends React.Component {
         this.props.actions.setServiceUsageDateFilter(value);
     }
 
+    handleItemCheck(e, itemId) {
+        if (e.target.checked) {
+            this.props.actions.addItemToServiceUsageFilter(itemId);
+        } else {
+            this.props.actions.removeItemFromServiceUsageFilter(itemId);
+        }
+    }
+
+    isItemInFilter(item) {
+        for (let i = 0; i < this.props.serviceUsage.filter.itemIdList.length; i++) {
+            if (this.props.serviceUsage.filter.itemIdList[i] == item.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     itemElements() {
         return this.props.service.itemList.map((item) =>
             <div key={item.id} className="col-xs-6 col-md-4">
                 <div className="checkbox">
-                    <label><input type="checkbox" value=""/>
+                    <label><input type="checkbox" value="" onChange={(e) => this.handleItemCheck(e, item.id)}
+                                  checked={this.isItemInFilter(item)}/>
                         <small className="gray-dark">&nbsp;{item.label}</small>
                     </label>
                 </div>
             </div>
         )
+    }
+
+    applyFilter() {
+        this.props.getServiceUsageFromServer();
     }
 
     render() {
@@ -218,7 +258,8 @@ class Filter extends React.Component {
                                     <small className="gray-dark">Show registrations since</small>
                                 </label>
                                 <DatePicker id="example-datepicker" value={this.props.serviceUsage.filter.date}
-                                            onChange={this.handleDateChange} dateFormat={"DD/MM/YYYY"} className="input-group-sm"/>
+                                            onChange={this.handleDateChange} dateFormat={"DD/MM/YYYY"}
+                                            className="input-group-sm"/>
                             </div>
                         </div>
                         <div className="col-xs-12">
@@ -230,7 +271,8 @@ class Filter extends React.Component {
                             </div>
                         </div>
                         <div className="col-xs-12">
-                            <button type="button" className="btn btn-success pull-right" aria-expanded="false">
+                            <button type="button" className="btn btn-success pull-right" aria-expanded="false"
+                                    onClick={() => this.applyFilter()}>
                                 <i className="fa fa-check" aria-hidden="true"></i> Apply
                             </button>
                         </div>

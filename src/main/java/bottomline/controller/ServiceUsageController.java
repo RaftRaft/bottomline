@@ -78,17 +78,18 @@ public class ServiceUsageController {
         return new ResponseEntity<>(serviceUsage, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}")
     public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(AuthFilter.USER_HEADER) String userId,
                                                                   @PathVariable("groupId") Integer groupId,
                                                                   @PathVariable("serviceId") Integer serviceId,
                                                                   @RequestParam("offset") Integer offset,
                                                                   @RequestParam("max") Integer maxResults,
-                                                                  @RequestParam(value = "item", required = false) Integer itemId,
+                                                                  @RequestParam(value = "itemId", required = false) List<Integer> itemIdList,
                                                                   @RequestParam(value = "date", required = false) Long dateSince) {
 
         LOG.info("Received request to retrieve service usages for group {} and service {}", groupId, serviceId);
+
+        ControllerHelper.processUser(em, userId);
 
         Group group = em.find(Group.class, groupId);
         if (group == null) {
@@ -104,7 +105,7 @@ public class ServiceUsageController {
         }
 
         List<ServiceUsage> serviceUsageList;
-        if (itemId == null) {
+        if (itemIdList == null) {
             serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
                     "and su.service.id=:serviceId and su.date>:dateSince order by su.date desc")
                     .setFirstResult(offset)
@@ -115,13 +116,13 @@ public class ServiceUsageController {
                     .getResultList();
         } else {
             serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
-                    "and su.service.id=:serviceId and su.item.id=:itemId and su.date>:dateSince order by su.date desc")
+                    "and su.service.id=:serviceId and su.item.id in (:itemIdList) and su.date>:dateSince order by su.date desc")
                     .setFirstResult(offset)
                     .setMaxResults(maxResults)
                     .setParameter("groupId", groupId)
                     .setParameter("serviceId", serviceId)
-                    .setParameter("itemId", itemId)
                     .setParameter("dateSince", dateSince)
+                    .setParameter("itemIdList", itemIdList)
                     .getResultList();
         }
         return new ResponseEntity<>(serviceUsageList, HttpStatus.OK);

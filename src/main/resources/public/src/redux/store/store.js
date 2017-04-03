@@ -16,7 +16,7 @@ var defaultState = {
             list: [],
             filter: {
                 show: false,
-                item: null,
+                itemIdList: [],
                 date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
                 showConsumption: false
             }

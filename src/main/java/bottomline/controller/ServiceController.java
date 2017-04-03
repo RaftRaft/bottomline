@@ -165,6 +165,8 @@ public class ServiceController {
             group.getServiceList().remove(service);
         }
 
+        removeServiceUsageFromService(service);
+
         em.remove(service);
         return new ResponseEntity<>("Service removed", HttpStatus.OK);
     }
@@ -203,5 +205,11 @@ public class ServiceController {
             return false;
         }
         return true;
+    }
+
+    private void removeServiceUsageFromService(Service service) {
+        em.createQuery("delete from ServiceUsage su where su.service.id=:serviceId")
+                .setParameter("serviceId", service.getId())
+                .executeUpdate();
     }
 }

@@ -91,6 +91,16 @@ export function setServiceUsageDateFilter(date) {
     return {type: Constants.SET_SERVICE_USAGE_DATE_FILTER, date};
 }
 
+export function addItemToServiceUsageFilter(itemId) {
+    console.debug("Invoke add item to service usage filter: " + itemId);
+    return {type: Constants.ADD_ITEM_TO_SERVICE_USAGE_FILTER, itemId};
+}
+
+export function removeItemFromServiceUsageFilter(itemId) {
+    console.debug("Invoke remove item from service usage filter: " + itemId);
+    return {type: Constants.REMOVE_ITEM_FROM_SERVICE_USAGE_FILTER, itemId};
+}
+
 export function setServiceUsageList(list) {
     console.debug("Invoke set list of service usage action");
     return {type: Constants.SET_SERVICE_USAGE_LIST, list};
