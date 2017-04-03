@@ -7,6 +7,10 @@ hr {
     margin-bottom: 0.6em;
 }
 
+.simple-text {
+    font-weight: normal;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 0;

@@ -78,13 +78,15 @@ public class ServiceUsageController {
         return new ResponseEntity<>(serviceUsage, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}/offset/{offset}/max/{max}",
+    @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(AuthFilter.USER_HEADER) String userId,
                                                                   @PathVariable("groupId") Integer groupId,
                                                                   @PathVariable("serviceId") Integer serviceId,
-                                                                  @PathVariable("offset") Integer offset,
-                                                                  @PathVariable("max") Integer maxResults) {
+                                                                  @RequestParam("offset") Integer offset,
+                                                                  @RequestParam("max") Integer maxResults,
+                                                                  @RequestParam(value = "item", required = false) Integer itemId,
+                                                                  @RequestParam(value = "date", required = false) Long dateSince) {
 
         LOG.info("Received request to retrieve service usages for group {} and service {}", groupId, serviceId);
 
@@ -97,14 +99,31 @@ public class ServiceUsageController {
             throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        List<ServiceUsage> serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
-                "and su.service.id=:serviceId order by su.date desc")
-                .setFirstResult(offset)
-                .setMaxResults(maxResults)
-                .setParameter("groupId", groupId)
-                .setParameter("serviceId", serviceId)
-                .getResultList();
+        if (dateSince == null) {
+            dateSince = 0L;
+        }
 
+        List<ServiceUsage> serviceUsageList;
+        if (itemId == null) {
+            serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
+                    "and su.service.id=:serviceId and su.date>:dateSince order by su.date desc")
+                    .setFirstResult(offset)
+                    .setMaxResults(maxResults)
+                    .setParameter("groupId", groupId)
+                    .setParameter("serviceId", serviceId)
+                    .setParameter("dateSince", dateSince)
+                    .getResultList();
+        } else {
+            serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
+                    "and su.service.id=:serviceId and su.item.id=:itemId and su.date>:dateSince order by su.date desc")
+                    .setFirstResult(offset)
+                    .setMaxResults(maxResults)
+                    .setParameter("groupId", groupId)
+                    .setParameter("serviceId", serviceId)
+                    .setParameter("itemId", itemId)
+                    .setParameter("dateSince", dateSince)
+                    .getResultList();
+        }
         return new ResponseEntity<>(serviceUsageList, HttpStatus.OK);
     }
 
@@ -136,5 +155,10 @@ public class ServiceUsageController {
         } else {
             return serviceUsageList.get(0);
         }
+    }
+
+    public static void main(String... args) {
+        String query = "from ServiceUsage su where su.group.id=:groupId and su.service.id=:serviceId %s order by su.date desc";
+        System.out.print(String.format(query, ""));
     }
 }

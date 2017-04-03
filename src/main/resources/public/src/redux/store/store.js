@@ -13,7 +13,13 @@ var defaultState = {
             list: []
         },
         serviceUsage: {
-            list: []
+            list: [],
+            filter: {
+                show: false,
+                item: null,
+                date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+                showConsumption: false
+            }
         }
     }
 };

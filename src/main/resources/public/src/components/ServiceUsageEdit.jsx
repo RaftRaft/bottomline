@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import DatePicker from "react-bootstrap-date-picker";
 import {Link} from "react-router";
+import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService} from "../common/Helper";
 import {addServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
@@ -14,6 +15,10 @@ function mapStateToProps(state, ownProps) {
         group: selectGroup(state.main.group.list, ownProps.params.groupId),
         service: selectService(state.main.service.list, ownProps.params.serviceId)
     }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {actions: bindActionCreators(actionCreators, dispatch)};
 }
 
 class ServiceUsageEdit extends React.Component {
@@ -236,7 +241,9 @@ class ServiceUsageEdit extends React.Component {
                                 </div>
                                 <div className="col-xs-6 col-lg-3">
                                     <div className="input-group col-xs-12 col-lg-12 margin-top-05">
-                                        <label>Consumption</label>
+                                        <label>Consumption<sup className="simple-text">
+                                            <small> (Optional)</small>
+                                        </sup></label>
                                         <input type="tel" className="form-control" maxLength="20"
                                                placeholder=""
                                                value={this.state.formData.usage.consumption}
@@ -246,7 +253,9 @@ class ServiceUsageEdit extends React.Component {
                                 </div>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
-                                <label>Description</label>
+                                <label>Description<sup className="simple-text">
+                                    <small> (Optional)</small>
+                                </sup></label>
                                 <textarea className=" form-control" maxLength="256" rows="2" placeholder="Some desc"
                                           value={this.state.formData.usage.desc}
                                           onChange={this.handleDescChange}></textarea>
@@ -271,4 +280,4 @@ class ServiceUsageEdit extends React.Component {
 }
 
 
-export default connect(mapStateToProps)(ServiceUsageEdit);
+export default connect(mapStateToProps, mapDispatchToProps)(ServiceUsageEdit);

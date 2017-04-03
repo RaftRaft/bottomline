@@ -6,6 +6,9 @@ import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService} from "../common/Helper";
 import {getServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
+import dateFormat from "dateformat";
+import DatePicker from "react-bootstrap-date-picker";
+
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -29,17 +32,18 @@ class ServiceUsage extends React.Component {
             msg: "Service usage list"
         }
         this.serviceUsageElements = this.serviceUsageElements.bind(this);
+        this.toggleFilter = this.toggleFilter.bind(this);
         console.debug("Service usage construct");
     }
 
     componentDidMount() {
         this.setState({loading: true});
-        getServiceUsage(this.props.group.id, this.props.service.id, 0, Constants.MAX_RESULTS, this.props.login.currentUser.id).then((resolve) => {
+        getServiceUsage(this.props.group.id, this.props.service.id, 0, Constants.MAX_RESULTS, 0, this.props.login.currentUser.id).then((resolve) => {
             this.props.actions.setServiceUsageList(JSON.parse(resolve.responseText));
             if (JSON.parse(resolve.responseText).length != 0) {
                 this.setState({loading: false});
             } else {
-                this.setState({loading: false, msg: "You have no service usages. Please, add one"});
+                this.setState({loading: false, msg: "You have no service usage. Please, add one"});
             }
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
@@ -52,15 +56,45 @@ class ServiceUsage extends React.Component {
         });
     }
 
+    toggleFilter() {
+        this.props.actions.showServiceUsageFilter(!this.props.serviceUsage.filter.show);
+    }
+
     serviceUsageElements() {
         return this.props.serviceUsage.list.map((serviceUsage) =>
-            <Link key={serviceUsage.id} to={"main/service/" + serviceUsage.id + "/edit"} type="button"
-                  className="list-group-item">
-                <div><b>{serviceUsage.index}</b></div>
-                <div>
-                    <small className="gray-dark">{serviceUsage.desc}</small>
+            <a key={serviceUsage.id} type="button" className="list-group-item" onClick={() => {
+                hashHistory.push("main/service/" + serviceUsage.id + "/edit")
+            }}>
+                <div className="row">
+                    <div className="col-xs-9">
+                        <small className="pull-left"><strong>{serviceUsage.item.label}</strong></small>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-3">
+                            <small className="pull-right gray-dark"><strong>{dateFormat(serviceUsage.date, "dd/mm/yyyy")}</strong></small>
+                        </div>
+                    </div>
                 </div>
-            </Link>
+                <div className="row">
+                    <div className="col-xs-7">
+                        <small className="pull-left gray-dark"> {serviceUsage.desc}</small>
+                    </div>
+                    <div className="col-xs-5">
+                        <span className="pull-right"><small className="gray-dark">amount:</small><strong
+                            className="cyan"> {serviceUsage.index}
+                            </strong><sup className="gray-dark"><small> {serviceUsage.item.unitOfMeasurement}</small></sup>
+                        </span>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <span className="pull-right"><small className="gray-dark">consumption:</small>
+                            <strong className="gray-dark"> {serviceUsage.consumption}</strong>
+                            <sup className="gray-dark"><small> {serviceUsage.item.unitOfMeasurement}</small></sup>
+                        </span>
+                    </div>
+                </div>
+            </a>
         );
     }
 
@@ -102,8 +136,103 @@ class ServiceUsage extends React.Component {
                             </div>
                         </div>
                         <hr/>
-                        <div id="groupListId" className="list-group">
+                        {this.state.loading ?
+                            <div className="alert alert-info" role="alert">
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <span> Loading</span>
+                            </div>
+                            :
+                            <div>
+                                <div className="alert alert-info" role="alert">
+                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
+                                    <span> {this.state.msg}</span>
+                                </div>
+                            </div>
+                        }
+                        <div className="row">
+                            <div className="col-xs-12 col-md-4 col-md-offset-4">
+                                <button type="button" className="btn btn-default btn-block gray-dark" aria-expanded="false"
+                                        onClick={() => this.toggleFilter()}> Show filters
+                                </button>
+                            </div>
+                        </div>
+                        {this.props.serviceUsage.filter.show ?
+                            <Filter service={this.props.service} serviceUsage={this.props.serviceUsage} actions={this.props.actions}/> :
+                            <div></div>
+                        }
+                        <div id="groupListId" className="list-group margin-top-1">
                             {this.serviceUsageElements()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+}
+
+class Filter extends React.Component {
+    constructor(props) {
+        super(props);
+        this.itemElements = this.itemElements.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
+        this.handleConsumptionCheck = this.handleConsumptionCheck.bind(this);
+    }
+
+    handleConsumptionCheck(e) {
+        this.props.actions.setServiceUsageConsumptionFilter(e.target.checked);
+    }
+
+    handleDateChange(value) {
+        this.props.actions.setServiceUsageDateFilter(value);
+    }
+
+    itemElements() {
+        return this.props.service.itemList.map((item) =>
+            <div key={item.id} className="col-xs-6 col-md-4">
+                <div className="checkbox">
+                    <label><input type="checkbox" value=""/>
+                        <small className="gray-dark">&nbsp;{item.label}</small>
+                    </label>
+                </div>
+            </div>
+        )
+    }
+
+    render() {
+        return (
+            <div className="panel panel-default margin-top-1">
+                <div className="panel-body">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <small className="pull-left gray-dark"><strong>Measurement items:</strong></small>
+                        </div>
+                        {this.props.service.itemList.length > 0 ?
+                            this.itemElements() :
+                            <div className="col-xs-12">
+                                <small className="gray-dark pull-left">(none)</small>
+                            </div>
+                        }
+                        <div className="col-xs-12">
+                            <div className="input-group">
+                                <label>
+                                    <small className="gray-dark">Show registrations since</small>
+                                </label>
+                                <DatePicker id="example-datepicker" value={this.props.serviceUsage.filter.date}
+                                            onChange={this.handleDateChange} dateFormat={"DD/MM/YYYY"} className="input-group-sm"/>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <div className="checkbox pull-left">
+                                <label><input type="checkbox" value="" onChange={(e) => this.handleConsumptionCheck(e)}
+                                              checked={this.props.serviceUsage.filter.showConsumption}/>
+                                    <small className="gray-dark"><strong>&nbsp;Show consumption</strong></small>
+                                </label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <button type="button" className="btn btn-success pull-right" aria-expanded="false">
+                                <i className="fa fa-check" aria-hidden="true"></i> Apply
+                            </button>
                         </div>
                     </div>
                 </div>

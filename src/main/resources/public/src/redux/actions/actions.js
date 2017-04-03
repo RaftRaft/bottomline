@@ -76,6 +76,21 @@ export function removeItem(itemId) {
     return {type: Constants.REMOVE_ITEM, itemId};
 }
 
+export function showServiceUsageFilter(show) {
+    console.debug("Invoke show filter: " + show);
+    return {type: Constants.SET_SERVICE_USAGE_SHOW_FILTER, show};
+}
+
+export function setServiceUsageConsumptionFilter(showConsumption) {
+    console.debug("Invoke consumption filter: " + showConsumption);
+    return {type: Constants.SET_SERVICE_USAGE_CONSUMPTION_FILTER, showConsumption};
+}
+
+export function setServiceUsageDateFilter(date) {
+    console.debug("Invoke date filter: " + date);
+    return {type: Constants.SET_SERVICE_USAGE_DATE_FILTER, date};
+}
+
 export function setServiceUsageList(list) {
     console.debug("Invoke set list of service usage action");
     return {type: Constants.SET_SERVICE_USAGE_LIST, list};
