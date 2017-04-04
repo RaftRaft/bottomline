@@ -105,3 +105,13 @@ export function setServiceUsageList(list) {
     console.debug("Invoke set list of service usage action");
     return {type: Constants.SET_SERVICE_USAGE_LIST, list};
 }
+
+export function setServiceUsageTotalItemCount(count) {
+    console.debug("Invoke set total item count of service usage action");
+    return {type: Constants.SET_SERVICE_USAGE_TOTAL_ITEM_COUNT, count};
+}
+
+export function setServiceUsageActivePage(page) {
+    console.debug("Invoke set service usage active page action");
+    return {type: Constants.SET_SERVICE_USAGE_ACTIVE_PAGE, page};
+}

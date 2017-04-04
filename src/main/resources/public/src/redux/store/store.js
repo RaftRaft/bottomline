@@ -14,6 +14,8 @@ var defaultState = {
         },
         serviceUsage: {
             list: [],
+            totalItemsCount: 0,
+            activePage: 1,
             filter: {
                 show: false,
                 itemIdList: [],

@@ -47,6 +47,16 @@ const serviceUsage = (state = {}, action) => {
             return Object.assign({}, state, {
                 list: action.list
             })
+        case Constants.SET_SERVICE_USAGE_TOTAL_ITEM_COUNT:
+            console.debug("Reducer Service sets total item count");
+            return Object.assign({}, state, {
+                totalItemsCount: action.count
+            })
+        case Constants.SET_SERVICE_USAGE_ACTIVE_PAGE:
+            console.debug("Reducer Service sets active page");
+            return Object.assign({}, state, {
+                activePage: action.page
+            })
         default:
             return state
     }

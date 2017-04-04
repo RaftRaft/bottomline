@@ -8,6 +8,7 @@ import {getServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
 import dateFormat from "dateformat";
 import DatePicker from "react-bootstrap-date-picker";
+import Pagination from "react-js-pagination";
 
 
 function mapStateToProps(state, ownProps) {
@@ -33,17 +34,18 @@ class ServiceUsage extends React.Component {
         }
         this.serviceUsageElements = this.serviceUsageElements.bind(this);
         this.toggleFilter = this.toggleFilter.bind(this);
+        this.handlePageChange = this.handlePageChange.bind(this);
         this.getServiceUsageFromServer = this.getServiceUsageFromServer.bind(this);
         console.debug("Service usage construct");
     }
 
-    getServiceUsageFromServer() {
+    getServiceUsageFromServer(page) {
         this.setState({loading: true});
-        console.debug("zzz" + this.props.serviceUsage.filter.itemIdList);
-        getServiceUsage(this.props.group.id, this.props.service.id, 0, Constants.MAX_RESULTS,
+        getServiceUsage(this.props.group.id, this.props.service.id, (page - 1) * Constants.MAX_RESULTS, Constants.MAX_RESULTS,
             new Date(this.props.serviceUsage.filter.date).getTime(), this.props.serviceUsage.filter.itemIdList,
             this.props.login.currentUser.id).then((resolve) => {
             this.props.actions.setServiceUsageList(JSON.parse(resolve.responseText));
+            this.props.actions.setServiceUsageTotalItemCount(JSON.parse(resolve.getResponseHeader("count")));
             if (JSON.parse(resolve.responseText).length != 0) {
                 this.setState({loading: false});
             } else {
@@ -61,16 +63,22 @@ class ServiceUsage extends React.Component {
     }
 
     componentDidMount() {
-        this.getServiceUsageFromServer();
+        this.getServiceUsageFromServer(1);
+        this.props.actions.setServiceUsageActivePage(1);
     }
 
     toggleFilter() {
         this.props.actions.showServiceUsageFilter(!this.props.serviceUsage.filter.show);
     }
 
+    handlePageChange(pageNumber) {
+        this.props.actions.setServiceUsageActivePage(pageNumber);
+        this.getServiceUsageFromServer(pageNumber);
+    }
+
     serviceUsageElements() {
         return this.props.serviceUsage.list.map((serviceUsage) =>
-            <a key={serviceUsage.id} type="button" className="list-group-item" onClick={() => {
+            <a key={serviceUsage.id} type="button" className="list-group-item bg-light" onClick={() => {
                 hashHistory.push("main/service/" + serviceUsage.id + "/edit")
             }}>
                 <div className="row">
@@ -165,7 +173,11 @@ class ServiceUsage extends React.Component {
                             <div className="col-xs-12 col-md-4 col-md-offset-4">
                                 <button type="button" className="btn btn-default btn-block gray-dark"
                                         aria-expanded="false"
-                                        onClick={() => this.toggleFilter()}> Show filters
+                                        onClick={() => this.toggleFilter()}>
+                                    {!this.props.serviceUsage.filter.show ?
+                                        <span> Show filters</span> :
+                                        <span> Hide filters</span>
+                                    }
                                 </button>
                             </div>
                         </div>
@@ -177,6 +189,14 @@ class ServiceUsage extends React.Component {
                         }
                         <div id="groupListId" className="list-group margin-top-1">
                             {this.serviceUsageElements()}
+                        </div>
+                        <div className="row text-align-center">
+                            {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS ?
+                                <Pagination activePage={this.props.serviceUsage.activePage} itemsCountPerPage={Constants.MAX_RESULTS}
+                                            totalItemsCount={this.props.serviceUsage.totalItemsCount} pageRangeDisplayed={5}
+                                            onChange={this.handlePageChange}/> :
+                                <div></div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -235,7 +255,8 @@ class Filter extends React.Component {
     }
 
     applyFilter() {
-        this.props.getServiceUsageFromServer();
+        this.props.getServiceUsageFromServer(1);
+        this.props.actions.setServiceUsageActivePage(1);
     }
 
     render() {

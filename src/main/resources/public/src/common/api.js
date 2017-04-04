@@ -82,7 +82,6 @@ export function getServiceUsage(groupId, serviceId, offset, maxResults, date, it
     for (let i = 0; i < itemIdList.length; i++) {
         itemListQuery = itemListQuery + "&itemId=" + itemIdList[i];
     }
-    console.debug("zzz " + itemListQuery);
     return genericAPICall("GET", Constants.SERVER_ADDRESS + "/service-usage/group/" + groupId + "/service/"
         + serviceId + "?offset=" + offset + "&max=" + maxResults + "&date=" + date + itemListQuery, userId);
 }

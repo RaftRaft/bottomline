@@ -5,6 +5,7 @@ import bottomline.exceptions.WebApplicationException;
 import bottomline.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -104,6 +105,7 @@ public class ServiceUsageController {
             dateSince = 0L;
         }
 
+        long count = 0;
         List<ServiceUsage> serviceUsageList;
         if (itemIdList == null) {
             serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
@@ -114,6 +116,13 @@ public class ServiceUsageController {
                     .setParameter("serviceId", serviceId)
                     .setParameter("dateSince", dateSince)
                     .getResultList();
+            count = (long) em.createQuery("select count(*) from ServiceUsage su where su.group.id=:groupId " +
+                    "and su.service.id=:serviceId and su.date>:dateSince order by su.date desc")
+                    .setParameter("groupId", groupId)
+                    .setParameter("serviceId", serviceId)
+                    .setParameter("dateSince", dateSince)
+                    .getResultList().get(0);
+
         } else {
             serviceUsageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId " +
                     "and su.service.id=:serviceId and su.item.id in (:itemIdList) and su.date>:dateSince order by su.date desc")
@@ -124,8 +133,19 @@ public class ServiceUsageController {
                     .setParameter("dateSince", dateSince)
                     .setParameter("itemIdList", itemIdList)
                     .getResultList();
+            count = (long) em.createQuery("select count(*) from ServiceUsage su where su.group.id=:groupId " +
+                    "and su.service.id=:serviceId and su.item.id in (:itemIdList) and su.date>:dateSince order by su.date desc")
+                    .setParameter("groupId", groupId)
+                    .setParameter("serviceId", serviceId)
+                    .setParameter("dateSince", dateSince)
+                    .setParameter("itemIdList", itemIdList)
+                    .getResultList().get(0);
         }
-        return new ResponseEntity<>(serviceUsageList, HttpStatus.OK);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("count", String.valueOf(count));
+
+        return new ResponseEntity<>(serviceUsageList, responseHeaders, HttpStatus.OK);
     }
 
     private static boolean isServiceUsageValid(ServiceUsage usage) {
