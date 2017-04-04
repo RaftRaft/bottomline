@@ -79,6 +79,46 @@ public class ServiceUsageController {
         return new ResponseEntity<>(serviceUsage, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.PUT, path = "{serviceUsageId}/item/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceUsage> updateServiceUsage(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+                                                           @PathVariable("itemId") Integer itemId,
+                                                           @PathVariable("serviceUsageId") Integer serviceUsageId,
+                                                           @RequestBody ServiceUsage serviceUsage) {
+
+        LOG.info("Received request to update service usage {}", serviceUsage);
+
+        ControllerHelper.processUser(em, userId);
+
+        if (!isServiceUsageValid(serviceUsage)) {
+            throw new WebApplicationException("Please fill all required fields", HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceUsage oldServiceUsage = em.find(ServiceUsage.class, serviceUsageId);
+        if (oldServiceUsage == null) {
+            throw new WebApplicationException("Registration does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        MeasurementItem item = em.find(MeasurementItem.class, itemId);
+        if (item == null) {
+            throw new WebApplicationException("Item does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (doesSimillarServiceUsageExists(serviceUsage, oldServiceUsage.getGroup().getId(), oldServiceUsage.getService().getId(), itemId, serviceUsageId)) {
+            throw new WebApplicationException("An identical registration already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        oldServiceUsage.setConsumption(serviceUsage.getConsumption());
+        oldServiceUsage.setIndex(serviceUsage.getIndex());
+        oldServiceUsage.setDesc(serviceUsage.getDesc());
+        oldServiceUsage.setDate(serviceUsage.getDate());
+        oldServiceUsage.setItem(item);
+
+        em.merge(oldServiceUsage);
+        em.flush();
+
+        return new ResponseEntity<>(oldServiceUsage, HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}")
     public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(AuthFilter.USER_HEADER) String userId,
                                                                   @PathVariable("groupId") Integer groupId,
@@ -160,6 +200,19 @@ public class ServiceUsageController {
                 " and su.item.id=:itemId and su.date=:date")
                 .setParameter("groupId", groupId).setParameter("serviceId", serviceId).setParameter("itemId", itemId)
                 .setParameter("date", usage.getDate()).getResultList();
+        if (usageList.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean doesSimillarServiceUsageExists(ServiceUsage usage, Integer groupId, Integer serviceId, Integer itemId, Integer id) {
+        List<ServiceUsage> usageList = em.createQuery("from ServiceUsage su where su.group.id=:groupId and su.service.id=:serviceId" +
+                " and su.item.id=:itemId and su.date=:date and su.id!=:id")
+                .setParameter("groupId", groupId).setParameter("serviceId", serviceId).setParameter("itemId", itemId)
+                .setParameter("date", usage.getDate())
+                .setParameter("id", id)
+                .getResultList();
         if (usageList.isEmpty()) {
             return false;
         }

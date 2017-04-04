@@ -7,7 +7,7 @@ import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService, selectServiceUsage} from "../common/Helper";
 import {addServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
-
+import dateFormat from "dateformat";
 
 function mapStateToProps(state, ownProps) {
     return {
@@ -26,18 +26,18 @@ class ServiceUsageEdit extends React.Component {
 
     constructor(props) {
         super(props);
-        var date = new Date().toISOString();
+        var date = this.props.serviceUsageToEdit != null ? dateFormat(this.props.serviceUsageToEdit.date, "isoDateTime") : new Date().toISOString();
         this.state = {
             loading: false,
             msg: "Add service usage",
-            selectedItem: null,
+            selectedItem: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.item : null,
             selectedDate: date,
             formData: {
                 usage: {
-                    index: "",
-                    consumption: "",
-                    desc: "",
-                    date: new Date(date).getTime()
+                    index: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.index : "",
+                    consumption: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.consumption : "",
+                    desc: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.desc : "",
+                    date: this.props.serviceUsageToEdit != null ? new Date(this.props.serviceUsageToEdit.date).getTime() : new Date(date).getTime()
                 }
             }
         }
