@@ -4,7 +4,7 @@ import {bindActionCreators} from "redux";
 import DatePicker from "react-bootstrap-date-picker";
 import {Link} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
-import {selectGroup, selectService} from "../common/Helper";
+import {selectGroup, selectService, selectServiceUsage} from "../common/Helper";
 import {addServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
 
@@ -13,7 +13,8 @@ function mapStateToProps(state, ownProps) {
     return {
         login: state.login,
         group: selectGroup(state.main.group.list, ownProps.params.groupId),
-        service: selectService(state.main.service.list, ownProps.params.serviceId)
+        service: selectService(state.main.service.list, ownProps.params.serviceId),
+        serviceUsageToEdit: selectServiceUsage(state.main.serviceUsage.list, ownProps.params.usageId)
     }
 }
 

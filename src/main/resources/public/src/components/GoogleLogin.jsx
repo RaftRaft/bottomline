@@ -4,7 +4,7 @@ import {bindActionCreators} from "redux";
 import {hashHistory} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
 import {addUser} from "../common/api";
-
+import gapi from "../platform.js"
 
 function mapDispatchToProps(dispatch) {
     return {actions: bindActionCreators(actionCreators, dispatch)};

@@ -1,7 +1,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import {Link} from "react-router";
+import {hashHistory, Link} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService} from "../common/Helper";
 import {getServiceUsage} from "../common/api.js";
@@ -79,7 +79,7 @@ class ServiceUsage extends React.Component {
     serviceUsageElements() {
         return this.props.serviceUsage.list.map((serviceUsage) =>
             <a key={serviceUsage.id} type="button" className="list-group-item bg-light" onClick={() => {
-                hashHistory.push("main/service/" + serviceUsage.id + "/edit")
+                hashHistory.push("main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage/edit/" + serviceUsage.id);
             }}>
                 <div className="row">
                     <div className="col-xs-9">
@@ -188,10 +188,13 @@ class ServiceUsage extends React.Component {
                             <div></div>
                         }
                         <div id="groupListId" className="list-group margin-top-1">
-                            {this.serviceUsageElements()}
+                            {!this.state.loading ?
+                                this.serviceUsageElements() :
+                                <div></div>
+                            }
                         </div>
                         <div className="row text-align-center">
-                            {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS ?
+                            {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS && !this.state.loading ?
                                 <Pagination activePage={this.props.serviceUsage.activePage} itemsCountPerPage={Constants.MAX_RESULTS}
                                             totalItemsCount={this.props.serviceUsage.totalItemsCount} pageRangeDisplayed={5}
                                             onChange={this.handlePageChange}/> :
