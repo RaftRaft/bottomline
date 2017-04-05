@@ -71,9 +71,15 @@ export function removeItem(itemId, userId) {
 }
 
 export function addServiceUsage(usage, groupId, serviceId, itemId, userId) {
-    console.debug("API: add service for user");
+    console.debug("API: add service usage for user");
     return genericAPICall("POST", Constants.SERVER_ADDRESS + "/service-usage/group/" + groupId + "/service/"
         + serviceId + "/item/" + itemId, userId, usage);
+}
+
+export function updateServiceUsage(usage, itemId, serviceUsageId, userId) {
+    console.debug("API: update service usage");
+    return genericAPICall("PUT", Constants.SERVER_ADDRESS + "/service-usage/" + serviceUsageId + "/item/"
+        + itemId, userId, usage);
 }
 
 export function getServiceUsage(groupId, serviceId, offset, maxResults, date, itemIdList, userId) {
@@ -84,6 +90,11 @@ export function getServiceUsage(groupId, serviceId, offset, maxResults, date, it
     }
     return genericAPICall("GET", Constants.SERVER_ADDRESS + "/service-usage/group/" + groupId + "/service/"
         + serviceId + "?offset=" + offset + "&max=" + maxResults + "&date=" + date + itemListQuery, userId);
+}
+
+export function removeServiceUsage(serviceUsageId, userId) {
+    console.debug("API: remove service usage");
+    return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/service-usage/" + serviceUsageId, userId);
 }
 
 function genericAPICall(method, url, userheader, data) {

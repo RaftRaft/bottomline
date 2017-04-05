@@ -103,11 +103,21 @@ public class ServiceUsageController {
             throw new WebApplicationException("Item does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        if (doesSimillarServiceUsageExists(serviceUsage, oldServiceUsage.getGroup().getId(), oldServiceUsage.getService().getId(), itemId, serviceUsageId)) {
+        if (doesSimillarServiceUsageExists(serviceUsage, oldServiceUsage.getGroup().getId(),
+                oldServiceUsage.getService().getId(), itemId, oldServiceUsage.getId())) {
             throw new WebApplicationException("An identical registration already exists", HttpStatus.BAD_REQUEST);
         }
 
-        oldServiceUsage.setConsumption(serviceUsage.getConsumption());
+        double currConsumption = 0;
+        if (serviceUsage.getConsumption() == null) {
+            ServiceUsage prevServiceUsage = getPreviousServiceUsage(serviceUsage, oldServiceUsage.getGroup().getId(),
+                    oldServiceUsage.getService().getId(), itemId);
+            if (prevServiceUsage != null) {
+                currConsumption = serviceUsage.getIndex() - prevServiceUsage.getIndex();
+            }
+        }
+
+        oldServiceUsage.setConsumption(serviceUsage.getConsumption() != null ? serviceUsage.getConsumption() : currConsumption);
         oldServiceUsage.setIndex(serviceUsage.getIndex());
         oldServiceUsage.setDesc(serviceUsage.getDesc());
         oldServiceUsage.setDate(serviceUsage.getDate());
@@ -186,6 +196,22 @@ public class ServiceUsageController {
         responseHeaders.set("count", String.valueOf(count));
 
         return new ResponseEntity<>(serviceUsageList, responseHeaders, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "{serviceUsageId}")
+    public ResponseEntity<String> removeServiceUsage(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+                                                     @PathVariable("serviceUsageId") Integer serviceUsageId) {
+        LOG.info("Received request to remove service usage with id {}", serviceUsageId);
+
+        ControllerHelper.processUser(em, userId);
+
+        ServiceUsage serviceUsage = em.find(ServiceUsage.class, serviceUsageId);
+        if (serviceUsage == null) {
+            throw new WebApplicationException("Registration does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        em.remove(serviceUsage);
+        return new ResponseEntity<>("Registration removed", HttpStatus.OK);
     }
 
     private static boolean isServiceUsageValid(ServiceUsage usage) {

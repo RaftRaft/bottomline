@@ -2,10 +2,10 @@ import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import DatePicker from "react-bootstrap-date-picker";
-import {Link} from "react-router";
+import {Link, hashHistory} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService, selectServiceUsage} from "../common/Helper";
-import {addServiceUsage} from "../common/api.js";
+import {addServiceUsage, removeServiceUsage, updateServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
 import dateFormat from "dateformat";
 
@@ -30,6 +30,7 @@ class ServiceUsageEdit extends React.Component {
         this.state = {
             loading: false,
             msg: "Add service usage",
+            serviceUsageToBeRemoved: null,
             selectedItem: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.item : null,
             selectedDate: date,
             formData: {
@@ -47,7 +48,9 @@ class ServiceUsageEdit extends React.Component {
         this.handleDescChange = this.handleDescChange.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.measurementItemElements = this.measurementItemElements.bind(this);
+        this.renderRemoveServiceUsageConfirmationButton = this.renderRemoveServiceUsageConfirmationButton.bind(this);
         this.submit = this.submit.bind(this);
+        this.removeServiceUsageFromServer = this.removeServiceUsageFromServer.bind(this);
         this.renderDate = this.renderDate.bind(this);
         console.debug("Service usage edit construct");
     }
@@ -131,13 +134,61 @@ class ServiceUsageEdit extends React.Component {
             return;
         }
         this.setState({loading: true});
-        addServiceUsage(JSON.stringify(this.state.formData.usage), this.props.group.id, this.props.service.id,
-            this.state.selectedItem.id, this.props.login.currentUser.id).then((resolve) => {
-            // let service = JSON.parse(resolve.responseText);
+        if (this.props.serviceUsageToEdit == null) {
+            addServiceUsage(JSON.stringify(this.state.formData.usage), this.props.group.id, this.props.service.id,
+                this.state.selectedItem.id, this.props.login.currentUser.id).then((resolve) => {
+                // let service = JSON.parse(resolve.responseText);
+                this.setState({
+                    loading: false,
+                    msg: "Registration added"
+                });
+            }).catch((err) => {
+                if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                    this.setState({loading: false, msg: err.responseText});
+                }
+                else {
+                    console.error(err);
+                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                }
+            });
+        } else {
+            updateServiceUsage(JSON.stringify(this.state.formData.usage), this.state.selectedItem.id,
+                this.props.serviceUsageToEdit.id, this.props.login.currentUser.id).then((resolve) => {
+                let serviceUsage = JSON.parse(resolve.responseText);
+                this.setState({
+                    loading: false,
+                    msg: "Registration updated"
+                });
+            }).catch((err) => {
+                if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                    this.setState({loading: false, msg: err.responseText});
+                }
+                else {
+                    console.error(err);
+                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                }
+            });
+        }
+    }
+
+    removeServiceUsageConfirmation() {
+        this.setState(
+            {
+                msg: "Remove current registration ?",
+                serviceUsageToBeRemoved: this.props.serviceUsageToEdit
+            }
+        )
+    }
+
+    removeServiceUsageFromServer() {
+        this.setState({loading: true, serviceUsageToBeRemoved: null});
+        removeServiceUsage(this.props.serviceUsageToEdit.id, this.props.login.currentUser.id).then((resolve) => {
+            console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Registration added"
+                msg: "Registration removed."
             });
+            hashHistory.push("main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
                 this.setState({loading: false, msg: err.responseText});
@@ -147,6 +198,18 @@ class ServiceUsageEdit extends React.Component {
                 this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
             }
         });
+    }
+
+    renderRemoveServiceUsageConfirmationButton() {
+        if (this.state.serviceUsageToBeRemoved != null) {
+            return (
+                <button type="button" className="btn btn-danger btn-xs margin-right-2vh margin-top-2vh pull-right"
+                        aria-expanded="false" onClick={() => this.removeServiceUsageFromServer()}>
+                    <i className="fa fa-check" aria-hidden="true"></i>
+                    <span> Yes</span>
+                </button>
+            )
+        }
     }
 
     renderDate() {
@@ -185,9 +248,21 @@ class ServiceUsageEdit extends React.Component {
                     <div className="panel-body">
                         <div className="row">
                             <div className="col-xs-9">
-                                <h4>Add new service usage</h4>
+                                {this.props.serviceUsageToEdit == null ?
+                                    <h4>Add new service usage</h4> :
+                                    <h4>Edit service usage</h4>
+                                }
                             </div>
                             <div className="col-xs-3">
+                                {this.props.serviceUsageToEdit != null ?
+                                    <div className="btn-group pull-right">
+                                        <button type="button" onClick={() => this.removeServiceUsageConfirmation()}
+                                                className="btn btn-danger" aria-expanded="false">
+                                            <i className="fa fa-trash" aria-hidden="true"></i> Delete
+                                        </button>
+                                    </div> :
+                                    <div></div>
+                                }
                             </div>
                         </div>
                         <hr/>
@@ -201,6 +276,9 @@ class ServiceUsageEdit extends React.Component {
                                 <div className="alert alert-info" role="alert">
                                     <i className="fa fa-info-circle" aria-hidden="true"></i>
                                     <span> {this.state.msg}</span>
+                                    <div className="row">
+                                        {this.renderRemoveServiceUsageConfirmationButton()}
+                                    </div>
                                 </div>
                             </div>
                         }

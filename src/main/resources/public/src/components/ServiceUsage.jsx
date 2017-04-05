@@ -93,10 +93,10 @@ class ServiceUsage extends React.Component {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-xs-7">
+                    <div className="col-xs-6">
                         <small className="pull-left gray-dark"> {serviceUsage.desc}</small>
                     </div>
-                    <div className="col-xs-5">
+                    <div className="col-xs-6">
                         <span className="pull-right"><small className="gray-dark">amount:</small><strong
                             className="cyan"> {serviceUsage.index}
                             </strong><sup className="gray-dark"><small> {serviceUsage.item.unitOfMeasurement}</small></sup>
@@ -174,6 +174,7 @@ class ServiceUsage extends React.Component {
                                 <button type="button" className="btn btn-default btn-block gray-dark"
                                         aria-expanded="false"
                                         onClick={() => this.toggleFilter()}>
+                                    <i className="fa fa-low-vision" aria-hidden="true"></i>
                                     {!this.props.serviceUsage.filter.show ?
                                         <span> Show filters</span> :
                                         <span> Hide filters</span>
@@ -195,8 +196,10 @@ class ServiceUsage extends React.Component {
                         </div>
                         <div className="row text-align-center">
                             {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS && !this.state.loading ?
-                                <Pagination activePage={this.props.serviceUsage.activePage} itemsCountPerPage={Constants.MAX_RESULTS}
-                                            totalItemsCount={this.props.serviceUsage.totalItemsCount} pageRangeDisplayed={5}
+                                <Pagination activePage={this.props.serviceUsage.activePage}
+                                            itemsCountPerPage={Constants.MAX_RESULTS}
+                                            totalItemsCount={this.props.serviceUsage.totalItemsCount}
+                                            pageRangeDisplayed={5}
                                             onChange={this.handlePageChange}/> :
                                 <div></div>
                             }

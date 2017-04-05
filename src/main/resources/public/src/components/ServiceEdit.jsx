@@ -105,7 +105,7 @@ class ServiceEdit extends React.Component {
     renderRemoveServiceConfirmationButton() {
         if (this.state.serviceToBeRemoved != null) {
             return (
-                <button type="button" className="btn btn-danger btn-xs margin-right-2vh pull-right"
+                <button type="button" className="btn btn-danger btn-xs margin-right-2vh margin-top-2vh pull-right"
                         aria-expanded="false" onClick={() => this.removeService()}>
                     <i className="fa fa-check" aria-hidden="true"></i>
                     <span> Yes</span>
