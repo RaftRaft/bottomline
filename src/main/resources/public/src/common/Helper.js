@@ -41,3 +41,25 @@ export function containsService(serviceList, service) {
     }
     return false;
 }
+
+
+export function generateSeries(serviceUsageList) {
+    let series = [];
+    for (let i = 0; i < serviceUsageList.length; i++) {
+        let found = false;
+        for (let j = 0; j < series.length; j++) {
+            if (series[j].name == serviceUsageList[i].item.label) {
+                series[j].data.push([serviceUsageList[i].date, serviceUsageList[i].index]);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            let object = {};
+            object.name = serviceUsageList[i].item.label;
+            object.data = [[serviceUsageList[i].date, serviceUsageList[i].index]];
+            series.push(object);
+        }
+    }
+    return series;
+}

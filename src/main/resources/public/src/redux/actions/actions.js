@@ -115,3 +115,8 @@ export function setServiceUsageActivePage(page) {
     console.debug("Invoke set service usage active page action");
     return {type: Constants.SET_SERVICE_USAGE_ACTIVE_PAGE, page};
 }
+
+export function setServiceUsageChartData(data) {
+    console.debug("Invoke set service usage chart data action");
+    return {type: Constants.SET_SERVICE_USAGE_CHART_DATA, data};
+}

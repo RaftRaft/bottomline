@@ -57,6 +57,15 @@ const serviceUsage = (state = {}, action) => {
             return Object.assign({}, state, {
                 activePage: action.page
             })
+        case Constants.SET_SERVICE_USAGE_CHART_DATA:
+            console.debug("Reducer sets service usage chart data");
+            return Object.assign({}, state, {
+                chart: Object.assign({}, state.chart, {
+                    config: Object.assign({}, state.chart.config, {
+                        series: action.data
+                    })
+                })
+            })
         default:
             return state
     }

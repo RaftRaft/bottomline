@@ -21,6 +21,21 @@ var defaultState = {
                 itemIdList: [],
                 date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
                 showConsumption: false
+            },
+            chart: {
+                config: {
+                    xAxis: {
+                        type: 'datetime',
+                        dateTimeLabelFormats: {
+                            month: '%e. %b',
+                            year: '%b'
+                        },
+                        title: {
+                            text: 'Date'
+                        }
+                    },
+                    series: []
+                }
             }
         }
     }

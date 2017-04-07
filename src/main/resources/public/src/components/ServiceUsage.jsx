@@ -146,7 +146,11 @@ class ServiceUsage extends React.Component {
                                     <button
                                         onClick={() => this.toggleChart()} type="button"
                                         className="btn btn-default" aria-expanded="false">
-                                        <i className="fa fa-area-chart green" aria-hidden="true"></i> Show chart
+                                        <i className="fa fa-area-chart green" aria-hidden="true"></i>
+                                        {!this.state.showChart ?
+                                            <span> Show chart</span> :
+                                            <span> Hide chart</span>
+                                        }
                                     </button>
                                 </div>
                             </div>
@@ -277,7 +281,6 @@ class Filter extends React.Component {
     }
 
     applyFilter() {
-        this.props.getServiceUsageFromServer(1);
         this.props.actions.setServiceUsageActivePage(1);
     }
 
