@@ -2,13 +2,14 @@ import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {hashHistory, Link} from "react-router";
+import dateFormat from "dateformat";
+import DatePicker from "react-bootstrap-date-picker";
+import Pagination from "react-js-pagination";
 import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService} from "../common/Helper";
 import {getServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
-import dateFormat from "dateformat";
-import DatePicker from "react-bootstrap-date-picker";
-import Pagination from "react-js-pagination";
+import ServiceUsageChart from "./ServiceUsageChart.jsx";
 
 
 function mapStateToProps(state, ownProps) {
@@ -30,13 +31,23 @@ class ServiceUsage extends React.Component {
         super(props);
         this.state = {
             loading: true,
-            msg: "Service usage list"
+            msg: "Service usage list",
+            showChart: false
         }
         this.serviceUsageElements = this.serviceUsageElements.bind(this);
         this.toggleFilter = this.toggleFilter.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
         this.getServiceUsageFromServer = this.getServiceUsageFromServer.bind(this);
+        this.toggleChart = this.toggleChart.bind(this);
         console.debug("Service usage construct");
+    }
+
+    toggleChart() {
+        this.setState(
+            {
+                showChart: !this.state.showChart
+            }
+        );
     }
 
     getServiceUsageFromServer(page) {
@@ -78,7 +89,7 @@ class ServiceUsage extends React.Component {
 
     serviceUsageElements() {
         return this.props.serviceUsage.list.map((serviceUsage) =>
-            <a key={serviceUsage.id} type="button" className="list-group-item bg-light" onClick={() => {
+            <a key={serviceUsage.id} type="button" className="list-group-item bg-green-light" onClick={() => {
                 hashHistory.push("main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage/edit/" + serviceUsage.id);
             }}>
                 <div className="row">
@@ -132,16 +143,20 @@ class ServiceUsage extends React.Component {
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link
-                                        to={"main/service/" + this.props.service.id + "/edit"} type="button"
+                                    <button
+                                        onClick={() => this.toggleChart()} type="button"
                                         className="btn btn-default" aria-expanded="false">
-                                        <i className="fa fa-pencil-square" aria-hidden="true"></i> Service Edit
-                                    </Link>
+                                        <i className="fa fa-area-chart green" aria-hidden="true"></i> Show chart
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="panel-body">
+                        {this.state.showChart ?
+                            <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
+                            <div></div>
+                        }
                         <div className="row">
                             <div className="col-xs-9">
                                 <h4><i className="fa fa-area-chart cyan"
@@ -151,7 +166,8 @@ class ServiceUsage extends React.Component {
                             <div className="col-xs-3">
                                 <Link
                                     to={"main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage/edit/"}
-                                    type="button" className="btn btn-info pull-right" aria-expanded="false"> New
+                                    type="button" className="btn btn-info pull-right" aria-expanded="false">
+                                    <i className="fa fa-plus-circle" aria-hidden="true"></i> New
                                 </Link>
                             </div>
                         </div>
