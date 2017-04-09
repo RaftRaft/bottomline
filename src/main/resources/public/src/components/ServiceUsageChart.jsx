@@ -5,7 +5,7 @@ import {bindActionCreators} from "redux";
 import * as actionCreators from "../redux/actions/actions";
 import {getServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
-import {generateSeries} from "../common/Helper";
+import {generateServiceUsageSeries} from "../common/Helper";
 
 
 function mapStateToProps(state) {
@@ -24,7 +24,6 @@ class ServiceUsageChart extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
             msg: "Service usage list"
         }
         this.setChartData = this.setChartData.bind(this);
@@ -41,19 +40,22 @@ class ServiceUsageChart extends React.Component {
     }
 
     setChartData() {
-        this.setState({loading: true});
+        this.props.actions.fetchServiceUsageChartData(true);
         getServiceUsage(this.props.groupId, this.props.serviceId, 0, 1000,
             new Date(this.props.serviceUsage.filter.date).getTime(), this.props.serviceUsage.filter.itemIdList,
             this.props.login.currentUser.id).then((resolve) => {
+            this.props.actions.fetchServiceUsageChartData(false);
             let serviceUsageList = JSON.parse(resolve.responseText);
-            this.props.actions.setServiceUsageChartData(generateSeries(serviceUsageList));
+            this.props.actions.setServiceUsageChartData(generateServiceUsageSeries(serviceUsageList,
+                this.props.serviceUsage.filter.showConsumption));
         }).catch((err) => {
+            this.props.actions.fetchServiceUsageChartData(false);
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({msg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({msg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -61,19 +63,18 @@ class ServiceUsageChart extends React.Component {
     render() {
         console.debug("Service usage chart render");
         return (
-            <div>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="btn-group pull-right">
-                            <button
-                                onClick={() => this.setChartData()} type="button"
-                                className="btn btn-default" aria-expanded="false">
-                                <i className="fa fa-refresh cyan" aria-hidden="true"></i> Refresh
-                            </button>
+            <div className="margin-bottom-2em">
+                {!this.props.serviceUsage.chart.fetchData ?
+                    <div>
+                        <ReactHighcharts config={this.props.serviceUsage.chart.config} isPureConfig={true}/>
+                    </div> :
+                    <div className="row margin-top-2vh">
+                        <div className="col-xs-12 text-align-center">
+                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                            <small className="gray-dark"> Loading chart data</small>
                         </div>
                     </div>
-                </div>
-                <ReactHighcharts config={this.props.serviceUsage.chart.config} isPureConfig={true}/>
+                }
             </div>
         )
     }

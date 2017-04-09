@@ -23,7 +23,12 @@ var defaultState = {
                 showConsumption: false
             },
             chart: {
+                show: false,
+                fetchData: false,
                 config: {
+                    chart: {
+                        type: 'area'
+                    },
                     xAxis: {
                         type: 'datetime',
                         dateTimeLabelFormats: {

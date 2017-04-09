@@ -120,3 +120,13 @@ export function setServiceUsageChartData(data) {
     console.debug("Invoke set service usage chart data action");
     return {type: Constants.SET_SERVICE_USAGE_CHART_DATA, data};
 }
+
+export function fetchServiceUsageChartData(val) {
+    console.debug("Invoke fetch service usage chart data action");
+    return {type: Constants.FETCH_SERVICE_USAGE_CHART_DATA, val};
+}
+
+export function showServiceUsageChart(val) {
+    console.debug("Invoke show service usage chart action");
+    return {type: Constants.SHOW_SERVICE_USAGE_CHART, val};
+}

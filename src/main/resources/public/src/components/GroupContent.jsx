@@ -151,11 +151,11 @@ class GroupContent extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">
-                            <div className="col-xs-6"><h5><i className="fa fa-cubes cyan" aria-hidden="true"></i>
+                            <div className="col-xs-8"><h5><i className="fa fa-cubes cyan" aria-hidden="true"></i>
                                 <span> <b>{this.props.group.label}</b></span>
                             </h5>
                             </div>
-                            <div className="col-xs-6">
+                            <div className="col-xs-4">
                                 <div className="btn-group pull-right">
                                     <Link to={"main/group/edit/" + this.props.group.id} type="button"
                                           className="btn btn-default" aria-expanded="false">

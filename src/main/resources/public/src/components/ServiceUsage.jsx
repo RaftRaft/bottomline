@@ -6,7 +6,7 @@ import dateFormat from "dateformat";
 import DatePicker from "react-bootstrap-date-picker";
 import Pagination from "react-js-pagination";
 import * as actionCreators from "../redux/actions/actions";
-import {selectGroup, selectService} from "../common/Helper";
+import {generateServiceUsageSeries, selectGroup, selectService} from "../common/Helper";
 import {getServiceUsage} from "../common/api.js";
 import Constants from "../common/Constants";
 import ServiceUsageChart from "./ServiceUsageChart.jsx";
@@ -31,23 +31,19 @@ class ServiceUsage extends React.Component {
         super(props);
         this.state = {
             loading: true,
-            msg: "Service usage list",
-            showChart: false
+            msg: "Service usage list"
         }
         this.serviceUsageElements = this.serviceUsageElements.bind(this);
         this.toggleFilter = this.toggleFilter.bind(this);
         this.handlePageChange = this.handlePageChange.bind(this);
         this.getServiceUsageFromServer = this.getServiceUsageFromServer.bind(this);
         this.toggleChart = this.toggleChart.bind(this);
+        this.setChartData = this.setChartData.bind(this);
         console.debug("Service usage construct");
     }
 
     toggleChart() {
-        this.setState(
-            {
-                showChart: !this.state.showChart
-            }
-        );
+        this.props.actions.showServiceUsageChart(!this.props.serviceUsage.chart.show);
     }
 
     getServiceUsageFromServer(page) {
@@ -63,6 +59,27 @@ class ServiceUsage extends React.Component {
                 this.setState({loading: false, msg: "You have no service usage. Please, add one"});
             }
         }).catch((err) => {
+            if (err.status == Constants.HttpStatus.BAD_REQUEST) {
+                this.setState({loading: false, msg: err.responseText});
+            }
+            else {
+                console.error(err);
+                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+            }
+        });
+    }
+
+    setChartData() {
+        this.props.actions.fetchServiceUsageChartData(true);
+        getServiceUsage(this.props.group.id, this.props.service.id, 0, 1000,
+            new Date(this.props.serviceUsage.filter.date).getTime(), this.props.serviceUsage.filter.itemIdList,
+            this.props.login.currentUser.id).then((resolve) => {
+            let serviceUsageList = JSON.parse(resolve.responseText);
+            this.props.actions.fetchServiceUsageChartData(false);
+            this.props.actions.setServiceUsageChartData(generateServiceUsageSeries(serviceUsageList,
+                this.props.serviceUsage.filter.showConsumption));
+        }).catch((err) => {
+            this.props.actions.fetchServiceUsageChartData(false);
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
                 this.setState({loading: false, msg: err.responseText});
             }
@@ -147,7 +164,7 @@ class ServiceUsage extends React.Component {
                                         onClick={() => this.toggleChart()} type="button"
                                         className="btn btn-default" aria-expanded="false">
                                         <i className="fa fa-area-chart green" aria-hidden="true"></i>
-                                        {!this.state.showChart ?
+                                        {!this.props.serviceUsage.chart.show ?
                                             <span> Show chart</span> :
                                             <span> Hide chart</span>
                                         }
@@ -157,7 +174,7 @@ class ServiceUsage extends React.Component {
                         </div>
                     </div>
                     <div className="panel-body">
-                        {this.state.showChart ?
+                        {this.props.serviceUsage.chart.show ?
                             <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
                             <div></div>
                         }
@@ -205,7 +222,8 @@ class ServiceUsage extends React.Component {
                         {this.props.serviceUsage.filter.show ?
                             <Filter service={this.props.service} serviceUsage={this.props.serviceUsage}
                                     actions={this.props.actions}
-                                    getServiceUsageFromServer={this.getServiceUsageFromServer}/> :
+                                    getServiceUsageFromServer={this.getServiceUsageFromServer}
+                                    setChartData={this.setChartData}/> :
                             <div></div>
                         }
                         <div id="groupListId" className="list-group margin-top-1">
@@ -282,6 +300,10 @@ class Filter extends React.Component {
 
     applyFilter() {
         this.props.actions.setServiceUsageActivePage(1);
+        this.props.getServiceUsageFromServer(1);
+        if (this.props.serviceUsage.chart.show) {
+            this.props.setChartData();
+        }
     }
 
     render() {
