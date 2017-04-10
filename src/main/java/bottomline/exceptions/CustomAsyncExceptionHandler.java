@@ -4,11 +4,11 @@ package bottomline.exceptions;
  * Created by raft on 09.03.2017.
  */
 
-import java.lang.reflect.Method;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+
+import java.lang.reflect.Method;
 
 public class CustomAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(CustomAsyncExceptionHandler.class);

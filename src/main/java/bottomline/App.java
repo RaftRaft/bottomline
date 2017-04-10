@@ -26,6 +26,11 @@ import java.util.concurrent.Executor;
 public class App implements AsyncConfigurer {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
+    public static String SMTP_HOST;
+    public static String SMTP_PORT;
+    public static String SMTP_USER;
+    public static String SMTP_PWD;
+
     public static void main(String[] args) {
         loadAppProps();
         SpringApplication.run(App.class, args);
@@ -49,8 +54,14 @@ public class App implements AsyncConfigurer {
         Properties props = new Properties();
         try {
             props.load(App.class.getClassLoader().getResourceAsStream(("application.properties")));
-//          GCM_SERVER_KEY = props.getProperty("gcm.server.key").trim();
-//          LOG.info("Loaded GCM SERVER KEY = {} property", GCM_SERVER_KEY);
+            SMTP_HOST = props.getProperty("smtp.host").trim();
+            SMTP_PORT = props.getProperty("smtp.port").trim();
+            SMTP_USER = props.getProperty("smtp.user").trim();
+            SMTP_PWD = props.getProperty("smtp.pwd").trim();
+            LOG.info("Loaded SMTP HOST = {} property", SMTP_HOST);
+            LOG.info("Loaded SMTP PORT = {} property", SMTP_PORT);
+            LOG.info("Loaded SMTP USER = {} property", SMTP_USER);
+            LOG.info("Loaded SMTP PWD = {} property", SMTP_PWD);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
