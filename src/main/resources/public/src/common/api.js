@@ -97,6 +97,16 @@ export function removeServiceUsage(serviceUsageId, userId) {
     return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/service-usage/" + serviceUsageId, userId);
 }
 
+export function sendInvitation(invitation, groupId, userId) {
+    console.debug("API: send invitation");
+    return genericAPICall("POST", Constants.SERVER_ADDRESS + "/invitation/send/group/" + groupId, userId, invitation);
+}
+
+export function removeMemberFromGroup(memberId, groupId, userId) {
+    console.debug("API: remove member from group");
+    return genericAPICall("DELETE", Constants.SERVER_ADDRESS + "/group/" + groupId + "/member/" + memberId, userId);
+}
+
 function genericAPICall(method, url, userheader, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();

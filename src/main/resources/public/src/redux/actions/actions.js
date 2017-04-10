@@ -130,3 +130,8 @@ export function showServiceUsageChart(val) {
     console.debug("Invoke show service usage chart action");
     return {type: Constants.SHOW_SERVICE_USAGE_CHART, val};
 }
+
+export function removeMemberFromGroup(memberId, groupId) {
+    console.debug("Invoke remove member from group action");
+    return {type: Constants.REMOVE_MEMBER_FROM_GROUP, memberId, groupId};
+}

@@ -59,6 +59,12 @@ const groupElement = (group, action) => {
                     return t.id != action.serviceId
                 })
             })
+        case Constants.REMOVE_MEMBER_FROM_GROUP:
+            return Object.assign({}, group, {
+                memberList: group.memberList.filter(t => {
+                    return t.id != action.memberId
+                })
+            })
         case Constants.ADD_ITEM:
             return Object.assign({}, group, {
                 serviceList: group.serviceList.map(t => {
@@ -144,6 +150,17 @@ const group = (state = {}, action) => {
             })
         case Constants.REMOVE_SERVICE_FROM_GROUP:
             console.debug("Reducer removes service from group");
+            return Object.assign({}, state, {
+                list: state.list.map(t => {
+                    if (t.id == action.groupId) {
+                        return groupElement(t, action)
+                    } else {
+                        return Object.assign({}, t)
+                    }
+                })
+            })
+        case Constants.REMOVE_MEMBER_FROM_GROUP:
+            console.debug("Reducer removes member from group");
             return Object.assign({}, state, {
                 list: state.list.map(t => {
                     if (t.id == action.groupId) {

@@ -1,10 +1,11 @@
 package bottomline.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by raft on 18.03.2017.
@@ -25,6 +26,10 @@ public class User {
 
     @Column(name = "profile_image_url", nullable = false)
     private String profileImageUrl;
+
+    @ManyToMany(mappedBy = "memberList")
+    @JsonIgnore
+    private Set<Group> groupList = new HashSet<>();
 
     public String getId() {
         return id;
@@ -56,6 +61,14 @@ public class User {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public Set<Group> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(Set<Group> groupList) {
+        this.groupList = groupList;
     }
 
     @Override

@@ -30,6 +30,8 @@ public class App implements AsyncConfigurer {
     public static String SMTP_PORT;
     public static String SMTP_USER;
     public static String SMTP_PWD;
+    public static String INVITATION_BASE_URL;
+
 
     public static void main(String[] args) {
         loadAppProps();
@@ -58,10 +60,11 @@ public class App implements AsyncConfigurer {
             SMTP_PORT = props.getProperty("smtp.port").trim();
             SMTP_USER = props.getProperty("smtp.user").trim();
             SMTP_PWD = props.getProperty("smtp.pwd").trim();
+            INVITATION_BASE_URL = props.getProperty("invitation.base.url").trim();
             LOG.info("Loaded SMTP HOST = {} property", SMTP_HOST);
             LOG.info("Loaded SMTP PORT = {} property", SMTP_PORT);
             LOG.info("Loaded SMTP USER = {} property", SMTP_USER);
-            LOG.info("Loaded SMTP PWD = {} property", SMTP_PWD);
+            LOG.info("Loaded INVITATION BASE URL = {} property", INVITATION_BASE_URL);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

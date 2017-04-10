@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by raft on 09.03.2017.
@@ -44,6 +45,8 @@ public class GroupController {
         }
 
         group.setOwner(user);
+        group.getMemberList().add(user);
+
         em.persist(group);
         em.flush();
         return new ResponseEntity<>(group, HttpStatus.OK);
@@ -67,6 +70,10 @@ public class GroupController {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
         }
 
+        if (!user.getId().equals(groupOld.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can update this group", HttpStatus.BAD_REQUEST);
+        }
+
         groupOld.setLabel(group.getLabel());
         groupOld.setDesc(group.getDesc());
 
@@ -75,12 +82,40 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Group>> getGroups(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
+    public ResponseEntity<Set<Group>> getGroups(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
         LOG.info("Received request to get groups for user {}", userId);
-        ControllerHelper.processUser(em, userId);
-        List<Group> groupList = em.createQuery("from Group g where g.owner.id=:userId")
-                .setParameter("userId", userId).getResultList();
-        return new ResponseEntity<>(groupList, HttpStatus.OK);
+        User user = ControllerHelper.processUser(em, userId);
+        System.out.println(user);
+        System.out.println(user.getGroupList());
+        return new ResponseEntity<>(user.getGroupList(), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "{groupId}/member/{memberId}")
+    public ResponseEntity<String> removeMemberFromGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+                                                        @PathVariable("groupId") Integer groupId,
+                                                        @PathVariable("memberId") String memberId) {
+        LOG.info("Received request to remove member {} from  group {}", memberId, groupId);
+
+        User user = ControllerHelper.processUser(em, userId);
+
+        Group group = em.find(Group.class, groupId);
+        if (group == null) {
+            throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        User member = em.find(User.class, memberId);
+        if (member == null) {
+            throw new WebApplicationException("Member does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(group.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can remove members from this group", HttpStatus.BAD_REQUEST);
+        }
+
+        group.getMemberList().remove(member);
+
+        em.merge(group);
+        return new ResponseEntity<>("Member removed from group", HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{groupId}")
@@ -99,6 +134,7 @@ public class GroupController {
         }
 
         group.getServiceList().clear();
+        group.getMemberList().clear();
 
         removeServiceUsageFromGroup(group);
 

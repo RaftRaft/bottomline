@@ -94,7 +94,7 @@ public class ServiceController {
     public ResponseEntity<String> updateService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service) {
         LOG.info("Received request to update service  {}", service);
 
-        ControllerHelper.processUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         if (!isServiceValid(service)) {
             throw new WebApplicationException("Service not valid", HttpStatus.BAD_REQUEST);
@@ -106,6 +106,10 @@ public class ServiceController {
         Service oldService = em.find(Service.class, service.getId());
         if (oldService == null) {
             throw new WebApplicationException("Service does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(oldService.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can update this service", HttpStatus.BAD_REQUEST);
         }
 
         oldService.setLabel(service.getLabel());
@@ -128,7 +132,7 @@ public class ServiceController {
     public ResponseEntity<String> removeServiceFromGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId, @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to remove service with id {} from group with id {}", serviceId, groupId);
 
-        ControllerHelper.processUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         Service service = em.find(Service.class, serviceId);
         if (service == null) {
@@ -138,6 +142,10 @@ public class ServiceController {
         Group group = em.find(Group.class, groupId);
         if (group == null) {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(service.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can remove this service", HttpStatus.BAD_REQUEST);
         }
 
         group.getServiceList().remove(service);

@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Created by raft on 09.03.2017.
  */
 @Entity
-@Table(name = "invitation", uniqueConstraints = @UniqueConstraint(columnNames = {"email", "group_id", "from_user_id"}))
+@Table(name = "invitation", uniqueConstraints = @UniqueConstraint(columnNames = {"id", "email", "group_id", "from_user_id"}))
 @XmlRootElement
 public class Invitation {
 
@@ -45,7 +45,7 @@ public class Invitation {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = (email != null) ? email.trim() : email;
     }
 
     public Group getGroup() {

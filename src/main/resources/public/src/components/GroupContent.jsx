@@ -57,9 +57,15 @@ class GroupContent extends React.Component {
     memberElements() {
         return this.props.group.memberList.map((member) =>
             <div key={member.id} className="col-lg-4 col-xs-6 margin-top-05">
-                <div>
-                    <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/> {member.name}
-                </div>
+                {member.id != this.props.login.currentUser.id ?
+                    <div>
+                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/> {member.name}
+                    </div> :
+                    <div>
+                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/><strong> {member.name}</strong>
+                        <sup className="cyan"> owner</sup>
+                    </div>
+                }
             </div>
         );
     }
@@ -174,7 +180,7 @@ class GroupContent extends React.Component {
                                 </div>
                                 <div className="col-xs-6">
                                     <div className="btn-group pull-right">
-                                        <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                        <Link to={"main/group/" + this.props.group.id + "/member"} type="button"
                                               className="btn btn-default" aria-expanded="false">
                                             <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit
                                         </Link>
@@ -182,12 +188,6 @@ class GroupContent extends React.Component {
                                 </div>
                             </div>
                             <div className="row">
-                                <div className="col-lg-4 col-xs-6 margin-top-05 pull-left">
-                                    <img className="img-circle" width="18px" height="18px"
-                                         src={this.props.group.owner.profileImageUrl}/>
-                                    <span> {this.props.group.owner.name} <sup
-                                        className="cyan"><strong>owner</strong></sup></span>
-                                </div>
                                 {this.memberElements()}
                             </div>
                         </div>

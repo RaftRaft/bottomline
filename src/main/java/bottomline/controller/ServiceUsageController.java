@@ -203,11 +203,15 @@ public class ServiceUsageController {
                                                      @PathVariable("serviceUsageId") Integer serviceUsageId) {
         LOG.info("Received request to remove service usage with id {}", serviceUsageId);
 
-        ControllerHelper.processUser(em, userId);
+        User user = ControllerHelper.processUser(em, userId);
 
         ServiceUsage serviceUsage = em.find(ServiceUsage.class, serviceUsageId);
         if (serviceUsage == null) {
             throw new WebApplicationException("Registration does not exist", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!user.getId().equals(serviceUsage.getOwner().getId())) {
+            throw new WebApplicationException("Only the owner can remove this registration", HttpStatus.BAD_REQUEST);
         }
 
         em.remove(serviceUsage);

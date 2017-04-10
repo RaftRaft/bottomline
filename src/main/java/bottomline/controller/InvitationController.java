@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.App;
 import bottomline.common.ControllerHelper;
 import bottomline.common.MailSenderBuilder;
 import bottomline.exceptions.WebApplicationException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.UUID;
 
 /**
  * Created by raft on 09.03.2017.
@@ -30,7 +32,7 @@ public class InvitationController {
     @PersistenceContext
     private EntityManager em;
 
-    @RequestMapping(method = RequestMethod.POST, path = "send", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST, path = "send/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendInvitation(@RequestHeader(AuthFilter.USER_HEADER) String userId,
                                             @PathVariable("groupId") Integer groupId, @RequestBody Invitation invitation) {
 
@@ -47,6 +49,7 @@ public class InvitationController {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
         }
 
+        invitation.setId(UUID.randomUUID().toString());
         invitation.setGroup(group);
         invitation.setFromUser(user);
         invitation.setAccepted(false);
@@ -55,19 +58,43 @@ public class InvitationController {
         builder.recipient(invitation.getEmail());
         builder.from(user.getEmail()).subject("User " + user.getName() + " invited you to group " + group.getLabel());
 
-        if (builder.build().send("Invitation test")) {
+        String invitationUrl = App.INVITATION_BASE_URL + invitation.getId();
+
+        if (builder.build().send("Invitation test: \n" + invitationUrl)) {
             em.merge(invitation);
             em.flush();
             return new ResponseEntity<>(invitation, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Cannot send invitation", HttpStatus.BAD_REQUEST);
         }
+    }
 
+    @RequestMapping(method = RequestMethod.POST, path = "{invitationId}")
+    public ResponseEntity<?> acceptInvitation(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+                                              @PathVariable("invitationId") String invitationId) {
+
+        LOG.info("Received request to accept invitation with id {}", invitationId);
+
+        User user = ControllerHelper.processUser(em, userId);
+
+        Invitation invitation = em.find(Invitation.class, invitationId);
+        if (invitation == null) {
+            throw new WebApplicationException("Invitation does not exist", HttpStatus.BAD_REQUEST);
+        }
+        if (invitation.isAccepted()) {
+            throw new WebApplicationException("Invitation is already accepted", HttpStatus.BAD_REQUEST);
+        }
+
+        Group group = invitation.getGroup();
+        group.getMemberList().add(user);
+        invitation.setAccepted(true);
+        em.merge(invitation);
+
+        return new ResponseEntity<>("Invitation accepted", HttpStatus.OK);
     }
 
     private static boolean isInvitationValid(Invitation invitation) {
-        if (invitation.getId() == null || invitation.getEmail() == null
-                || invitation.getId().isEmpty() || invitation.getEmail().isEmpty()) {
+        if (invitation.getEmail() == null || invitation.getEmail().isEmpty()) {
             return false;
         }
         return true;

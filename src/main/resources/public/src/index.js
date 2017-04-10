@@ -18,6 +18,8 @@ import ServiceEdit from "./components/ServiceEdit.jsx";
 import MeasurementItem from "./components/MeasurementItem.jsx";
 import ServiceUsage from "./components/ServiceUsage.jsx";
 import ServiceUsageEdit from "./components/ServiceUsageEdit.jsx";
+import MemberList from "./components/MemberList.jsx";
+import MemberInvite from "./components/MemberInvite.jsx";
 
 
 import {store} from "./redux/store/store";
@@ -35,6 +37,8 @@ ReactDOM.render((
                         <Route path="add" component={GroupAdd}/>
                         <Route path=":groupId/service/:serviceId/usage" component={ServiceUsage}/>
                         <Route path=":groupId/service/:serviceId/usage/edit/(:usageId)" component={ServiceUsageEdit}/>
+                        <Route path=":groupId/member" component={MemberList}/>
+                        <Route path=":groupId/member/invite" component={MemberInvite}/>
                     </Route>
                     <Route path="service" component={Service}>
                         <Route path="list" component={ServiceList}/>

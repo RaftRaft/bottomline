@@ -58,7 +58,7 @@ public class MailSenderBuilder {
         });
         try {
             MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(from));
+            message.setFrom(new InternetAddress("BottomLine" + "<" + from + ">"));
             for (String recipient : recipients) {
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             }
