@@ -3,6 +3,7 @@ package bottomline.controller;
 import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
+import bottomline.model.Invitation;
 import bottomline.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,12 @@ public class GroupController {
 
         group.getServiceList().clear();
         group.getMemberList().clear();
+        List<Invitation> invitationList = em.createQuery("from Invitation i where i.group.id=:groupId")
+                .setParameter("groupId", groupId)
+                .getResultList();
+        for (Invitation invitation : invitationList) {
+            em.remove(invitation);
+        }
 
         removeServiceUsageFromGroup(group);
 
