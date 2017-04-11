@@ -52,11 +52,11 @@ class MemberList extends React.Component {
             this.props.actions.removeMemberFromGroup(member.id, this.props.group.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({removingMember: false, msg: err.responseText});
+                this.setState({removingMember: false, memberToRemove: null, msg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({removingMember: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({removingMember: false, memberToRemove: null, msg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -74,7 +74,11 @@ class MemberList extends React.Component {
             <a type="button" className="list-group-item" key={member.id}>
                 <div className="row">
                     <div className="col-xs-10">
-                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/> {member.name}
+                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/>
+                        {this.props.login.currentUser.id == member.id ?
+                            <span><strong>{member.name}</strong><sup className="cyan"> owner</sup></span> :
+                            <span>{member.name}</span>
+                        }
                     </div>
                     <div className="col-xs-2">
                         <button type="button" className="btn btn-warning btn-xs pull-right"

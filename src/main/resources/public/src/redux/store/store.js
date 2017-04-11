@@ -27,7 +27,14 @@ var defaultState = {
                 fetchData: false,
                 config: {
                     chart: {
-                        type: 'area'
+                        type: 'line'
+                    },
+                    plotOptions: {
+                        line: {
+                            dataLabels: {
+                                enabled: true
+                            },
+                        }
                     },
                     xAxis: {
                         type: 'datetime',

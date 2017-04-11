@@ -113,6 +113,10 @@ public class GroupController {
             throw new WebApplicationException("Only the owner can remove members from this group", HttpStatus.BAD_REQUEST);
         }
 
+        if (user.getId().equals(memberId)) {
+            throw new WebApplicationException("Owner cannot remove himself from group", HttpStatus.BAD_REQUEST);
+        }
+
         group.getMemberList().remove(member);
 
         em.merge(group);
