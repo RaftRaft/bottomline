@@ -89,13 +89,14 @@ class MemberInvite extends React.Component {
                             </div>
                         }
                         <form>
-                            <div className="input-group col-xs-8 col-lg-4">
+                            <div className="input-group col-xs-9 col-lg-4">
                                 <label>
                                     <span> User gmail address</span>
-                                    <sup> <i className="fa fa-google-plus-official cyan" aria-hidden="true"></i></sup>
+                                    <span> <i className="fa fa-google-plus-official cyan" aria-hidden="true"></i></span>
                                 </label>
                                 <input type="email" className="form-control" maxLength="50"
-                                       placeholder="Enter email of user you want to invite" onChange={this.handleEmailChange}
+                                       placeholder="Enter email of user you want to invite"
+                                       onChange={this.handleEmailChange}
                                        aria-describedby="basic-addon1"/>
                             </div>
                             <div className="row margin-top-2vh">
@@ -109,7 +110,7 @@ class MemberInvite extends React.Component {
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-check" aria-hidden="true"></i> Done
+                                        <i className="fa fa-envelope" aria-hidden="true"></i> Invite
                                     </button>
                                 </div>
                             </div>

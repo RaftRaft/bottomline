@@ -57,12 +57,14 @@ class GroupContent extends React.Component {
     memberElements() {
         return this.props.group.memberList.map((member) =>
             <div key={member.id} className="col-lg-4 col-xs-6 margin-top-05">
-                {member.id != this.props.login.currentUser.id ?
+                {this.props.group.owner.id != member.id ?
                     <div>
-                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/> {member.name}
+                        <img className="img-circle" width="18px" height="18px"
+                             src={member.profileImageUrl}/> {member.name}
                     </div> :
                     <div>
-                        <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/><strong> {member.name}</strong>
+                        <img className="img-circle" width="18px" height="18px"
+                             src={member.profileImageUrl}/><strong> {member.name}</strong>
                         <sup className="cyan"> owner</sup>
                     </div>
                 }
@@ -112,7 +114,8 @@ class GroupContent extends React.Component {
             <div>
                 {!this.state.retractingService ?
                     <div className="row">
-                        <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Retract service from group ? </h5></div>
+                        <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Retract service from group
+                            ? </h5></div>
                         <div className="col-xs-3 col-lg-1">
                             <button type="button" className="btn btn-default pull-right" aria-expanded="false"
                                     onClick={() => this.retractService(service, this.props.group.id)}>

@@ -75,17 +75,20 @@ class MemberList extends React.Component {
                 <div className="row">
                     <div className="col-xs-10">
                         <img className="img-circle" width="18px" height="18px" src={member.profileImageUrl}/>
-                        {this.props.login.currentUser.id == member.id ?
-                            <span><strong>{member.name}</strong><sup className="cyan"> owner</sup></span> :
-                            <span>{member.name}</span>
+                        {this.props.group.owner.id == member.id ?
+                            <span><strong> {member.name}</strong><sup className="cyan"> owner</sup></span> :
+                            <span> {member.name}</span>
                         }
                     </div>
-                    <div className="col-xs-2">
-                        <button type="button" className="btn btn-warning btn-xs pull-right"
-                                aria-expanded="false" onClick={() => this.removeMemberConfirmation(member)}>
-                            <i className="fa fa-remove" aria-hidden="true"></i>
-                        </button>
-                    </div>
+                    {this.props.group.owner.id == this.props.login.currentUser.id ?
+                        <div className="col-xs-2">
+                            <button type="button" className="btn btn-default btn-xs pull-right"
+                                    aria-expanded="false" onClick={() => this.removeMemberConfirmation(member)}>
+                                <i className="fa fa-remove" aria-hidden="true"></i>
+                            </button>
+                        </div> :
+                        <div></div>
+                    }
                 </div>
                 {this.state.memberToRemove != null && this.state.memberToRemove.id == member.id ?
                     this.renderRemoveMemberConfirmation(member) :
@@ -99,7 +102,8 @@ class MemberList extends React.Component {
             <div className="margin-top-2vh">
                 {!this.state.removingMember ?
                     <div className="row">
-                        <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Remove member from group ? </h5></div>
+                        <div className="col-xs-9 col-lg-11"><h5 className="pull-right">Remove member from group ? </h5>
+                        </div>
                         <div className="col-xs-3 col-lg-1">
                             <button type="button" className="btn btn-default pull-right" aria-expanded="false"
                                     onClick={() => this.removeMemberFromGroup(member)}>
@@ -131,7 +135,8 @@ class MemberList extends React.Component {
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link to={"main/group/" + this.props.group.id + "/member/invite"} type="button" className="btn btn-info"
+                                    <Link to={"main/group/" + this.props.group.id + "/member/invite"} type="button"
+                                          className="btn btn-info"
                                           aria-expanded="false">
                                         <i className="fa fa-envelope" aria-hidden="true"></i> Invite user
                                     </Link>

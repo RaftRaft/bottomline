@@ -3,8 +3,15 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {hashHistory} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
-import {addUser} from "../common/api";
-import gapi from "../platform.js"
+import {acceptInvitation, addUser} from "../common/api";
+import gapi from "../platform.js";
+
+
+function mapStateToProps(state, ownProps) {
+    return {
+        invitationCode: ownProps.params.invitationCode,
+    };
+}
 
 function mapDispatchToProps(dispatch) {
     return {actions: bindActionCreators(actionCreators, dispatch)};
@@ -67,9 +74,19 @@ class GoogleLogin extends React.Component {
     onSuccess(googleUser) {
         this.props.actions.setCurrentUser(this.buildUser(googleUser));
         // Persist user inside database
-        addUser(JSON.stringify(this.buildUser(googleUser))).then((resolve) => {
+        let user = this.buildUser(googleUser);
+        addUser(JSON.stringify(user)).then((resolve) => {
             console.debug(resolve.responseText);
-            hashHistory.push("main/group");
+            if (this.props.invitationCode != null) {
+                acceptInvitation(this.props.invitationCode, user.id).then((resolve) => {
+                    console.debug(resolve.responseText);
+                    hashHistory.push("main/group");
+                }).catch((err) => {
+                    console.error(err);
+                });
+            } else {
+                hashHistory.push("main/group");
+            }
         }).catch((err) => {
             console.error('Something bad happened', err.statusText);
         });
@@ -90,9 +107,19 @@ class GoogleLogin extends React.Component {
                             console.debug("User is already signed in");
                             props.actions.setCurrentUser(buildUser(auth2.currentUser.get()));
                             // Persist user inside database
-                            addUser(JSON.stringify(buildUser(auth2.currentUser.get()))).then((resolve) => {
+                            let user = buildUser(auth2.currentUser.get());
+                            addUser(JSON.stringify(user)).then((resolve) => {
                                 console.debug(resolve.responseText);
-                                hashHistory.push("main/group");
+                                if (props.invitationCode != null) {
+                                    acceptInvitation(props.invitationCode, user.id).then((resolve) => {
+                                        console.debug(resolve.responseText);
+                                        hashHistory.push("main/group");
+                                    }).catch((err) => {
+                                        console.error(err);
+                                    });
+                                } else {
+                                    hashHistory.push("main/group");
+                                }
                             }).catch((err) => {
                                 console.error('Something bad happened', err.statusText);
                             });
@@ -158,4 +185,4 @@ class GoogleLogin extends React.Component {
     }
 }
 
-export default connect(null, mapDispatchToProps)(GoogleLogin);
+export default connect(mapStateToProps, mapDispatchToProps)(GoogleLogin);

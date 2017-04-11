@@ -81,6 +81,11 @@ public class InvitationController {
         if (invitation == null) {
             throw new WebApplicationException("Invitation does not exist", HttpStatus.BAD_REQUEST);
         }
+
+        if (!user.getEmail().equals(invitation.getEmail())) {
+            throw new WebApplicationException("Invitation is for other email address", HttpStatus.BAD_REQUEST);
+        }
+
         if (invitation.isAccepted()) {
             throw new WebApplicationException("Invitation is already accepted", HttpStatus.BAD_REQUEST);
         }

@@ -48,6 +48,9 @@ ReactDOM.render((
                     </Route>
                 </Route>
             </Route>
+            <Route path="/(:invitationCode)" component={App}>
+                <IndexRoute component={GoogleLogin}/>
+            </Route>
         </Router>
     </Provider>
 ), document.getElementById('app'))
