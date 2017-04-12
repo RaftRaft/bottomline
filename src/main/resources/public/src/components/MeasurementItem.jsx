@@ -22,9 +22,11 @@ class MeasurementItem extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Configure service measurement items"
         this.state = {
             loading: false,
-            msg: "Add measurement items",
+            msg: this.defaultMsg,
+            warnMsg: null,
             itemToRemove: null,
             itemToEdit: null,
             formData: {
@@ -71,7 +73,7 @@ class MeasurementItem extends React.Component {
 
     measurementItems() {
         return this.props.service.itemList.map((item) =>
-            <a type="button" className="list-group-item" key={item.id}>
+            <a type="button" className="list-group-item bg-green-light" key={item.id}>
                 <div className="row">
                     <div className="col-xs-10" onClick={() => this.setItemToEdit(item)}>
                         <div><i className="fa fa-tachometer" aria-hidden="true"></i><b> {item.label}</b></div>
@@ -81,9 +83,9 @@ class MeasurementItem extends React.Component {
                         </div>
                     </div>
                     <div className="col-xs-2">
-                        <button type="button" className="btn btn-danger btn-xs pull-right"
+                        <button type="button" className="btn btn-default btn-xs pull-right"
                                 aria-expanded="false" onClick={() => this.removeItemConfirmation(item)}>
-                            <i className="fa fa-times" aria-hidden="true"></i>
+                            <i className="fa fa-times red-gray" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -95,6 +97,8 @@ class MeasurementItem extends React.Component {
         this.setState(
             {
                 itemToEdit: item,
+                itemToRemove: null,
+                msg: this.defaultMsg,
                 formData: {
                     item: Object.assign({}, item, {
                         label: (item != null) ? item.label : "",
@@ -109,6 +113,7 @@ class MeasurementItem extends React.Component {
         this.setState(
             {
                 msg: "Remove item '" + item.label + "' ?",
+                warnMsg: null,
                 itemToRemove: item
             }
         )
@@ -116,7 +121,7 @@ class MeasurementItem extends React.Component {
 
     submit() {
         console.debug("Form: " + JSON.stringify(this.state.formData.item));
-        this.setState({loading: true, itemToRemove: null});
+        this.setState({loading: true, itemToRemove: null, msg: this.defaultMsg});
         if (this.state.itemToEdit == null) {
             //Add new item
             addItem(JSON.stringify(this.state.formData.item), this.props.service.id, this.props.login.currentUser.id).then((resolve) => {
@@ -124,16 +129,17 @@ class MeasurementItem extends React.Component {
                 let item = JSON.parse(resolve.responseText);
                 this.setState({
                     loading: false,
+                    warnMsg: null,
                     msg: "Measurement item added."
                 });
                 this.props.actions.addItem(item, this.props.service.id);
             }).catch((err) => {
                 if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                    this.setState({loading: false, msg: err.responseText});
+                    this.setState({loading: false, warnMsg: err.responseText});
                 }
                 else {
                     console.error(err);
-                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                    this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
                 }
             });
         } else {
@@ -142,16 +148,17 @@ class MeasurementItem extends React.Component {
                 console.debug(resolve);
                 this.setState({
                     loading: false,
-                    msg: "Measurement item updated."
+                    msg: "Measurement item updated.",
+                    warnMsg: null,
                 });
                 this.props.actions.editItem(this.state.formData.item);
             }).catch((err) => {
                 if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                    this.setState({loading: false, msg: err.responseText});
+                    this.setState({loading: false, warnMsg: err.responseText});
                 }
                 else {
                     console.error(err);
-                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                    this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
                 }
             });
         }
@@ -195,32 +202,44 @@ class MeasurementItem extends React.Component {
         console.debug("Measurement item render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-tachometer cyan" aria-hidden="true"></i>
-                                <span> Measurement items</span>
-                            </h5>
+                            <div className="col-xs-12">
+                                <h4>
+                                    <i className="fa fa-tachometer blue-light" aria-hidden="true"></i>
+                                    <span> Measurement items</span>
+                                </h4>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
+                        <div>
+                            <i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Service:<strong> {this.props.service.label}</strong></small>
+                        </div>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                    <div className="row">
-                                        {this.renderRemoveItemConfirmationButton()}
-                                    </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
+                                <div className="row">
+                                    {this.renderRemoveItemConfirmationButton()}
                                 </div>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div id="groupListId" className="list-group">
                             {this.measurementItems()}
                         </div>
@@ -233,7 +252,7 @@ class MeasurementItem extends React.Component {
                             </div>
                             <div className="col-xs-6">
                                 {this.state.itemToEdit != null ?
-                                    <button type="button" className="btn btn-info pull-right"
+                                    <button type="button" className="btn btn-success pull-right"
                                             aria-expanded="false" onClick={() => this.setItemToEdit(null)}>
                                         <i className="fa fa-check-circle" aria-hidden="true"></i>
                                         <span> Add new</span>
@@ -258,13 +277,14 @@ class MeasurementItem extends React.Component {
                             <div className="input-group col-xs-4 col-lg-6">
                                 <input type="text" className="form-control" maxLength="10"
                                        placeholder="Eg: m³, $" onChange={this.handleMuChange}
-                                       aria-describedby="basic-addon1" value={this.state.formData.item.unitOfMeasurement}/>
+                                       aria-describedby="basic-addon1"
+                                       value={this.state.formData.item.unitOfMeasurement}/>
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
                                 </div>
                                 <div className="col-xs-6">
-                                    <button type="button" className="btn btn-default pull-right"
+                                    <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
                                         <i className="fa fa-check" aria-hidden="true"></i>
                                         <span> Apply</span>

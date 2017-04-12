@@ -2,7 +2,7 @@ import React from "react";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import DatePicker from "react-bootstrap-date-picker";
-import {Link, hashHistory} from "react-router";
+import {hashHistory, Link} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
 import {selectGroup, selectService, selectServiceUsage} from "../common/Helper";
 import {addServiceUsage, removeServiceUsage, updateServiceUsage} from "../common/api.js";
@@ -226,6 +226,43 @@ class ServiceUsageEdit extends React.Component {
         console.debug("Service usage edit render");
         return (
             <div className="container">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-wrench blue-light" aria-hidden="true"></i>
+                                    <span> Edit Service usage</span>
+                                </h4>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div>
+                            <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Group: <strong>{this.props.group.label}</strong></small>
+                        </div>
+                        <div>
+                            <i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Service: <strong>{this.props.service.label}</strong></small>
+                        </div>
+                        {this.state.loading ?
+                            <div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;{this.state.msg}</small>
+                            </div>
+                        }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-heading">
                         <div className="row">

@@ -23,8 +23,10 @@ class MemberList extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Manage group members";
         this.state = {
-            msg: "Members are people",
+            msg: this.defaultMsg,
+            warnMsg: null,
             memberToRemove: null,
             removingMember: false,
         }
@@ -47,25 +49,26 @@ class MemberList extends React.Component {
             this.setState({
                 removingMember: false,
                 memberToRemove: null,
-                msg: "Member removed"
+                msg: "Member removed",
+                warnMsg: null
             });
             this.props.actions.removeMemberFromGroup(member.id, this.props.group.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({removingMember: false, memberToRemove: null, msg: err.responseText});
+                this.setState({removingMember: false, memberToRemove: null, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({removingMember: false, memberToRemove: null, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({removingMember: false, memberToRemove: null, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
 
     removeMemberConfirmation(member) {
         if (this.state.memberToRemove != null && this.state.memberToRemove.id == member.id) {
-            this.setState({memberToRemove: null});
+            this.setState({memberToRemove: null, warnMsg: null});
         } else {
-            this.setState({memberToRemove: member});
+            this.setState({memberToRemove: member, warnMsg: null});
         }
     }
 
@@ -127,29 +130,50 @@ class MemberList extends React.Component {
         return (
             <div className="container">
                 <div id="mobilePanelId" className="panel panel-default">
-                    <div className="panel-heading">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-6"><h5><i className="fa fa-cubes cyan" aria-hidden="true"></i>
-                                <span> <strong>Group members</strong></span>
-                            </h5>
+                            <div className="col-xs-8">
+                                <h4>
+                                    <i className="fa fa-user-circle blue-light" aria-hidden="true"></i>
+                                    <span> Group members</span>
+                                </h4>
                             </div>
-                            <div className="col-xs-6">
+                            <div className="col-xs-4">
                                 <div className="btn-group pull-right">
                                     <Link to={"main/group/" + this.props.group.id + "/member/invite"} type="button"
                                           className="btn btn-info"
                                           aria-expanded="false">
-                                        <i className="fa fa-envelope" aria-hidden="true"></i> Invite user
+                                        <i className="fa fa-user-plus" aria-hidden="true"></i> Add user
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="groupListPanelBodyId" className="panel-body">
+                        <hr/>
                         <div>
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                <span> {this.state.msg}</span>
+                            <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Group: <strong> {this.props.group.label}</strong></small>
+                        </div>
+                        {this.state.loading ?
+                            <div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;{this.state.msg}</small>
                             </div>
+                        }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
+                        <div>
                             <div id="groupListId" className="list-group">
                                 {this.memberElements()}
                             </div>

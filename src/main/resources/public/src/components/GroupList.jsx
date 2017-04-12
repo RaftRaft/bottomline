@@ -51,7 +51,7 @@ class GroupList extends React.Component {
             if (JSON.parse(resolve.responseText).length != 0) {
                 this.setState({loading: false, msg: this.genericMsg, warnMsg: null});
             } else {
-                this.setState({loading: false, msg: "You have no groups. Please, add one"});
+                this.setState({loading: false, msg: "You have no groups. Please, add one", warnMsg: null});
             }
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
@@ -66,9 +66,10 @@ class GroupList extends React.Component {
 
     groupElements() {
         return this.props.group.list.map((group) =>
-            <Link to={"main/group/content/" + group.id} type="button" className="list-group-item bg-green-light" key={group.id}>
+            <Link to={"main/group/content/" + group.id} type="button" className="list-group-item bg-green-light"
+                  key={group.id}>
                 <div>
-                    <i className="fa fa-cubes blue-light" aria-hidden="true"></i>
+                    <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
                     <b> {group.label}</b></div>
                 <div>
                     <small className="gray-dark">{group.desc}</small>
@@ -92,9 +93,9 @@ class GroupList extends React.Component {
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link to={"main/group/add"} type="button" className="btn btn-default"
+                                    <Link to={"main/group/add"} type="button" className="btn btn-info"
                                           aria-expanded="false">
-                                        <i className="fa fa-plus-circle blue-light" aria-hidden="true"></i> New
+                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> New
                                     </Link>
                                 </div>
                             </div>
@@ -106,7 +107,7 @@ class GroupList extends React.Component {
                                 <small className="gray-dark"> Loading data...</small>
                             </div> :
                             <div>
-                                <i className="fa fa-info-circle green" aria-hidden="true"></i>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
                                 <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }

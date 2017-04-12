@@ -22,9 +22,11 @@ class GroupEdit extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Configure your group details";
         this.state = {
             loading: false,
-            msg: "Edit group message",
+            msg: this.defaultMsg,
+            warnMsg: null,
             groupToBeRemoved: null
         }
         this.formData = {
@@ -65,18 +67,17 @@ class GroupEdit extends React.Component {
         removeGroup(this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
             console.debug(resolve);
             this.setState({
-                loading: false,
-                msg: "Group removed."
+                loading: false
             });
             hashHistory.push("main/group");
             this.props.actions.removeGroup(this.props.group.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -87,16 +88,17 @@ class GroupEdit extends React.Component {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Group updated"
+                msg: "Group updated",
+                warnMsg: null
             });
             this.props.actions.editGroup(this.formData.group);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -117,46 +119,53 @@ class GroupEdit extends React.Component {
         console.debug("Group edit render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
                             <div className="col-xs-7">
-                                <i className="fa fa-pencil-square cyan"
-                                   aria-hidden="true"></i>
-                                <span> Edit group</span>
-                                <h5 className="margin-top-02">
-                                    <strong>
-                                        {this.props.group.label}
-                                    </strong>
-                                </h5>
+                                <h4>
+                                    <i className="fa fa-wrench blue-light" aria-hidden="true"></i>
+                                    <span> Group Edit</span>
+                                </h4>
                             </div>
                             <div className="col-xs-5">
                                 <div className="btn-group pull-right">
                                     <button to="" type="button"
-                                            className="btn btn-danger" aria-expanded="false" onClick={() => this.removeGroupConfirmation()}>
-                                        <i className="fa fa-trash" aria-hidden="true"></i> Delete group
+                                            className="btn btn-default" aria-expanded="false"
+                                            onClick={() => this.removeGroupConfirmation()}>
+                                        <i className="fa fa-trash red-gray" aria-hidden="true"></i> Delete group
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
+                        <div>
+                            <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"><strong> {this.props.group.label}</strong></small>
+                        </div>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                    <div className="row">
-                                        {this.renderRemoveGroupConfirmationButton()}
-                                    </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;{this.state.msg}</small>
+                                <div className="row">
+                                    {this.renderRemoveGroupConfirmationButton()}
                                 </div>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Group label

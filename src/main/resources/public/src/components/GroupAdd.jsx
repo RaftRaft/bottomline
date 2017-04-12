@@ -56,17 +56,18 @@ class GroupAdd extends React.Component {
             console.debug(resolve);
             let persistedGroup = JSON.parse(resolve.responseText);
             this.setState({
-                loading: false
+                loading: false,
+                warnMsg: null
             });
             this.props.actions.addGroup(persistedGroup);
             hashHistory.push("main/group/content/" + persistedGroup.id);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -92,7 +93,7 @@ class GroupAdd extends React.Component {
                                 <small className="gray-dark"> Loading data...</small>
                             </div> :
                             <div>
-                                <i className="fa fa-info-circle green" aria-hidden="true"></i>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
                                 <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }
@@ -104,7 +105,7 @@ class GroupAdd extends React.Component {
                         }
                     </div>
                 </div>
-                <div className="panel panel-default">
+                <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
@@ -112,12 +113,13 @@ class GroupAdd extends React.Component {
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
-                                       placeholder="Happy tree friends" onChange={this.handleLabelChange}
+                                       placeholder="ex: My Apartment, Trip 2016" onChange={this.handleLabelChange}
                                        aria-describedby="basic-addon1"/>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
-                                <textarea className="form-control" maxLength="256" rows="3" placeholder="Some desc"
+                                <textarea className="form-control" maxLength="256" rows="3"
+                                          placeholder="ex: My Apartment expenses: bills, energy and water consumption, etc."
                                           onChange={this.handleDescChange}></textarea>
                             </div>
                             <div className="row margin-top-2vh">

@@ -26,6 +26,9 @@ var defaultState = {
                 show: false,
                 fetchData: false,
                 config: {
+                    title: {
+                        text: 'Service usage history'
+                    },
                     chart: {
                         type: 'line'
                     },

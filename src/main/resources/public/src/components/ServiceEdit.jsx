@@ -22,9 +22,11 @@ class ServiceEdit extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Configure your service details"
         this.state = {
             loading: false,
-            msg: "Service edit first msg",
+            msg: this.defaultMsg,
+            warnMsg: null,
             serviceToBeRemoved: null
         }
         this.formData = {
@@ -55,6 +57,7 @@ class ServiceEdit extends React.Component {
         this.setState(
             {
                 msg: "Permanently remove service '" + this.props.service.label + "' ?",
+                warnMsg: null,
                 serviceToBeRemoved: this.props.service
             }
         )
@@ -67,16 +70,17 @@ class ServiceEdit extends React.Component {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: resolve.responseText
+                msg: resolve.responseText,
+                warnMsg: null,
             });
             this.props.actions.editService(this.formData.service);
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -118,41 +122,64 @@ class ServiceEdit extends React.Component {
         console.debug("Service edit render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-7"><h5><i className="fa fa-pencil-square"
-                                                             aria-hidden="true"></i>
-                                <span> Service edit <strong>{this.props.service.label}</strong></span>
-                            </h5>
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-wrench blue-light" aria-hidden="true"></i>
+                                    <span> Service Edit</span>
+                                </h4>
                             </div>
-                            <div className="col-xs-5">
+                            <div className="col-xs-6">
                                 <div className="btn-group pull-right">
                                     <button type="button" onClick={() => this.removeServiceConfirmation()}
-                                            className="btn btn-danger" aria-expanded="false">
-                                        <i className="fa fa-trash" aria-hidden="true"></i> Delete service
+                                            className="btn btn-default" aria-expanded="false">
+                                        <i className="fa fa-trash red-gray" aria-hidden="true"></i> Delete service
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
+                        <div>
+                            <i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Service: <strong> {this.props.service.label}</strong></small>
+                        </div>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                    <div className="row">
-                                        {this.renderRemoveServiceConfirmationButton()}
-                                    </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
+                                <div className="row">
+                                    {this.renderRemoveServiceConfirmationButton()}
                                 </div>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                        <div className="row margin-top-2vh">
+                            <div className="col-xs-12 text-align-center">
+                                <div className="btn-group">
+                                    <Link
+                                        to={"main/service/" + this.props.service.id + "/mi"}
+                                        type="button" className="btn btn-info" aria-expanded="false">
+                                        <i className="fa fa-tachometer" aria-hidden="true"></i> Configure measurement
+                                        items
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Service name
@@ -181,16 +208,6 @@ class ServiceEdit extends React.Component {
                                 </div>
                             </div>
                         </form>
-                        <hr/>
-                        <div className="text-align-center">
-                            <div className="btn-group">
-                                <Link
-                                    to={"main/service/" + this.props.service.id + "/mi"}
-                                    type="button" className="btn btn-default" aria-expanded="false">
-                                    <i className="fa fa-tachometer" aria-hidden="true"></i> Configure measurement items
-                                </Link>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -21,9 +21,11 @@ class ServiceList extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Manage your services";
         this.state = {
             loading: true,
-            msg: "Services are people"
+            msg: this.defaultMsg,
+            warnMsg: null
         }
         this.serviceElements = this.serviceElements.bind(this);
         console.debug("Service list construct");
@@ -34,26 +36,26 @@ class ServiceList extends React.Component {
         getServices(this.props.login.currentUser.id).then((resolve) => {
             this.props.actions.setServiceList(JSON.parse(resolve.responseText));
             if (JSON.parse(resolve.responseText).length != 0) {
-                this.setState({loading: false});
+                this.setState({loading: false, warnMsg: null});
             } else {
-                this.setState({loading: false, msg: "You have no services. Please, add one"});
+                this.setState({loading: false, msg: "You have no services. Please, add one", warnMsg: null});
             }
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
 
     serviceElements() {
         return this.props.service.list.map((service) =>
-            <Link to={"main/service/" + service.id + "/edit"} type="button" className="list-group-item"
+            <Link to={"main/service/" + service.id + "/edit"} type="button" className="list-group-item bg-green-light"
                   key={service.id}>
-                <div><b>{service.label}</b></div>
+                <div><i className="fa fa-cogs gray-dark" aria-hidden="true"></i><b> {service.label}</b></div>
                 <div>
                     <small className="gray-dark">{service.desc}</small>
                 </div>
@@ -66,39 +68,47 @@ class ServiceList extends React.Component {
         return (
             <div className="container">
                 <div id="mobilePanelId" className="panel panel-default">
-                    <div className="panel-heading">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-6"><h5><i className="fa fa-cogs cyan" aria-hidden="true"></i>
-                                <span> <strong>Your Services</strong></span>
-                            </h5>
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-cogs blue-light" aria-hidden="true"></i>
+                                    <span> Your Services</span>
+                                </h4>
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link to={"main/service/add/"} type="button" className="btn btn-warning"
+                                    <Link to={"main/service/add/"} type="button" className="btn btn-success"
                                           aria-expanded="false">
-                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> Add service
+                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> New
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="groupListPanelBodyId" className="panel-body">
+                        <hr/>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                </div>
-                                <div id="groupListId" className="list-group">
-                                    {this.serviceElements()}
-                                </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div id="groupListPanelBodyId" className="panel-body">
+                        <div id="groupListId" className="list-group">
+                            {this.serviceElements()}
+                        </div>
                     </div>
                 </div>
             </div>

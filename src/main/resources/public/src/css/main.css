@@ -1,5 +1,5 @@
 body {
-    background-color: #f2f2f8;
+    background-color: #F4F4F4;
 }
 
 hr {
@@ -32,7 +32,7 @@ hr {
     #mobilePanelId {
         border-radius: 0;
         border: none;
-        margin: 4px;
+        margin: 6px;
         padding-bottom: 0px;
     }
 }

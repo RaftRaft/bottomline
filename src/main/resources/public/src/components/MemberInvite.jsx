@@ -17,9 +17,11 @@ class MemberInvite extends React.Component {
 
     constructor(props) {
         super(props);
+        this.defaultMsg = "Invite user to group"
         this.state = {
             loading: false,
-            msg: "Invite member message"
+            msg: this.defaultMsg,
+            warnMsg: null,
         }
         this.formData = {
             invitation: {
@@ -42,15 +44,16 @@ class MemberInvite extends React.Component {
         sendInvitation(JSON.stringify(this.formData.invitation), this.props.group.id, this.props.login.currentUser.id).then((resolve) => {
             this.setState({
                 loading: false,
-                msg: "Invitation sent."
+                msg: "Invitation sent",
+                warnMsg: null
             });
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -59,35 +62,41 @@ class MemberInvite extends React.Component {
         console.debug("Member invite render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-12">
-                                <i className="fa fa-pencil-square cyan"
-                                   aria-hidden="true"></i>
-                                <span> Invite new member for group </span>
-                                <h5 className="margin-top-02">
-                                    <strong>
-                                        {this.props.group.label}
-                                    </strong>
-                                </h5>
+                            <div className="col-xs-8">
+                                <h4>
+                                    <i className="fa fa-envelope blue-light" aria-hidden="true"></i>
+                                    <span> Send member invitation</span>
+                                </h4>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
+                        <div>
+                            <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
+                            <small className="gray-dark"> Group: <strong> {this.props.group.label}</strong></small>
+                        </div>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark">&nbsp;&nbsp;{this.state.msg}</small>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-9 col-lg-4">
                                 <label>
@@ -110,7 +119,7 @@ class MemberInvite extends React.Component {
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-envelope" aria-hidden="true"></i> Invite
+                                        <i className="fa fa-envelope" aria-hidden="true"></i> Send
                                     </button>
                                 </div>
                             </div>

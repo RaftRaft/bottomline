@@ -23,11 +23,12 @@ class ServiceAdd extends React.Component {
 
     constructor(props) {
         super(props);
-        let initialMsg = (this.props.group != null) ? "Add service for group " + this.props.group.label : "Add new service";
+        let initialMsg = (this.props.group != null) ? "Add new service for group " + this.props.group.label : "Add new service";
 
         this.state = {
             loading: false,
             msg: initialMsg,
+            warnMsg: null,
             addedService: null,
             formData: {
                 service: {
@@ -75,7 +76,8 @@ class ServiceAdd extends React.Component {
             {
                 formData: {
                     service: Object.assign({}, service)
-                }
+                },
+                warnMsg: null,
             }
         )
         this.setState({msg: "Service selected"})
@@ -126,17 +128,18 @@ class ServiceAdd extends React.Component {
             let service = JSON.parse(resolve.responseText);
             this.setState({
                 loading: false,
+                warnMsg: null,
                 addedService: service
             });
             this.props.actions.addService(service);
             hashHistory.push("main/service/" + service.id + "/mi");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -147,17 +150,18 @@ class ServiceAdd extends React.Component {
             let service = JSON.parse(resolve.responseText);
             this.setState({
                 loading: false,
+                warnMsg: null,
                 addedService: service
             });
             this.props.actions.addServiceForGroup(service, this.props.group.id);
             hashHistory.push("main/service/" + service.id + "/mi");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
@@ -166,43 +170,51 @@ class ServiceAdd extends React.Component {
         console.debug("Service add render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle green"
-                                                              aria-hidden="true"></i>
-                                <strong> Service add</strong>
-                            </h5>
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-cogs blue-light" aria-hidden="true"></i>
+                                    <span> New Service</span>
+                                </h4>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Service name
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
-                                       placeholder="Happy tree friends" value={this.state.formData.service.label}
+                                       placeholder="ex: Water consumption" value={this.state.formData.service.label}
                                        onChange={this.handleLabelChange}
                                        aria-describedby="basic-addon1"/>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
                                 <label>Description</label>
-                                <textarea className="form-control" maxLength="256" rows="3" placeholder="Some desc"
+                                <textarea className="form-control" maxLength="256" rows="3"
+                                          placeholder="ex: Keep track of Hot/Cold  water consumption for each month"
                                           value={this.state.formData.service.desc}
                                           onChange={this.handleDescChange}></textarea>
                             </div>
