@@ -19,9 +19,11 @@ class GroupAdd extends React.Component {
 
     constructor(props) {
         super(props);
+        this.genericMsg = "Add a new group";
         this.state = {
             loading: false,
-            msg: "A item can be a house"
+            msg: this.genericMsg,
+            warnMsg: null
         }
         this.formData = {
             group: {
@@ -73,30 +75,37 @@ class GroupAdd extends React.Component {
         console.debug("Group add render");
         return (
             <div className="container">
-                <div className="panel panel-default">
-                    <div className="panel-heading">
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-12"><h5><i className="fa fa-plus-circle cyan"
-                                                              aria-hidden="true"></i>
-                                <span> <strong>Add new group</strong></span>
-                            </h5>
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-cubes blue-light" aria-hidden="true"></i>
+                                    <span> New Group</span>
+                                </h4>
                             </div>
                         </div>
-                    </div>
-                    <div className="panel-body">
+                        <hr/>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle green" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div className="panel panel-default">
+                    <div className="panel-body">
                         <form>
                             <div className="input-group col-xs-8 col-lg-4">
                                 <label>Label

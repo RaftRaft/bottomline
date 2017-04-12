@@ -21,9 +21,11 @@ class GroupList extends React.Component {
 
     constructor(props) {
         super(props);
+        this.genericMsg = "Manage your groups";
         this.state = {
             loading: true,
-            msg: "Groups are people"
+            msg: this.genericMsg,
+            warnMsg: null
         }
         this.groupElements = this.groupElements.bind(this);
         console.debug("Group list construct");
@@ -36,36 +38,38 @@ class GroupList extends React.Component {
             this.props.actions.setServiceList(JSON.parse(resolve.responseText));
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
 
         getGroups(this.props.login.currentUser.id).then((resolve) => {
             this.props.actions.setGroupList(JSON.parse(resolve.responseText));
             if (JSON.parse(resolve.responseText).length != 0) {
-                this.setState({loading: false});
+                this.setState({loading: false, msg: this.genericMsg, warnMsg: null});
             } else {
                 this.setState({loading: false, msg: "You have no groups. Please, add one"});
             }
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG});
             }
         });
     }
 
     groupElements() {
         return this.props.group.list.map((group) =>
-            <Link to={"main/group/content/" + group.id} type="button" className="list-group-item" key={group.id}>
-                <div><b>{group.label}</b></div>
+            <Link to={"main/group/content/" + group.id} type="button" className="list-group-item bg-green-light" key={group.id}>
+                <div>
+                    <i className="fa fa-cubes blue-light" aria-hidden="true"></i>
+                    <b> {group.label}</b></div>
                 <div>
                     <small className="gray-dark">{group.desc}</small>
                 </div>
@@ -78,39 +82,54 @@ class GroupList extends React.Component {
         return (
             <div className="container">
                 <div id="mobilePanelId" className="panel panel-default">
-                    <div className="panel-heading">
+                    <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-6"><h5><i className="fa fa-cubes cyan" aria-hidden="true"></i>
-                                <span> <strong>Your Groups</strong></span>
-                            </h5>
+                            <div className="col-xs-6">
+                                <h4>
+                                    <i className="fa fa-cubes blue-light" aria-hidden="true"></i>
+                                    <span> Groups</span>
+                                </h4>
                             </div>
                             <div className="col-xs-6">
                                 <div className="btn-group pull-right">
-                                    <Link to={"main/group/add"} type="button" className="btn btn-success"
+                                    <Link to={"main/group/add"} type="button" className="btn btn-default"
                                           aria-expanded="false">
-                                        <i className="fa fa-plus-circle" aria-hidden="true"></i> Add group
+                                        <i className="fa fa-plus-circle blue-light" aria-hidden="true"></i> New
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="groupListPanelBodyId" className="panel-body">
+                        <hr/>
                         {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
                             <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                </div>
-                                <div id="groupListId" className="list-group">
-                                    {this.groupElements()}
-                                </div>
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading data...</small>
+                            </div> :
+                            <div>
+                                <i className="fa fa-info-circle green" aria-hidden="true"></i>
+                                <small className="gray-dark"> {this.state.msg}</small>
                             </div>
                         }
+                        {this.state.warnMsg != null ?
+                            <div className="alert alert-warning margin-top-2vh" role="alert">
+                                <span>{this.state.warnMsg}</span>
+                            </div> :
+                            <div></div>
+                        }
+                    </div>
+                </div>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div id="groupListPanelBodyId" className="panel-body">
+                        <div>
+                            {this.props.group.list.length > 0 ?
+                                <div id="groupListId" className="list-group">
+                                    {this.groupElements()}
+                                </div> :
+                                <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                    <small className="gray-dark"><strong>Empty group list</strong></small>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
