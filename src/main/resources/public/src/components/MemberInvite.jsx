@@ -65,7 +65,7 @@ class MemberInvite extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-8">
+                            <div className="col-xs-12">
                                 <h4>
                                     <i className="fa fa-envelope blue-light" aria-hidden="true"></i>
                                     <span> Send member invitation</span>
@@ -108,6 +108,7 @@ class MemberInvite extends React.Component {
                                        onChange={this.handleEmailChange}
                                        aria-describedby="basic-addon1"/>
                             </div>
+                            <hr className="margin-top-2vh"/>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
                                     <Link to={"main/group/content/" + this.props.group.id} type="button"

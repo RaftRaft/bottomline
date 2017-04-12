@@ -209,7 +209,7 @@ class GroupContent extends React.Component {
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
                                     <h4 className="pull-left"><i className="fa fa-cogs" aria-hidden="true"></i>
-                                        <span> Service usage</span>
+                                        <span> Services</span>
                                     </h4>
                                 </div>
                                 <div className="col-xs-6">
