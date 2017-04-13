@@ -27,8 +27,10 @@ class Header extends React.Component {
                                 <span className="icon-bar"></span>
                             </button>
                             <div className="navbar-brand">
-                                <i className="fa fa-pencil-square cyan" aria-hidden="true"></i>
-                                <span className="white"> BottomLine</span>
+                                <div>
+                                    <img src={"src/img/bird_blue_small.png"} width="26px" height="26px"/><span
+                                    className="white"> BottomLine</span>
+                                </div>
                             </div>
                         </div>
                         <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">

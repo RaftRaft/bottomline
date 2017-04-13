@@ -55,7 +55,7 @@ class ServiceList extends React.Component {
         return this.props.service.list.map((service) =>
             <Link to={"main/service/" + service.id + "/edit"} type="button" className="list-group-item bg-green-light"
                   key={service.id}>
-                <div><i className="fa fa-cogs gray-dark" aria-hidden="true"></i><b> {service.label}</b></div>
+                <div><i className="fa fa-cogs blue-light" aria-hidden="true"></i><b> {service.label}</b></div>
                 <div>
                     <small className="gray-dark">{service.desc}</small>
                 </div>

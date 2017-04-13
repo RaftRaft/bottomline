@@ -27,9 +27,11 @@ class ServiceUsageEdit extends React.Component {
     constructor(props) {
         super(props);
         var date = this.props.serviceUsageToEdit != null ? dateFormat(this.props.serviceUsageToEdit.date, "isoDateTime") : new Date().toISOString();
+        this.defaultMsg = "Configure service usage"
         this.state = {
             loading: false,
-            msg: "Add service usage",
+            msg: this.defaultMsg,
+            warnMsg: null,
             serviceUsageToBeRemoved: null,
             selectedItem: this.props.serviceUsageToEdit != null ? this.props.serviceUsageToEdit.item : null,
             selectedDate: date,
@@ -112,7 +114,7 @@ class ServiceUsageEdit extends React.Component {
     selectItem(item) {
         this.setState(
             {
-                selectedItem: item
+                selectedItem: item,
             }
         );
     }
@@ -121,7 +123,7 @@ class ServiceUsageEdit extends React.Component {
         return this.props.service.itemList.map((item) =>
             <li key={item.id}>
                 <a onClick={() => this.selectItem(item)}>
-                    <i className="fa fa-tachometer" aria-hidden="true"></i>&nbsp;{item.label}
+                    <i className="fa fa-tachometer blue-light" aria-hidden="true"></i>&nbsp;{item.label}
                 </a>
                 <div id="customDividerId" role="separator" className="divider"></div>
             </li>
@@ -130,25 +132,26 @@ class ServiceUsageEdit extends React.Component {
 
     submit() {
         if (this.state.selectedItem == null) {
-            this.setState({msg: "Please select a measurement item"});
+            this.setState({warnMsg: "Please select a measurement item"});
             return;
         }
-        this.setState({loading: true});
+        this.setState({loading: true, serviceUsageToBeRemoved: null});
         if (this.props.serviceUsageToEdit == null) {
             addServiceUsage(JSON.stringify(this.state.formData.usage), this.props.group.id, this.props.service.id,
                 this.state.selectedItem.id, this.props.login.currentUser.id).then((resolve) => {
                 // let service = JSON.parse(resolve.responseText);
                 this.setState({
                     loading: false,
-                    msg: "Registration added"
+                    msg: "Registration added",
+                    warnMsg: null
                 });
             }).catch((err) => {
                 if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                    this.setState({loading: false, msg: err.responseText});
+                    this.setState({loading: false, warnMsg: err.responseText, msg: this.defaultMsg});
                 }
                 else {
                     console.error(err);
-                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                    this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG, msg: this.defaultMsg});
                 }
             });
         } else {
@@ -157,15 +160,16 @@ class ServiceUsageEdit extends React.Component {
                 let serviceUsage = JSON.parse(resolve.responseText);
                 this.setState({
                     loading: false,
-                    msg: "Registration updated"
+                    msg: "Registration updated",
+                    warnMsg: null
                 });
             }).catch((err) => {
                 if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                    this.setState({loading: false, msg: err.responseText});
+                    this.setState({loading: false, warnMsg: err.responseText, msg: this.defaultMsg});
                 }
                 else {
                     console.error(err);
-                    this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                    this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG, msg: this.defaultMsg});
                 }
             });
         }
@@ -175,7 +179,8 @@ class ServiceUsageEdit extends React.Component {
         this.setState(
             {
                 msg: "Remove current registration ?",
-                serviceUsageToBeRemoved: this.props.serviceUsageToEdit
+                serviceUsageToBeRemoved: this.props.serviceUsageToEdit,
+                warnMsg: null
             }
         )
     }
@@ -186,16 +191,17 @@ class ServiceUsageEdit extends React.Component {
             console.debug(resolve);
             this.setState({
                 loading: false,
-                msg: "Registration removed."
+                msg: "Registration removed.",
+                warnMsg: null
             });
             hashHistory.push("main/group/" + this.props.group.id + "/service/" + this.props.service.id + "/usage");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
-                this.setState({loading: false, msg: err.responseText});
+                this.setState({loading: false, warnMsg: err.responseText, msg: this.defaultMsg});
             }
             else {
                 console.error(err);
-                this.setState({loading: false, msg: Constants.GENERIC_ERROR_MSG});
+                this.setState({loading: false, warnMsg: Constants.GENERIC_ERROR_MSG, msg: this.defaultMsg});
             }
         });
     }
@@ -229,21 +235,32 @@ class ServiceUsageEdit extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
                         <div className="row">
-                            <div className="col-xs-6">
+                            <div className="col-xs-9">
                                 <h4>
                                     <i className="fa fa-wrench blue-light" aria-hidden="true"></i>
-                                    <span> Edit Service usage</span>
+                                    <span> Service usage</span>
                                 </h4>
                             </div>
+                            {this.props.serviceUsageToEdit != null ?
+                                <div className="col-xs-3">
+                                    <div className="btn-group pull-right">
+                                        <button type="button" onClick={() => this.removeServiceUsageConfirmation()}
+                                                className="btn btn-danger" aria-expanded="false">
+                                            <i className="fa fa-trash" aria-hidden="true"></i> Delete
+                                        </button>
+                                    </div>
+                                </div> :
+                                <div></div>
+                            }
                         </div>
                         <hr/>
                         <div>
                             <i className="fa fa-cubes gray-dark" aria-hidden="true"></i>
-                            <small className="gray-dark"> Group: <strong>{this.props.group.label}</strong></small>
+                            <small className="gray-dark">&nbsp;Group: <strong>{this.props.group.label}</strong></small>
                         </div>
                         <div>
                             <i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
-                            <small className="gray-dark"> Service: <strong>{this.props.service.label}</strong></small>
+                            <small className="gray-dark">&nbsp;&nbsp;Service: <strong>{this.props.service.label}</strong></small>
                         </div>
                         {this.state.loading ?
                             <div>
@@ -253,6 +270,9 @@ class ServiceUsageEdit extends React.Component {
                             <div>
                                 <i className="fa fa-info-circle gray-dark" aria-hidden="true"></i>
                                 <small className="gray-dark">&nbsp;&nbsp;{this.state.msg}</small>
+                                <div className="row">
+                                    {this.renderRemoveServiceUsageConfirmationButton()}
+                                </div>
                             </div>
                         }
                         {this.state.warnMsg != null ?
@@ -264,24 +284,6 @@ class ServiceUsageEdit extends React.Component {
                     </div>
                 </div>
                 <div id="mobilePanelId" className="panel panel-default">
-                    <div className="panel-heading">
-                        <div className="row">
-                            <div className="col-xs-6">
-                                <h5><i className="fa fa-cogs cyan" aria-hidden="true"></i>
-                                    <span> <strong>Service usage edit</strong></span>
-                                </h5>
-                            </div>
-                            <div className="col-xs-6">
-                                <div className="btn-group pull-right">
-                                    <Link
-                                        to={"main/service/" + this.props.service.id + "/edit"} type="button"
-                                        className="btn btn-default" aria-expanded="false">
-                                        <i className="fa fa-pencil-square" aria-hidden="true"></i> Service Edit
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div className="panel-body">
                         <div className="row">
                             <div className="col-xs-9">
@@ -290,41 +292,14 @@ class ServiceUsageEdit extends React.Component {
                                     <h4>Edit service usage</h4>
                                 }
                             </div>
-                            <div className="col-xs-3">
-                                {this.props.serviceUsageToEdit != null ?
-                                    <div className="btn-group pull-right">
-                                        <button type="button" onClick={() => this.removeServiceUsageConfirmation()}
-                                                className="btn btn-danger" aria-expanded="false">
-                                            <i className="fa fa-trash" aria-hidden="true"></i> Delete
-                                        </button>
-                                    </div> :
-                                    <div></div>
-                                }
-                            </div>
                         </div>
                         <hr/>
-                        {this.state.loading ?
-                            <div className="alert alert-info" role="alert">
-                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                <span> Loading</span>
-                            </div>
-                            :
-                            <div>
-                                <div className="alert alert-info" role="alert">
-                                    <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> {this.state.msg}</span>
-                                    <div className="row">
-                                        {this.renderRemoveServiceUsageConfirmationButton()}
-                                    </div>
-                                </div>
-                            </div>
-                        }
                         <form>
                             <div className="btn-group">
                                 <button type="button" className="btn btn-default dropdown-toggle wrap-text"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     {this.state.selectedItem == null ?
-                                        <span>Select a measurement item&nbsp;
+                                        <span className="gray-dark">Select a measurement item&nbsp;
                                         </span> :
                                         <span className="margin-top-05 margin-bottom-2em">
                                             <i className="fa fa-tachometer cyan" aria-hidden="true"></i>
@@ -361,7 +336,7 @@ class ServiceUsageEdit extends React.Component {
                                             <small> (Optional)</small>
                                         </sup></label>
                                         <input type="tel" className="form-control" maxLength="20"
-                                               placeholder=""
+                                               placeholder="auto calculated"
                                                value={this.state.formData.usage.consumption}
                                                onChange={this.handleConsumptionChange}
                                                aria-describedby=" basic-addon1"/>
@@ -372,7 +347,7 @@ class ServiceUsageEdit extends React.Component {
                                 <label>Description<sup className="simple-text">
                                     <small> (Optional)</small>
                                 </sup></label>
-                                <textarea className=" form-control" maxLength="256" rows="2" placeholder="Some desc"
+                                <textarea className=" form-control" maxLength="256" rows="2" placeholder="Service usage description"
                                           value={this.state.formData.usage.desc}
                                           onChange={this.handleDescChange}></textarea>
                             </div>

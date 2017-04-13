@@ -85,6 +85,17 @@ class GroupList extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
                         <div className="row">
+                            <div className="col-xs-3 col-md-5">
+                                <img className="pull-right" src={"src/img/bird_blue_small.png"}/>
+                            </div>
+                            <div className="col-xs-9 col-md-7">
+                                <h4 className="gray-dark">Welcome,
+                                    <small> {this.props.login.currentUser.name}</small>
+                                </h4>
+                                <h6 className="gray-dark">You can now start managing your groups and services</h6>
+                            </div>
+                        </div>
+                        <div className="row margin-top-2vh">
                             <div className="col-xs-6">
                                 <h4>
                                     <i className="fa fa-cubes blue-light" aria-hidden="true"></i>

@@ -80,7 +80,7 @@ class GroupContent extends React.Component {
                     <div className="col-xs-10" onClick={() => {
                         hashHistory.push("main/group/" + this.props.group.id + "/service/" + service.id + "/usage")
                     }}>
-                        <div><i className="fa fa-line-chart gray-dark"
+                        <div><i className="fa fa-line-chart blue-light"
                                 aria-hidden="true"></i><b> {service.label}</b>
                         </div>
                         <div>
@@ -119,7 +119,7 @@ class GroupContent extends React.Component {
                         <div className="col-xs-3 col-lg-1">
                             <button type="button" className="btn btn-default pull-right" aria-expanded="false"
                                     onClick={() => this.retractService(service, this.props.group.id)}>
-                                <i className="fa fa-check" aria-hidden="true"></i> Yes
+                                <i className="fa fa-check blue-light" aria-hidden="true"></i> Yes
                             </button>
                         </div>
                     </div> :

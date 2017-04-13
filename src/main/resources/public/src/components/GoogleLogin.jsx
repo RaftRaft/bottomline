@@ -140,10 +140,10 @@ class GoogleLogin extends React.Component {
     render() {
         if (this.state.loading) {
             return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-default">
+                <div className="container margin-top-10percent">
+                    <div id="mobilePanelId" className="panel panel-default">
                         <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
-                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i><span> Loading</span>
+                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i><span className="gray-dark"> Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -151,15 +151,16 @@ class GoogleLogin extends React.Component {
         }
         else if (this.state.error) {
             return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-danger">
-                        <div className="panel-heading">
-                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
-                                                           aria-hidden="true"></i><span> Authentication error</span>
-                            </h3>
-                        </div>
-                        <div className="panel-body text-align-center margin-bottom-10percent margin-top-10percent">
-                            <i className="fa fa-frown-o" aria-hidden="true"></i><span> Something bad happened !</span>
+                <div className="container margin-top-10percent">
+                    <div id="mobilePanelId" className="panel panel-danger">
+                        <div className="row">
+                            <div className="col-xs-3 col-md-5">
+                                <img className="pull-right" src={"src/img/bird_blue_small.png"}/>
+                            </div>
+                            <div className="col-xs-9 col-md-7">
+                                <h3 className="gray-dark">BottomLine</h3>
+                                <h5 className="gray-dark">Authentication failed :(</h5>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -167,14 +168,18 @@ class GoogleLogin extends React.Component {
         }
         else {
             return (
-                <div className="col-sm-4 col-sm-offset-4 margin-top-10percent">
-                    <div className="panel panel-default">
-                        <div className="panel-heading">
-                            <h3 className="panel-title"><i className="fa fa-google-plus-official"
-                                                           aria-hidden="true"></i><span> Authentication</span>
-                            </h3>
-                        </div>
+                <div className="container margin-top-10percent">
+                    <div id="mobilePanelId" className="panel panel-default">
                         <div className="panel-body">
+                            <div className="row">
+                                <div className="col-xs-3 col-md-5">
+                                    <img className="pull-right" src={"src/img/bird_blue_small.png"}/>
+                                </div>
+                                <div className="col-xs-9 col-md-7">
+                                    <h3 className="gray-dark">BottomLine</h3>
+                                    <h6 className="gray-dark">Manage bills, house utilities and much more</h6>
+                                </div>
+                            </div>
                             <div id="my-signin2"
                                  className="horizontal-fill margin-bottom-10percent margin-top-10percent"></div>
                         </div>

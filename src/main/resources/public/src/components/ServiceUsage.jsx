@@ -58,7 +58,7 @@ class ServiceUsage extends React.Component {
             if (JSON.parse(resolve.responseText).length != 0) {
                 this.setState({loading: false, warnMsg: null});
             } else {
-                this.setState({loading: false, msg: "You have no service usage. Please, add one"});
+                this.setState({loading: false, msg: "Service has no usage data"});
             }
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
@@ -155,10 +155,26 @@ class ServiceUsage extends React.Component {
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
                         <div className="row">
+                            <div className="col-xs-9">
+                                <h4><i className="fa fa-cogs" aria-hidden="true"></i>
+                                    &nbsp;{this.props.service.label}</h4>
+                            </div>
+                            <div className="col-xs-3">
+                                <div className="btn-group pull-right">
+                                    <Link
+                                        to={"main/service/" + this.props.service.id + "/edit"} type="button"
+                                        className="btn btn-default" aria-expanded="false">
+                                        <i className="fa fa-pencil-square" aria-hidden="true"></i> Edit
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div className="row margin-top-05">
                             <div className="col-xs-8">
                                 <h4>
                                     <i className="fa fa-line-chart blue-light" aria-hidden="true"></i>
-                                    <span> Service usage</span>
+                                    <span className="gray-dark"> Service usage</span>
                                 </h4>
                             </div>
                             <div className="col-xs-4">
@@ -167,26 +183,6 @@ class ServiceUsage extends React.Component {
                                     type="button" className="btn btn-info pull-right" aria-expanded="false">
                                     <i className="fa fa-plus-circle" aria-hidden="true"></i> New
                                 </Link>
-                            </div>
-                        </div>
-                        <hr/>
-                        <div className="row margin-top-05">
-                            <div className="col-xs-9">
-                                <h4 className="gray-dark"><i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
-                                    &nbsp;{this.props.service.label}</h4>
-                            </div>
-                            <div className="col-xs-3">
-                                <div className="btn-group pull-right">
-                                    <button
-                                        onClick={() => this.toggleChart()} type="button"
-                                        className="btn btn-default" aria-expanded="false">
-                                        <i className="fa fa-area-chart green" aria-hidden="true"></i>
-                                        {!this.props.serviceUsage.chart.show ?
-                                            <span> Chart</span> :
-                                            <span> Hide</span>
-                                        }
-                                    </button>
-                                </div>
                             </div>
                         </div>
                         {this.state.loading ?
@@ -209,21 +205,30 @@ class ServiceUsage extends React.Component {
                 </div>
                 <div id="mobilePanelId" className="panel panel-default">
                     <div className="panel-body">
-                        {this.props.serviceUsage.chart.show ?
-                            <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
-                            <div></div>
-                        }
                         <div className="row">
-                            <div className="col-xs-12 col-md-4 col-md-offset-4">
-                                <button type="button" className="btn btn-default btn-block gray-dark"
+                            <div className="col-xs-6">
+                                <button type="button" className="btn btn-default btn-block pull-left"
                                         aria-expanded="false"
                                         onClick={() => this.toggleFilter()}>
                                     <i className="fa fa-low-vision blue-light" aria-hidden="true"></i>
                                     {!this.props.serviceUsage.filter.show ?
-                                        <strong className="gray-dark"> Show filters</strong> :
-                                        <strong className="gray-dark"> Hide filters</strong>
+                                        <span> Show filters</span> :
+                                        <span className="gray-dark"> Hide filters</span>
                                     }
                                 </button>
+                            </div>
+                            <div className="col-xs-6">
+                                <div className="btn-group pull-right">
+                                    <button
+                                        onClick={() => this.toggleChart()} type="button"
+                                        className="btn btn-default" aria-expanded="false">
+                                        <i className="fa fa-pie-chart green" aria-hidden="true"></i>
+                                        {!this.props.serviceUsage.chart.show ?
+                                            <span> Show Chart</span> :
+                                            <span className="gray-dark"> Hide Chart</span>
+                                        }
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {this.props.serviceUsage.filter.show ?
@@ -231,6 +236,10 @@ class ServiceUsage extends React.Component {
                                     actions={this.props.actions}
                                     getServiceUsageFromServer={this.getServiceUsageFromServer}
                                     setChartData={this.setChartData}/> :
+                            <div></div>
+                        }
+                        {this.props.serviceUsage.chart.show ?
+                            <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
                             <div></div>
                         }
                         <div id="groupListId" className="list-group margin-top-1">
@@ -346,9 +355,10 @@ class Filter extends React.Component {
                             </div>
                         </div>
                         <div className="col-xs-12">
-                            <button type="button" className="btn btn-success pull-right" aria-expanded="false"
+                            <button type="button" className="btn btn-default pull-right" aria-expanded="false"
                                     onClick={() => this.applyFilter()}>
-                                <i className="fa fa-check" aria-hidden="true"></i> Apply
+                                <i className="fa fa-check blue-light" aria-hidden="true"></i>
+                                <small> Apply</small>
                             </button>
                         </div>
                     </div>
