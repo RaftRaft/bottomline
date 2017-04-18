@@ -41,6 +41,16 @@ class ServiceEdit extends React.Component {
         console.debug("Service edit construct");
     }
 
+    componentDidMount() {
+        if (this.props.service.itemList.length == 0) {
+            this.setState(
+                {
+                    warnMsg: "Please configure at least one measurement item for current service."
+                }
+            )
+        }
+    }
+
     handleLabelChange(event) {
         this.formData.service = Object.assign({}, this.formData.service, {
             label: event.target.value
@@ -198,11 +208,16 @@ class ServiceEdit extends React.Component {
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
+                                    <button type="button" className="btn btn-default"
+                                            aria-expanded="false" onClick={() => hashHistory.goBack()}>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
+                                        <span> Done</span>
+                                    </button>
                                 </div>
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
                                             aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-check-circle" aria-hidden="true"></i>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
                                         <span> Apply</span>
                                     </button>
                                 </div>

@@ -106,9 +106,14 @@ class ServiceList extends React.Component {
                 </div>
                 <div id="mobilePanelId" className="panel panel-default">
                     <div id="groupListPanelBodyId" className="panel-body">
-                        <div id="groupListId" className="list-group">
-                            {this.serviceElements()}
-                        </div>
+                        {this.props.service.list.length > 0 ?
+                            <div id="groupListId" className="list-group">
+                                {this.serviceElements()}
+                            </div> :
+                            <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                <small className="gray-dark"><strong>Empty service list</strong></small>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

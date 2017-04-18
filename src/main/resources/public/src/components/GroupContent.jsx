@@ -87,12 +87,15 @@ class GroupContent extends React.Component {
                             <small className="gray-dark">{service.desc}</small>
                         </div>
                     </div>
-                    <div className="col-xs-2">
-                        <button type="button" className="btn btn-info btn-xs pull-right"
-                                aria-expanded="false" onClick={() => this.retractServiceConfirmation(service)}>
-                            <i className="fa fa-chain-broken" aria-hidden="true"></i>
-                        </button>
-                    </div>
+                    {service.owner.id == this.props.login.currentUser.id || this.props.group.owner.id == this.props.login.currentUser.id ?
+                        <div className="col-xs-2">
+                            <button type="button" className="btn btn-info btn-xs pull-right"
+                                    aria-expanded="false" onClick={() => this.retractServiceConfirmation(service)}>
+                                <i className="fa fa-chain-broken" aria-hidden="true"></i>
+                            </button>
+                        </div> :
+                        <div></div>
+                    }
                 </div>
                 {this.state.serviceToRetract != null && this.state.serviceToRetract.id == service.id ?
                     this.renderRetractServiceConfirmation(service) :
@@ -166,14 +169,18 @@ class GroupContent extends React.Component {
                                     <span> Group panel</span>
                                 </h4>
                             </div>
-                            <div className="col-xs-4">
-                                <div className="btn-group pull-right">
-                                    <Link to={"main/group/edit/" + this.props.group.id} type="button"
-                                          className="btn btn-default" aria-expanded="false">
-                                        <i className="fa fa-pencil-square blue-light" aria-hidden="true"></i> Edit group
-                                    </Link>
-                                </div>
-                            </div>
+                            {this.props.group.owner.id == this.props.login.currentUser.id ?
+                                <div className="col-xs-4">
+                                    <div className="btn-group pull-right">
+                                        <Link to={"main/group/edit/" + this.props.group.id} type="button"
+                                              className="btn btn-default" aria-expanded="false">
+                                            <i className="fa fa-pencil-square blue-light" aria-hidden="true"></i> Edit
+                                            group
+                                        </Link>
+                                    </div>
+                                </div> :
+                                <div></div>
+                            }
                         </div>
                         <hr/>
                         <div>
@@ -191,14 +198,17 @@ class GroupContent extends React.Component {
                                     <h4 className="pull-left"><i className="fa fa-user-circle" aria-hidden="true"></i>
                                         <span> Members</span></h4>
                                 </div>
-                                <div className="col-xs-6">
-                                    <div className="btn-group pull-right">
-                                        <Link to={"main/group/" + this.props.group.id + "/member"} type="button"
-                                              className="btn btn-default" aria-expanded="false">
-                                            <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit users
-                                        </Link>
-                                    </div>
-                                </div>
+                                {this.props.group.owner.id == this.props.login.currentUser.id ?
+                                    <div className="col-xs-6">
+                                        <div className="btn-group pull-right">
+                                            <Link to={"main/group/" + this.props.group.id + "/member"} type="button"
+                                                  className="btn btn-default" aria-expanded="false">
+                                                <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Edit users
+                                            </Link>
+                                        </div>
+                                    </div> :
+                                    <div></div>
+                                }
                             </div>
                             <div className="row">
                                 {this.memberElements()}
@@ -229,7 +239,7 @@ class GroupContent extends React.Component {
                             {this.props.group.serviceList.length == 0 ?
                                 <div className="alert alert-info" role="alert">
                                     <i className="fa fa-info-circle" aria-hidden="true"></i>
-                                    <span> You have no services. Please, add a new one</span>
+                                    <span> Group has no services. Please, add a new one</span>
                                 </div>
                                 :
                                 <div></div>

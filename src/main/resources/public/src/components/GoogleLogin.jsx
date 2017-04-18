@@ -155,7 +155,8 @@ class GoogleLogin extends React.Component {
                     <div id="mobilePanelId" className="panel panel-danger">
                         <div className="row">
                             <div className="col-xs-3 col-md-5">
-                                <img className="pull-right" src={"src/img/bird_blue_small.png"}/>
+                                <img className="pull-right margin-top-2vh" src={"src/img/bird_blue.png"} width="72px"
+                                     height="72px"/>
                             </div>
                             <div className="col-xs-9 col-md-7">
                                 <h3 className="gray-dark">BottomLine</h3>
@@ -173,11 +174,16 @@ class GoogleLogin extends React.Component {
                         <div className="panel-body">
                             <div className="row">
                                 <div className="col-xs-3 col-md-5">
-                                    <img className="pull-right" src={"src/img/bird_blue_small.png"}/>
+                                    <img className="pull-right margin-top-2vh" src={"src/img/bird_blue.png"}
+                                         width="72px"
+                                         height="72px"/>
                                 </div>
                                 <div className="col-xs-9 col-md-7">
                                     <h3 className="gray-dark">BottomLine</h3>
-                                    <h6 className="gray-dark">Manage bills, house utilities and much more</h6>
+                                    <h5 className="gray-dark">Track your expenses (trip expenses, energy bills),
+                                        the consumption of your house
+                                        utilities (energy and water consumption).</h5>
+                                    <h6 className="gray-dark">And much more ...</h6>
                                 </div>
                             </div>
                             <div id="my-signin2"

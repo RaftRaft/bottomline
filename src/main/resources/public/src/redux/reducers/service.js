@@ -37,14 +37,6 @@ const service = (state = {}, action) => {
             return Object.assign({}, state, {
                 list: action.list
             })
-        case Constants.ADD_SERVICE_FOR_GROUP:
-            console.debug("Reducer Service adds new service for group");
-            return Object.assign({}, state, {
-                list: [
-                    ...state.list,
-                    action.service
-                ]
-            })
         case Constants.ADD_SERVICE:
             console.debug("Reducer Service adds new service");
             return Object.assign({}, state, {

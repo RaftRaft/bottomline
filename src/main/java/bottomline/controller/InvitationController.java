@@ -60,7 +60,7 @@ public class InvitationController {
 
         String invitationUrl = App.INVITATION_BASE_URL + invitation.getId();
 
-        if (builder.build().send("Invitation test: \n" + invitationUrl)) {
+        if (builder.build().send("Click the following link in order to accept the invitation: \n" + invitationUrl)) {
             em.merge(invitation);
             em.flush();
             return new ResponseEntity<>(invitation, HttpStatus.OK);

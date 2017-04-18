@@ -1,6 +1,8 @@
 import React from "react";
 import {Link} from "react-router";
 import {connect} from "react-redux";
+import gapi from "../platform.js";
+
 
 function mapStateToProps(state) {
     return {login: state.login};
@@ -10,7 +12,22 @@ class Header extends React.Component {
 
     constructor(props) {
         super(props);
+        this.signOut = this.signOut.bind(this);
         console.log("Header constructor");
+    }
+
+    signOut() {
+        gapi.load('auth2', function () {
+            var auth2 = gapi.auth2.init({
+                client_id: '426148587752-j5f2svrk2cff31rjclv8pjg33uisnvu5.apps.googleusercontent.com',
+            });
+            auth2.then(function () {
+                var isSignedIn = auth2.isSignedIn.get();
+                if (isSignedIn) {
+                    auth2.signOut();
+                }
+            })
+        })
     }
 
     render() {
@@ -39,7 +56,9 @@ class Header extends React.Component {
                                     className="fa fa-cubes" aria-hidden="true"></i>&nbsp;Groups</Link></li>
                                 <li><Link to="main/service/list"><i className="fa fa-cogs" aria-hidden="true"></i>&nbsp;
                                     Services</Link></li>
-                                <li><a href="#"><i className="fa fa-sign-out" aria-hidden="true"></i>&nbsp;&nbsp;Sign
+                                <li><a href="#" onClick={() => this.signOut()}><i className="fa fa-sign-out"
+                                                                                  aria-hidden="true"></i>&nbsp;&nbsp;
+                                    Sign
                                     Out&nbsp;&nbsp;<img
                                         width="22px" height="22px"
                                         src={this.props.login.currentUser.profileImageUrl}

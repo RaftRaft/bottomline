@@ -144,7 +144,7 @@ public class ServiceController {
             throw new WebApplicationException("Group does not exist", HttpStatus.BAD_REQUEST);
         }
 
-        if (!user.getId().equals(service.getOwner().getId())) {
+        if (!user.getId().equals(group.getOwner().getId()) && !user.getId().equals(service.getOwner().getId())) {
             throw new WebApplicationException("Only the owner can remove this service", HttpStatus.BAD_REQUEST);
         }
 

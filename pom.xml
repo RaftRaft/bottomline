@@ -75,6 +75,9 @@
                 <directory>src/main/resources</directory>
             </resource>
             <resource>
+                <directory>src/main/public</directory>
+            </resource>
+            <resource>
                 <directory>src/main/resources/${env}</directory>
             </resource>
         </resources>

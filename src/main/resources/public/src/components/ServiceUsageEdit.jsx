@@ -57,6 +57,16 @@ class ServiceUsageEdit extends React.Component {
         console.debug("Service usage edit construct");
     }
 
+    componentDidMount() {
+        if (this.props.service.itemList.length == 0) {
+            this.setState(
+                {
+                    warnMsg: "Service has no measurement items"
+                }
+            );
+        }
+    }
+
     handleIndexChange(event) {
         if (!isNaN(event.target.value)) {
             this.setState(
@@ -260,7 +270,8 @@ class ServiceUsageEdit extends React.Component {
                         </div>
                         <div>
                             <i className="fa fa-cogs gray-dark" aria-hidden="true"></i>
-                            <small className="gray-dark">&nbsp;&nbsp;Service: <strong>{this.props.service.label}</strong></small>
+                            <small className="gray-dark">&nbsp;&nbsp;Service:
+                                <strong>{this.props.service.label}</strong></small>
                         </div>
                         {this.state.loading ?
                             <div>
@@ -283,88 +294,112 @@ class ServiceUsageEdit extends React.Component {
                         }
                     </div>
                 </div>
-                <div id="mobilePanelId" className="panel panel-default">
-                    <div className="panel-body">
-                        <div className="row">
-                            <div className="col-xs-9">
-                                {this.props.serviceUsageToEdit == null ?
-                                    <h4>Add new service usage</h4> :
-                                    <h4>Edit service usage</h4>
-                                }
+                {this.props.service.itemList.length > 0 ?
+                    <div id="mobilePanelId" className="panel panel-default">
+                        <div className="panel-body">
+                            <div className="row">
+                                <div className="col-xs-9">
+                                    {this.props.serviceUsageToEdit == null ?
+                                        <h4>Add new service usage</h4> :
+                                        <h4>Edit service usage</h4>
+                                    }
+                                </div>
+                            </div>
+                            <hr/>
+                            <form>
+                                <div className="btn-group">
+                                    <button type="button" className="btn btn-default dropdown-toggle wrap-text"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {this.state.selectedItem == null ?
+                                            <span className="gray-dark">Select a measurement item&nbsp;
+                                        </span> :
+                                            <span className="margin-top-05 margin-bottom-2em">
+                                            <i className="fa fa-tachometer cyan" aria-hidden="true"></i>
+                                                &nbsp;{this.state.selectedItem.label}&nbsp;
+                                        </span>
+                                        }
+                                        &nbsp;<span className="caret"></span>
+                                    </button>
+                                    <ul className="dropdown-menu" role="menu">
+                                        {this.measurementItemElements()}
+                                    </ul>
+                                </div>
+                                {this.renderDate()}
+                                <div className="row">
+                                    <div className="col-xs-6 col-lg-3">
+                                        <div className="input-group col-xs-12 col-lg-12 margin-top-05">
+                                            <label>Amount
+                                                <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
+                                            </label>
+                                            {this.state.selectedItem != null ?
+                                                <sup className="gray-dark">&nbsp;
+                                                    ({this.state.selectedItem.unitOfMeasurement})&nbsp;</sup> :
+                                                <span></span>
+                                            }
+                                            <input type="tel" className="form-control" maxLength="20"
+                                                   placeholder="0" value={this.state.formData.usage.index}
+                                                   onChange={this.handleIndexChange}
+                                                   aria-describedby=" basic-addon1"/>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-6 col-lg-3">
+                                        <div className="input-group col-xs-12 col-lg-12 margin-top-05">
+                                            <label>Consumption<sup className="simple-text">
+                                                <small> (Optional)</small>
+                                            </sup></label>
+                                            <input type="tel" className="form-control" maxLength="20"
+                                                   placeholder="auto calculated"
+                                                   value={this.state.formData.usage.consumption}
+                                                   onChange={this.handleConsumptionChange}
+                                                   aria-describedby=" basic-addon1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="input-group col-xs-12 col-lg-6 margin-top-05">
+                                    <label>Description<sup className="simple-text">
+                                        <small> (Optional)</small>
+                                    </sup></label>
+                                    <textarea className=" form-control" maxLength="256" rows="2"
+                                              placeholder="Service usage description"
+                                              value={this.state.formData.usage.desc}
+                                              onChange={this.handleDescChange}></textarea>
+                                </div>
+                                <div className="row margin-top-2vh">
+                                    <div className="col-xs-6">
+                                        <button type="button" className="btn btn-default"
+                                                aria-expanded="false" onClick={() => hashHistory.goBack()}>
+                                            <i className="fa fa-check" aria-hidden="true"></i>
+                                            <span> Done</span>
+                                        </button>
+                                    </div>
+                                    <div className="col-xs-6">
+                                        <button type="button" className="btn btn-info pull-right"
+                                                aria-expanded="false" onClick={() => this.submit()}>
+                                            <i className="fa fa-check" aria-hidden="true"></i>
+                                            <span> Apply</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div> :
+                    <div id="mobilePanelId" className="panel panel-default">
+                        <div className="panel-body">
+                            <div className="row">
+                                <div className="col-xs-12 text-align-center">
+                                    <div className="btn-group">
+                                        <Link
+                                            to={"main/service/" + this.props.service.id + "/mi"}
+                                            type="button" className="btn btn-info" aria-expanded="false">
+                                            <i className="fa fa-tachometer" aria-hidden="true"></i> Configure service
+                                            measurement items
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <hr/>
-                        <form>
-                            <div className="btn-group">
-                                <button type="button" className="btn btn-default dropdown-toggle wrap-text"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {this.state.selectedItem == null ?
-                                        <span className="gray-dark">Select a measurement item&nbsp;
-                                        </span> :
-                                        <span className="margin-top-05 margin-bottom-2em">
-                                            <i className="fa fa-tachometer cyan" aria-hidden="true"></i>
-                                            &nbsp;{this.state.selectedItem.label}&nbsp;
-                                        </span>
-                                    }
-                                    &nbsp;<span className="caret"></span>
-                                </button>
-                                <ul className="dropdown-menu" role="menu">
-                                    {this.measurementItemElements()}
-                                </ul>
-                            </div>
-                            {this.renderDate()}
-                            <div className="row">
-                                <div className="col-xs-6 col-lg-3">
-                                    <div className="input-group col-xs-12 col-lg-12 margin-top-05">
-                                        <label>Amount
-                                            <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
-                                        </label>
-                                        {this.state.selectedItem != null ?
-                                            <sup className="gray-dark">&nbsp;
-                                                ({this.state.selectedItem.unitOfMeasurement})&nbsp;</sup> :
-                                            <span></span>
-                                        }
-                                        <input type="tel" className="form-control" maxLength="20"
-                                               placeholder="0" value={this.state.formData.usage.index}
-                                               onChange={this.handleIndexChange}
-                                               aria-describedby=" basic-addon1"/>
-                                    </div>
-                                </div>
-                                <div className="col-xs-6 col-lg-3">
-                                    <div className="input-group col-xs-12 col-lg-12 margin-top-05">
-                                        <label>Consumption<sup className="simple-text">
-                                            <small> (Optional)</small>
-                                        </sup></label>
-                                        <input type="tel" className="form-control" maxLength="20"
-                                               placeholder="auto calculated"
-                                               value={this.state.formData.usage.consumption}
-                                               onChange={this.handleConsumptionChange}
-                                               aria-describedby=" basic-addon1"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="input-group col-xs-12 col-lg-6 margin-top-05">
-                                <label>Description<sup className="simple-text">
-                                    <small> (Optional)</small>
-                                </sup></label>
-                                <textarea className=" form-control" maxLength="256" rows="2" placeholder="Service usage description"
-                                          value={this.state.formData.usage.desc}
-                                          onChange={this.handleDescChange}></textarea>
-                            </div>
-                            <div className="row margin-top-2vh">
-                                <div className="col-xs-6">
-                                </div>
-                                <div className="col-xs-6">
-                                    <button type="button" className="btn btn-info pull-right"
-                                            aria-expanded="false" onClick={() => this.submit()}>
-                                        <i className="fa fa-check" aria-hidden="true"></i>
-                                        <span> Done</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
                     </div>
-                </div>
+                }
             </div>
         )
     }

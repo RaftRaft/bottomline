@@ -22,7 +22,8 @@ class MeasurementItem extends React.Component {
 
     constructor(props) {
         super(props);
-        this.defaultMsg = "Configure service measurement items"
+        this.defaultMsg = "Configure measurement items for current service. A service measurement item can be a water meter:" +
+            " Kitchen water meter of type COLD, or a bill: Energy bill, Trip expenses, etc."
         this.state = {
             loading: false,
             msg: this.defaultMsg,
@@ -208,7 +209,7 @@ class MeasurementItem extends React.Component {
                             <div className="col-xs-12">
                                 <h4>
                                     <i className="fa fa-tachometer blue-light" aria-hidden="true"></i>
-                                    <span> Measurement items</span>
+                                    <span> Service measurement items</span>
                                 </h4>
                             </div>
                         </div>
@@ -268,7 +269,7 @@ class MeasurementItem extends React.Component {
                                     <sup> <i className="fa fa-star red" aria-hidden="true"></i></sup>
                                 </label>
                                 <input type="text" className="form-control" maxLength="50"
-                                       placeholder="Happy tree friends" onChange={this.handleLabelChange}
+                                       placeholder="Measurement item name" onChange={this.handleLabelChange}
                                        aria-describedby="basic-addon1" value={this.state.formData.item.label}/>
                             </div>
                             <label className="margin-top-05">
@@ -282,6 +283,11 @@ class MeasurementItem extends React.Component {
                             </div>
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
+                                    <button type="button" className="btn btn-default"
+                                            aria-expanded="false" onClick={() => hashHistory.goBack()}>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
+                                        <span> Done</span>
+                                    </button>
                                 </div>
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"

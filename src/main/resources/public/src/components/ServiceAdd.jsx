@@ -23,11 +23,11 @@ class ServiceAdd extends React.Component {
 
     constructor(props) {
         super(props);
-        let initialMsg = (this.props.group != null) ? "Add new service for group " + this.props.group.label : "Add new service";
+        this.initialMsg = (this.props.group != null) ? "Add new service for group " + this.props.group.label : "Add new service";
 
         this.state = {
             loading: false,
-            msg: initialMsg,
+            msg: this.initialMsg,
             warnMsg: null,
             addedService: null,
             formData: {
@@ -42,6 +42,7 @@ class ServiceAdd extends React.Component {
         this.serviceElements = this.serviceElements.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
         this.submit = this.submit.bind(this);
+        this.clear = this.clear.bind(this);
         this.addFreeService = this.addFreeService.bind(this);
         this.addServiceForGroup = this.addServiceForGroup.bind(this);
         console.debug("Service add construct");
@@ -122,6 +123,22 @@ class ServiceAdd extends React.Component {
         }
     }
 
+    clear() {
+        this.setState(
+            {
+                msg: this.initialMsg,
+                warnMsg: null,
+                addedService: null,
+                formData: {
+                    service: {
+                        label: "",
+                        desc: ""
+                    }
+                }
+            }
+        );
+    }
+
     addFreeService() {
         this.setState({loading: true});
         addService(JSON.stringify(this.state.formData.service), this.props.login.currentUser.id).then((resolve) => {
@@ -154,6 +171,9 @@ class ServiceAdd extends React.Component {
                 addedService: service
             });
             this.props.actions.addServiceForGroup(service, this.props.group.id);
+            if (this.state.formData.service.id == null) {
+                this.props.actions.addService(service);
+            }
             hashHistory.push("main/service/" + service.id + "/mi");
         }).catch((err) => {
             if (err.status == Constants.HttpStatus.BAD_REQUEST) {
@@ -209,6 +229,7 @@ class ServiceAdd extends React.Component {
                                 <input type="text" className="form-control" maxLength="50"
                                        placeholder="ex: Water consumption" value={this.state.formData.service.label}
                                        onChange={this.handleLabelChange}
+                                       disabled={this.state.formData.service.id != null}
                                        aria-describedby="basic-addon1"/>
                             </div>
                             <div className="input-group col-xs-12 col-lg-6 margin-top-05">
@@ -216,23 +237,35 @@ class ServiceAdd extends React.Component {
                                 <textarea className="form-control" maxLength="256" rows="3"
                                           placeholder="ex: Keep track of Hot/Cold  water consumption for each month"
                                           value={this.state.formData.service.desc}
-                                          onChange={this.handleDescChange}></textarea>
+                                          onChange={this.handleDescChange}
+                                          disabled={this.state.formData.service.id != null}></textarea>
                             </div>
                             {this.props.serviceList != null && this.props.serviceList.length != 0 && this.props.group != null ?
-                                <div>
-                                    <div className="margin-top-05">
+                                <div className="margin-top-2vh">
+                                    <div>
                                         <label>Or, add an existing service</label>
                                     </div>
-                                    <div className="dropup">
-                                        <button className="btn btn-default dropdown-toggle" type="button"
-                                                id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
-                                            <span>Your services&nbsp;&nbsp;</span>
-                                            <span className="caret"></span>
-                                        </button>
-                                        <ul className="dropdown-menu" role="menu">
-                                            {this.serviceElements()}
-                                        </ul>
+                                    <div className="row">
+                                        <div className="col-xs-8">
+                                            <div className="dropup">
+                                                <button className="btn btn-default dropdown-toggle" type="button"
+                                                        id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                    <span>Your services&nbsp;&nbsp;</span>
+                                                    <span className="caret"></span>
+                                                </button>
+                                                <ul className="dropdown-menu" role="menu">
+                                                    {this.serviceElements()}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="col-xs-4">
+                                            <button type="button" className="btn btn-default pull-right"
+                                                    aria-expanded="false" onClick={() => this.clear()}>
+                                                <i className="fa fa-eraser" aria-hidden="true"></i>
+                                                <span> Clear</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 :
@@ -240,6 +273,11 @@ class ServiceAdd extends React.Component {
                             }
                             <div className="row margin-top-2vh">
                                 <div className="col-xs-6">
+                                    <button type="button" className="btn btn-default"
+                                            aria-expanded="false" onClick={() => hashHistory.goBack()}>
+                                        <i className="fa fa-check" aria-hidden="true"></i>
+                                        <span> Done</span>
+                                    </button>
                                 </div>
                                 <div className="col-xs-6">
                                     <button type="button" className="btn btn-info pull-right"
