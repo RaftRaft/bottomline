@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.App;
 import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.*;
@@ -30,7 +31,7 @@ public class ServiceUsageController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "group/{groupId}/service/{serviceId}/item/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceUsage> addServiceUsage(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<ServiceUsage> addServiceUsage(@RequestHeader(App.USER_HEADER) String userId,
                                                         @PathVariable("groupId") Integer groupId,
                                                         @PathVariable("serviceId") Integer serviceId,
                                                         @PathVariable("itemId") Integer itemId,
@@ -80,7 +81,7 @@ public class ServiceUsageController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, path = "{serviceUsageId}/item/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceUsage> updateServiceUsage(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<ServiceUsage> updateServiceUsage(@RequestHeader(App.USER_HEADER) String userId,
                                                            @PathVariable("itemId") Integer itemId,
                                                            @PathVariable("serviceUsageId") Integer serviceUsageId,
                                                            @RequestBody ServiceUsage serviceUsage) {
@@ -130,7 +131,7 @@ public class ServiceUsageController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "group/{groupId}/service/{serviceId}")
-    public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<List<ServiceUsage>> getServiceUsageList(@RequestHeader(App.USER_HEADER) String userId,
                                                                   @PathVariable("groupId") Integer groupId,
                                                                   @PathVariable("serviceId") Integer serviceId,
                                                                   @RequestParam("offset") Integer offset,
@@ -199,7 +200,7 @@ public class ServiceUsageController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{serviceUsageId}")
-    public ResponseEntity<String> removeServiceUsage(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<String> removeServiceUsage(@RequestHeader(App.USER_HEADER) String userId,
                                                      @PathVariable("serviceUsageId") Integer serviceUsageId) {
         LOG.info("Received request to remove service usage with id {}", serviceUsageId);
 

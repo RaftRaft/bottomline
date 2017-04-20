@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.App;
 import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.MeasurementItem;
@@ -56,7 +57,7 @@ public class MeasurementItemController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{itemId}")
-    public ResponseEntity<String> removeItem(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("itemId") Integer itemId) {
+    public ResponseEntity<String> removeItem(@RequestHeader(App.USER_HEADER) String userId, @PathVariable("itemId") Integer itemId) {
         LOG.info("Received request to remove measurement item with id {}", itemId);
 
         ControllerHelper.processUser(em, userId);
@@ -74,7 +75,7 @@ public class MeasurementItemController {
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public ResponseEntity<String> updateItem(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody MeasurementItem item) {
+    public ResponseEntity<String> updateItem(@RequestHeader(App.USER_HEADER) String userId, @RequestBody MeasurementItem item) {
         LOG.info("Received request to update measurement item {}", item);
 
         ControllerHelper.processUser(em, userId);

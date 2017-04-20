@@ -6,13 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -27,6 +25,8 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class App implements AsyncConfigurer {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+
+    public static final String USER_HEADER = "user";
 
     public static String SMTP_HOST;
     public static String SMTP_PORT;

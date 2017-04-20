@@ -33,7 +33,7 @@ public class InvitationController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, path = "send/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> sendInvitation(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<?> sendInvitation(@RequestHeader(App.USER_HEADER) String userId,
                                             @PathVariable("groupId") Integer groupId, @RequestBody Invitation invitation) {
 
         LOG.info("Received request to send invitation {}", invitation);
@@ -70,7 +70,7 @@ public class InvitationController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "{invitationId}")
-    public ResponseEntity<?> acceptInvitation(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<?> acceptInvitation(@RequestHeader(App.USER_HEADER) String userId,
                                               @PathVariable("invitationId") String invitationId) {
 
         LOG.info("Received request to accept invitation with id {}", invitationId);

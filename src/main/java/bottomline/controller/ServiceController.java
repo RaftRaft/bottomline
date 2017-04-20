@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.App;
 import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
@@ -32,7 +33,7 @@ public class ServiceController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> addService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service) {
+    public ResponseEntity<Service> addService(@RequestHeader(App.USER_HEADER) String userId, @RequestBody Service service) {
         LOG.info("Received request to add service {} for owner with id {}", service, userId);
 
         if (!isServiceValid(service)) {
@@ -54,7 +55,7 @@ public class ServiceController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/group/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Service> addServiceToGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service,
+    public ResponseEntity<Service> addServiceToGroup(@RequestHeader(App.USER_HEADER) String userId, @RequestBody Service service,
                                                      @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to add service {} for group id {} and owner with id {}", service, groupId, userId);
 
@@ -91,7 +92,7 @@ public class ServiceController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Service service) {
+    public ResponseEntity<String> updateService(@RequestHeader(App.USER_HEADER) String userId, @RequestBody Service service) {
         LOG.info("Received request to update service  {}", service);
 
         User user = ControllerHelper.processUser(em, userId);
@@ -120,7 +121,7 @@ public class ServiceController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<Service>> getServicesFromOwner(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
+    public ResponseEntity<List<Service>> getServicesFromOwner(@RequestHeader(App.USER_HEADER) String userId) {
         LOG.info("Received request to get services from owner with id {}", userId);
         User user = ControllerHelper.processUser(em, userId);
         List<Service> serviceList = em.createQuery("from Service s where s.owner.id=:userId")
@@ -129,7 +130,7 @@ public class ServiceController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{serviceId}/group/{groupId}")
-    public ResponseEntity<String> removeServiceFromGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId, @PathVariable("groupId") Integer groupId) {
+    public ResponseEntity<String> removeServiceFromGroup(@RequestHeader(App.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId, @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to remove service with id {} from group with id {}", serviceId, groupId);
 
         User user = ControllerHelper.processUser(em, userId);
@@ -155,7 +156,7 @@ public class ServiceController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{serviceId}")
-    public ResponseEntity<String> removeService(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId) {
+    public ResponseEntity<String> removeService(@RequestHeader(App.USER_HEADER) String userId, @PathVariable("serviceId") Integer serviceId) {
         LOG.info("Received request to remove service with id {}", serviceId);
 
         User user = ControllerHelper.processUser(em, userId);

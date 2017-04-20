@@ -1,5 +1,6 @@
 package bottomline.controller;
 
+import bottomline.App;
 import bottomline.common.ControllerHelper;
 import bottomline.exceptions.WebApplicationException;
 import bottomline.model.Group;
@@ -32,7 +33,7 @@ public class GroupController {
     private EntityManager em;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Group> addGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Group group) {
+    public ResponseEntity<Group> addGroup(@RequestHeader(App.USER_HEADER) String userId, @RequestBody Group group) {
         LOG.info("Received request to add item {} for owner with id {}", group, userId);
 
         if (!isGroupValid(group)) {
@@ -54,7 +55,7 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @RequestBody Group group) {
+    public ResponseEntity<String> updateGroup(@RequestHeader(App.USER_HEADER) String userId, @RequestBody Group group) {
         LOG.info("Received request to update item  {}", group);
 
         User user = ControllerHelper.processUser(em, userId);
@@ -83,7 +84,7 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<Group>> getGroups(@RequestHeader(AuthFilter.USER_HEADER) String userId) {
+    public ResponseEntity<Set<Group>> getGroups(@RequestHeader(App.USER_HEADER) String userId) {
         LOG.info("Received request to get groups for user {}", userId);
         User user = ControllerHelper.processUser(em, userId);
         System.out.println(user);
@@ -92,7 +93,7 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{groupId}/member/{memberId}")
-    public ResponseEntity<String> removeMemberFromGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId,
+    public ResponseEntity<String> removeMemberFromGroup(@RequestHeader(App.USER_HEADER) String userId,
                                                         @PathVariable("groupId") Integer groupId,
                                                         @PathVariable("memberId") String memberId) {
         LOG.info("Received request to remove member {} from  group {}", memberId, groupId);
@@ -124,7 +125,7 @@ public class GroupController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "{groupId}")
-    public ResponseEntity<String> removeGroup(@RequestHeader(AuthFilter.USER_HEADER) String userId, @PathVariable("groupId") Integer groupId) {
+    public ResponseEntity<String> removeGroup(@RequestHeader(App.USER_HEADER) String userId, @PathVariable("groupId") Integer groupId) {
         LOG.info("Received request to remove group with id", groupId);
 
         User user = ControllerHelper.processUser(em, userId);
