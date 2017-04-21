@@ -2,6 +2,34 @@ import Constants from "../../common/Constants";
 
 const serviceUsage = (state = {}, action) => {
     switch (action.type) {
+        case Constants.RESET_SERVICE_USAGE:
+            return Object.assign({}, state, {
+                list: [],
+                totalItemsCount: 0,
+                activePage: 1,
+                filter: {
+                    show: false,
+                    itemIdList: [],
+                    date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+                    showConsumption: false
+                },
+                chart: Object.assign({}, state.chart, {
+                    show: false,
+                    fetchData: false,
+                    config: Object.assign({}, state.chart.config, {
+                        series: []
+                    })
+                })
+            })
+        case Constants.RESET_SERVICE_USAGE_FILTER:
+            return Object.assign({}, state, {
+                filter: {
+                    show: false,
+                    itemIdList: [],
+                    date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
+                    showConsumption: false
+                }
+            })
         case Constants.SET_SERVICE_USAGE_SHOW_FILTER:
             return Object.assign({}, state, {
                 filter: Object.assign({}, state.filter, {

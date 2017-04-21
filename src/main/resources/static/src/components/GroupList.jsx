@@ -136,9 +136,14 @@ class GroupList extends React.Component {
                                 <div id="groupListId" className="list-group">
                                     {this.groupElements()}
                                 </div> :
-                                <div className="text-align-center margin-top-2vh margin-bottom-2em">
-                                    <small className="gray-dark"><strong>Empty group list</strong></small>
-                                </div>
+                                this.props.group.list.length == 0 && !this.state.loading ?
+                                    <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                        <small className="gray-dark"><strong>Empty group list</strong></small>
+                                    </div> :
+                                    <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                        <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                        <small className="gray-dark"><strong> Retrieving group list</strong></small>
+                                    </div>
                             }
                         </div>
                     </div>

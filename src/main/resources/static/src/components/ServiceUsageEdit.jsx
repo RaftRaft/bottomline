@@ -147,11 +147,20 @@ class ServiceUsageEdit extends React.Component {
         if (this.props.serviceUsageToEdit == null) {
             addServiceUsage(JSON.stringify(this.state.formData.usage), this.props.group.id, this.props.service.id,
                 this.state.selectedItem.id, this.props.login.currentUser.id).then((resolve) => {
-                // let service = JSON.parse(resolve.responseText);
+                let date = new Date().toISOString();
                 this.setState({
                     loading: false,
                     msg: "Registration added",
-                    warnMsg: null
+                    warnMsg: null,
+                    selectedDate: date,
+                    formData: {
+                        usage: {
+                            index: "",
+                            consumption: "",
+                            desc: "",
+                            date: new Date(date).getTime()
+                        }
+                    }
                 });
             }).catch((err) => {
                 if (err.status == Constants.HttpStatus.BAD_REQUEST) {

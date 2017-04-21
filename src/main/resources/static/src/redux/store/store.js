@@ -60,4 +60,4 @@ export const store = createStore(all, defaultState)
 
 // store.subscribe(() =>
 //     console.debug("Store state: " + JSON.stringify(store.getState().main, null, 2))
-//)
+// )

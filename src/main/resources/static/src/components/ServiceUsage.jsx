@@ -29,7 +29,7 @@ class ServiceUsage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.defaultMsg = "Manage service usage";
+        this.defaultMsg = "Manage service usage data";
         this.state = {
             loading: true,
             msg: this.defaultMsg,
@@ -52,6 +52,7 @@ class ServiceUsage extends React.Component {
         getServiceUsage(this.props.group.id, this.props.service.id, (page - 1) * Constants.MAX_RESULTS, Constants.MAX_RESULTS,
             new Date(this.props.serviceUsage.filter.date).getTime(), this.props.serviceUsage.filter.itemIdList,
             this.props.login.currentUser.id).then((resolve) => {
+            this.props.actions.setServiceUsageActivePage(page);
             this.props.actions.setServiceUsageList(JSON.parse(resolve.responseText));
             this.props.actions.setServiceUsageTotalItemCount(JSON.parse(resolve.getResponseHeader("count")));
             if (JSON.parse(resolve.responseText).length != 0) {
@@ -91,9 +92,16 @@ class ServiceUsage extends React.Component {
         });
     }
 
+    componentWillMount() {
+        this.props.actions.resetServiceUsage();
+    }
+
     componentDidMount() {
         this.getServiceUsageFromServer(1);
-        this.props.actions.setServiceUsageActivePage(1);
+    }
+
+    componentWillUnmount() {
+        this.props.actions.resetServiceUsageFilter();
     }
 
     toggleFilter() {
@@ -207,72 +215,74 @@ class ServiceUsage extends React.Component {
                         }
                     </div>
                 </div>
-                {this.props.serviceUsage.list.length > 0 ?
-                    <div id="mobilePanelId" className="panel panel-default">
-                        <div className="panel-body">
-                            <div className="row">
-                                <div className="col-xs-6">
-                                    <button type="button" className="btn btn-default btn-block pull-left"
-                                            aria-expanded="false"
-                                            onClick={() => this.toggleFilter()}>
-                                        <i className="fa fa-low-vision blue-light" aria-hidden="true"></i>
-                                        {!this.props.serviceUsage.filter.show ?
-                                            <span> Show filters</span> :
-                                            <span className="gray-dark"> Hide filters</span>
+                <div id="mobilePanelId" className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <button type="button" className="btn btn-default btn-block pull-left"
+                                        aria-expanded="false"
+                                        onClick={() => this.toggleFilter()}>
+                                    <i className="fa fa-low-vision blue-light" aria-hidden="true"></i>
+                                    {!this.props.serviceUsage.filter.show ?
+                                        <span> Show filters</span> :
+                                        <span className="gray-dark"> Hide filters</span>
+                                    }
+                                </button>
+                            </div>
+                            <div className="col-xs-6">
+                                <div className="btn-group pull-right">
+                                    <button
+                                        onClick={() => this.toggleChart()} type="button"
+                                        className="btn btn-default" aria-expanded="false">
+                                        <i className="fa fa-pie-chart green" aria-hidden="true"></i>
+                                        {!this.props.serviceUsage.chart.show ?
+                                            <span> Show Chart</span> :
+                                            <span className="gray-dark"> Hide Chart</span>
                                         }
                                     </button>
                                 </div>
-                                <div className="col-xs-6">
-                                    <div className="btn-group pull-right">
-                                        <button
-                                            onClick={() => this.toggleChart()} type="button"
-                                            className="btn btn-default" aria-expanded="false">
-                                            <i className="fa fa-pie-chart green" aria-hidden="true"></i>
-                                            {!this.props.serviceUsage.chart.show ?
-                                                <span> Show Chart</span> :
-                                                <span className="gray-dark"> Hide Chart</span>
-                                            }
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            {this.props.serviceUsage.filter.show ?
-                                <Filter service={this.props.service} serviceUsage={this.props.serviceUsage}
-                                        actions={this.props.actions}
-                                        getServiceUsageFromServer={this.getServiceUsageFromServer}
-                                        setChartData={this.setChartData}/> :
-                                <div></div>
-                            }
-                            {this.props.serviceUsage.chart.show ?
-                                <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
-                                <div></div>
-                            }
-                            <div id="groupListId" className="list-group margin-top-1">
-                                {!this.state.loading ?
-                                    this.serviceUsageElements() :
-                                    <div></div>
-                                }
-                            </div>
-                            <div className="row text-align-center">
-                                {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS && !this.state.loading ?
-                                    <Pagination activePage={this.props.serviceUsage.activePage}
-                                                itemsCountPerPage={Constants.MAX_RESULTS}
-                                                totalItemsCount={this.props.serviceUsage.totalItemsCount}
-                                                pageRangeDisplayed={5}
-                                                onChange={this.handlePageChange}/> :
-                                    <div></div>
-                                }
                             </div>
                         </div>
-                    </div> :
-                    <div id="mobilePanelId" className="panel panel-default">
-                        <div id="groupListPanelBodyId" className="panel-body">
-                            <div className="text-align-center margin-top-2vh margin-bottom-2em">
-                                <small className="gray-dark"><strong>Service has no usage data</strong></small>
-                            </div>
+                        {this.props.serviceUsage.filter.show ?
+                            <Filter service={this.props.service} serviceUsage={this.props.serviceUsage}
+                                    actions={this.props.actions}
+                                    getServiceUsageFromServer={this.getServiceUsageFromServer}
+                                    setChartData={this.setChartData}/> :
+                            <div></div>
+                        }
+                        {this.props.serviceUsage.chart.show ?
+                            <ServiceUsageChart groupId={this.props.group.id} serviceId={this.props.service.id}/> :
+                            <div></div>
+                        }
+                        {this.props.serviceUsage.list.length > 0 ?
+                            <div id="groupListId" className="list-group margin-top-1">
+                                {this.serviceUsageElements()}
+                            </div> :
+                            this.props.serviceUsage.list.length == 0 && this.state.loading ?
+                                <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                    <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                    <small className="gray-dark"><strong> Retrieving service usage data</strong>
+                                    </small>
+                                </div> :
+                                this.props.serviceUsage.list.length == 0 && !this.state.loading ?
+                                    <div className="text-align-center margin-top-2vh margin-bottom-2em">
+                                        <small className="gray-dark"><strong>No service usage data found</strong>
+                                        </small>
+                                    </div> :
+                                    <div></div>
+                        }
+                        <div className="row text-align-center">
+                            {this.props.serviceUsage.totalItemsCount > Constants.MAX_RESULTS ?
+                                <Pagination activePage={this.props.serviceUsage.activePage}
+                                            itemsCountPerPage={Constants.MAX_RESULTS}
+                                            totalItemsCount={this.props.serviceUsage.totalItemsCount}
+                                            pageRangeDisplayed={5}
+                                            onChange={this.handlePageChange}/> :
+                                <div></div>
+                            }
                         </div>
                     </div>
-                }
+                </div>
             </div>
         )
     }
@@ -328,7 +338,6 @@ class Filter extends React.Component {
     }
 
     applyFilter() {
-        this.props.actions.setServiceUsageActivePage(1);
         this.props.getServiceUsageFromServer(1);
         if (this.props.serviceUsage.chart.show) {
             this.props.setChartData();

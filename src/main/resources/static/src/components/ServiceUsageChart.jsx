@@ -63,16 +63,23 @@ class ServiceUsageChart extends React.Component {
     render() {
         return (
             <div className="margin-bottom-2em">
-                {!this.props.serviceUsage.chart.fetchData ?
+                {!this.props.serviceUsage.chart.fetchData && this.props.serviceUsage.chart.config.series.length > 0 ?
                     <div>
                         <ReactHighcharts config={this.props.serviceUsage.chart.config} isPureConfig={true}/>
                     </div> :
-                    <div className="row margin-top-2vh">
-                        <div className="col-xs-12 text-align-center">
-                            <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                            <small className="gray-dark"> Loading chart data</small>
+                    !this.props.serviceUsage.chart.fetchData && this.props.serviceUsage.chart.config.series.length == 0 ?
+                        <div className="row margin-top-2vh">
+                            <div className="col-xs-12 text-align-center">
+                                <i className="fa fa-line-chart" aria-hidden="true"></i>
+                                <small className="gray-dark"> No history data found</small>
+                            </div>
+                        </div> :
+                        <div className="row margin-top-2vh">
+                            <div className="col-xs-12 text-align-center">
+                                <i className="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                <small className="gray-dark"> Loading chart data</small>
+                            </div>
                         </div>
-                    </div>
                 }
             </div>
         )

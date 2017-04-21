@@ -74,6 +74,14 @@ export function setServiceUsageDateFilter(date) {
     return {type: Constants.SET_SERVICE_USAGE_DATE_FILTER, date};
 }
 
+export function resetServiceUsage() {
+    return {type: Constants.RESET_SERVICE_USAGE};
+}
+
+export function resetServiceUsageFilter() {
+    return {type: Constants.RESET_SERVICE_USAGE_FILTER};
+}
+
 export function addItemToServiceUsageFilter(itemId) {
     return {type: Constants.ADD_ITEM_TO_SERVICE_USAGE_FILTER, itemId};
 }
