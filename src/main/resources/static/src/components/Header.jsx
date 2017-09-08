@@ -1,7 +1,6 @@
 import React from "react";
 import {Link} from "react-router";
 import {connect} from "react-redux";
-import gapi from "../platform.js";
 
 
 function mapStateToProps(state) {
@@ -16,8 +15,8 @@ class Header extends React.Component {
     }
 
     signOut() {
-        gapi.load('auth2', function () {
-            var auth2 = gapi.auth2.init({
+        window.gapi.load('auth2', function () {
+            var auth2 = window.gapi.auth2.init({
                 client_id: '426148587752-j5f2svrk2cff31rjclv8pjg33uisnvu5.apps.googleusercontent.com',
             });
             auth2.then(function () {

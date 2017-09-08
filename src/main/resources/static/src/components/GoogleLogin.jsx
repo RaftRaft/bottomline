@@ -4,7 +4,6 @@ import {bindActionCreators} from "redux";
 import {hashHistory} from "react-router";
 import * as actionCreators from "../redux/actions/actions";
 import {acceptInvitation, addUser} from "../common/api";
-import gapi from "../platform.js";
 
 
 function mapStateToProps(state, ownProps) {
@@ -58,7 +57,7 @@ class GoogleLogin extends React.Component {
     }
 
     renderButton() {
-        gapi.signin2.render('my-signin2', {
+        window.gapi.signin2.render('my-signin2', {
             'scope': 'profile email',
             'width': 240,
             'height': 50,
@@ -93,8 +92,8 @@ class GoogleLogin extends React.Component {
     }
 
     initGoogleAuth(updateState, props, buildUser) {
-        gapi.load('auth2', function () {
-                var auth2 = gapi.auth2.init({
+        window.gapi.load('auth2', function () {
+                var auth2 = window.gapi.auth2.init({
                     client_id: '426148587752-j5f2svrk2cff31rjclv8pjg33uisnvu5.apps.googleusercontent.com',
                 });
                 auth2.then(function () {
