@@ -11,10 +11,10 @@ const serviceUsage = (state = {}, action) => {
                     show: false,
                     itemIdList: [],
                     date: new Date(new Date().getTime() - (1000 * 60 * 60 * 24 * 365)).toISOString(),
-                    showConsumption: false
+                    showConsumption: true
                 },
                 chart: Object.assign({}, state.chart, {
-                    show: false,
+                    show: true,
                     fetchData: false,
                     config: Object.assign({}, state.chart.config, {
                         series: []
